@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>My Groups - GameConnect</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+</head>
+
+
+<body>
+
+<nav class="navbar navbar-dark bg-dark">
+
+    <div class="container">
+
+        <a
+            class="navbar-brand"
+            href="{{ url_for('dashboard') }}"
+        >
+            GameConnect
+        </a>
+
+        <div>
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="btn btn-outline-light"
+            >
+                Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('profile') }}"
+                class="btn btn-outline-light"
+            >
+                Profile
+            </a>
+
+            <a
+                href="{{ url_for('logout') }}"
+                class="btn btn-danger"
+            >
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<div class="container mt-5">
+
+    <h1>My Groups</h1>
+
+    <p class="text-muted">
+        Groups and teams you are currently part of.
+    </p>
+
+
+    {% if groups %}
+
+        <div class="row">
+
+            {% for group in groups %}
+
+            <div class="col-md-6 col-lg-4 mb-4">
+
+                <div class="card h-100 shadow-sm">
+
+                    <div class="card-body">
+
+                        <h4 class="card-title">
+                            {{ group.group_name }}
+                        </h4>
+
+                        <p>
+                            <strong>Game:</strong>
+                            {{ group.game_name }}
+                        </p>
+
+                        <p>
+                            <strong>Your role:</strong>
+                            {{ group.member_role }}
+                        </p>
+
+                        <p>
+                            <strong>Created:</strong>
+                            {{ group.created_at }}
+                        </p>
+
+                        <a
+                            href="{{ url_for(
+                                'group_details',
+                                group_id=group.group_id
+                            ) }}"
+                            class="btn btn-primary w-100"
+                        >
+                            View Group
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="alert alert-info">
+
+            You are not a member of any groups yet.
+
+        </div>
+
+        <a
+            href="{{ url_for('find_teammates') }}"
+            class="btn btn-primary"
+        >
+            Find Teammates
+        </a>
+
+    {% endif %}
+
+</div>
+
+</body>
+
+</html>

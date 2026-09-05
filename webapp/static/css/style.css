@@ -1,0 +1,17 @@
+body {
+    background-color: #f5f6fa;
+    font: Montserrat ExtraBold;
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.btn {
+    border-radius: 8px;
+}

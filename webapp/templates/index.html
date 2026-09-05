@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}
+GameConnect
+{% endblock %}
+
+
+{% block content %}
+
+<div class="text-center">
+
+    <h1 class="display-4 fw-bold">
+        Find Your Perfect Gaming Team
+    </h1>
+
+    <p class="lead mt-3">
+        GameConnect helps gamers find compatible teammates
+        based on games, skill level, roles, region and availability.
+    </p>
+
+    <div class="mt-4">
+
+        <a
+            href="{{ url_for('register') }}"
+            class="btn btn-primary btn-lg me-2"
+        >
+            Get Started
+        </a>
+
+        <a
+            href="{{ url_for('login') }}"
+            class="btn btn-outline-dark btn-lg"
+        >
+            Login
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="row mt-5">
+
+    <div class="col-md-4">
+
+        <div class="card h-100">
+
+            <div class="card-body text-center">
+
+                <h3>🎮</h3>
+
+                <h5>Multiple Games</h5>
+
+                <p>
+                    Create profiles for the games you enjoy.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="card h-100">
+
+            <div class="card-body text-center">
+
+                <h3>🤝</h3>
+
+                <h5>Find Teammates</h5>
+
+                <p>
+                    Find players with compatible skills
+                    and gaming preferences.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="card h-100">
+
+            <div class="card-body text-center">
+
+                <h3>🏆</h3>
+
+                <h5>Create Groups</h5>
+
+                <p>
+                    Build teams and organise gaming sessions.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
