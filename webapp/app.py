@@ -5,7 +5,8 @@ from flask import (
     redirect,
     url_for,
     flash,
-    session
+    session,
+    jsonify
 )
 from boto3.dynamodb.conditions import Key, Attr
 from werkzeug.security import (generate_password_hash,check_password_hash)
@@ -25,16 +26,8 @@ app.config.from_object(Config)
 # =========================
 
 @app.route("/")
-def home():
-    return """
-        <h1>GameConnect</h1>
-
-        <p>Welcome to GameConnect.</p>
-
-        <a href="/register">Register</a>
-        <br>
-        <a href="/login">Login</a>
-    """
+def index():
+     return render_template("index.html")
 
 
 # =========================
@@ -2185,6 +2178,186 @@ def delete_admin_game(game_id):
     )
 
     return redirect(url_for("admin_games"))
+
+@app.route("/api/lambda/users", methods=["GET"])
+def lambda_get_users():
+    try:
+        users_table = get_table(Config.USERS_TABLE)
+
+        result = users_table.scan(
+            ProjectionExpression="user_id, username, #email, #region",
+            ExpressionAttributeNames={
+                "#email": "email",
+                "#region": "region"
+            }
+        )
+
+        return jsonify({
+            "users": result.get("Items", [])
+        }), 200
+
+    except Exception as error:
+        print("Lambda API error:", str(error))
+
+        return jsonify({
+            "message": "Unable to retrieve users"
+        }), 500
+
+@app.route("/group/<group_id>/add-member", methods=["POST"])
+def add_group_member(group_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    current_user_id = session["user_id"]
+
+    groups_table = get_table(Config.GROUPS_TABLE)
+    members_table = get_table(Config.GROUP_MEMBERS_TABLE)
+    users_table = get_table(Config.USERS_TABLE)
+
+    # Get group
+    group_response = groups_table.get_item(
+        Key={"group_id": group_id}
+    )
+
+    group = group_response.get("Item")
+
+    if not group:
+        flash("Group not found.", "danger")
+        return redirect(url_for("groups"))
+
+    # Only owner can add teammates
+    if group.get("owner_id") != current_user_id:
+        flash(
+            "Only the group owner can add teammates.",
+            "danger"
+        )
+        return redirect(
+            url_for("group_details", group_id=group_id)
+        )
+
+    target_user_id = request.form.get("user_id")
+
+    if not target_user_id:
+        flash("Please select a player.", "warning")
+        return redirect(
+            url_for("group_details", group_id=group_id)
+        )
+
+    # Prevent adding yourself
+    if target_user_id == current_user_id:
+        flash(
+            "You cannot add yourself to your own group.",
+            "warning"
+        )
+        return redirect(
+            url_for("group_details", group_id=group_id)
+        )
+
+    # Check target user exists
+    user_response = users_table.get_item(
+        Key={"user_id": target_user_id}
+    )
+
+    target_user = user_response.get("Item")
+
+    if not target_user:
+        flash("Player not found.", "danger")
+        return redirect(
+            url_for("group_details", group_id=group_id)
+        )
+
+    # Check whether already a member
+    existing_member = members_table.get_item(
+        Key={
+            "group_id": group_id,
+            "user_id": target_user_id
+        }
+    )
+
+    if existing_member.get("Item"):
+        flash(
+            f"{target_user.get('username')} is already in the group.",
+            "warning"
+        )
+        return redirect(
+            url_for("group_details", group_id=group_id)
+        )
+
+    # Add player
+    members_table.put_item(
+        Item={
+            "group_id": group_id,
+            "user_id": target_user_id,
+            "username": target_user.get("username"),
+            "joined_at": datetime.utcnow().isoformat()
+        }
+    )
+
+    flash(
+        f"{target_user.get('username')} has been added to the group.",
+        "success"
+    )
+
+    return redirect(
+        url_for("group_details", group_id=group_id)
+    )
+
+@app.route("/group/<group_id>/search-players")
+def search_group_players(group_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    current_user_id = session["user_id"]
+
+    groups_table = get_table(Config.GROUPS_TABLE)
+    users_table = get_table(Config.USERS_TABLE)
+    members_table = get_table(Config.GROUP_MEMBERS_TABLE)
+
+    # Check group
+    group_response = groups_table.get_item(
+        Key={"group_id": group_id}
+    )
+
+    group = group_response.get("Item")
+
+    if not group:
+        flash("Group not found.", "danger")
+        return redirect(url_for("groups"))
+
+    # Only owner can search/add
+    if group.get("owner_id") != current_user_id:
+        flash(
+            "Only the group owner can add teammates.",
+            "danger"
+        )
+        return redirect(
+            url_for("group_details", group_id=group_id)
+        )
+
+    search = request.args.get("search", "").strip()
+
+    players = []
+
+    if search:
+
+        response = users_table.query(
+            IndexName="username-index",
+            KeyConditionExpression="username = :username",
+            ExpressionAttributeValues={
+                ":username": search
+            }
+        )
+
+        players = response.get("Items", [])
+
+    return render_template(
+        "search_group_players.html",
+        group=group,
+        players=players,
+        search=search
+    )
 
 # =========================
 # LOGOUT

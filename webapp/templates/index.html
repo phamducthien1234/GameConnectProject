@@ -1,59 +1,175 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}
-GameConnect
-{% endblock %}
+<head>
+    <meta charset="UTF-8">
 
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-{% block content %}
+    <title>GameConnect</title>
 
-<div class="text-center">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
-    <h1 class="display-4 fw-bold">
-        Find Your Perfect Gaming Team
-    </h1>
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+</head>
 
-    <p class="lead mt-3">
-        GameConnect helps gamers find compatible teammates
-        based on games, skill level, roles, region and availability.
-    </p>
+<body>
 
-    <div class="mt-4">
+<!-- Navigation Bar -->
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container">
 
         <a
-            href="{{ url_for('register') }}"
-            class="btn btn-primary btn-lg me-2"
+            class="navbar-brand"
+            href="{{ url_for('index') }}"
         >
-            Get Started
+            🎮 GameConnect
         </a>
 
-        <a
-            href="{{ url_for('login') }}"
-            class="btn btn-outline-dark btn-lg"
-        >
-            Login
-        </a>
+        <div>
+
+            {% if session.get('username') %}
+
+                <a
+                    class="btn btn-danger"
+                    href="{{ url_for('logout') }}"
+                >
+                    Logout
+                </a>
+
+            {% else %}
+
+
+            {% endif %}
+
+        </div>
+
+    </div>
+</nav>
+
+
+<!-- Main Content -->
+<main class="container py-5">
+
+    <!-- Hero Section -->
+    <div class="text-center">
+
+        <h1 class="display-4 fw-bold">
+            Find Your Perfect Gaming Team
+        </h1>
+
+        <p class="lead mt-3">
+            GameConnect helps gamers find compatible teammates
+            based on games, skill level, roles, region and availability.
+        </p>
+
+        <div class="mt-4">
+
+            {% if session.get('username') %}
+
+                <a
+                    href="{{ url_for('dashboard') }}"
+                    class="btn btn-primary btn-lg me-2"
+                >
+                    You are logged in, Come to Dashboard!
+                </a>
+
+            {% else %}
+
+                <a
+                    href="{{ url_for('register') }}"
+                    class="btn btn-primary btn-lg me-2"
+                >
+                    Get Started
+                </a>
+
+                <a
+                    href="{{ url_for('login') }}"
+                    class="btn btn-primary btn-lg me-2"
+                >
+                    Login
+                </a>
+
+            {% endif %}
+
+        </div>
 
     </div>
 
-</div>
+
+    <!-- Features Section -->
+    <div class="row mt-5">
+
+        <!-- Multiple Games -->
+        <div class="col-md-4">
+
+            <div class="card h-100">
+
+                <div class="card-body text-center">
+
+                    <h3>🎮</h3>
+
+                    <h5>Multiple Games</h5>
+
+                    <p>
+                        Create profiles for the games you enjoy.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
 
 
-<div class="row mt-5">
+        <!-- Find Teammates -->
+        <div class="col-md-4">
 
-    <div class="col-md-4">
+            <div class="card h-100">
 
-        <div class="card h-100">
+                <div class="card-body text-center">
 
-            <div class="card-body text-center">
+                    <h3>🤝</h3>
 
-                <h3>🎮</h3>
+                    <h5>Find Teammates</h5>
 
-                <h5>Multiple Games</h5>
+                    <p>
+                        Find players with compatible skills
+                        and gaming preferences.
+                    </p>
 
-                <p>
-                    Create profiles for the games you enjoy.
-                </p>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Create Groups -->
+        <div class="col-md-4">
+
+            <div class="card h-100">
+
+                <div class="card-body text-center">
+
+                    <h3>🏆</h3>
+
+                    <h5>Create Groups</h5>
+
+                    <p>
+                        Build teams and organise gaming sessions.
+                    </p>
+
+                </div>
 
             </div>
 
@@ -61,49 +177,7 @@ GameConnect
 
     </div>
 
+</main>
 
-    <div class="col-md-4">
-
-        <div class="card h-100">
-
-            <div class="card-body text-center">
-
-                <h3>🤝</h3>
-
-                <h5>Find Teammates</h5>
-
-                <p>
-                    Find players with compatible skills
-                    and gaming preferences.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="col-md-4">
-
-        <div class="card h-100">
-
-            <div class="card-body text-center">
-
-                <h3>🏆</h3>
-
-                <h5>Create Groups</h5>
-
-                <p>
-                    Build teams and organise gaming sessions.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-{% endblock %}
+</body>
+</html>
