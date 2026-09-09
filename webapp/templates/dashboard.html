@@ -54,6 +54,18 @@
     </div>
 </nav>
 
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash-container">
+            {% for message in messages %}
+                <div class="flash-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
 <div class="container mt-5">
     <div class="card shadow">
         <div class="card-body">
@@ -85,6 +97,13 @@
                 {{ user.bio or "No bio yet." }}
             </p>
 
+            <a
+                href="{{ url_for('game_deals') }}"
+                class="btn btn-primary"
+            >
+                Game Deals
+            </a>
+            
             <a
                 href="{{ url_for('profile') }}"
                 class="btn btn-primary"

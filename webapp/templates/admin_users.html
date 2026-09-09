@@ -54,6 +54,17 @@
 
 </nav>
 
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash-container">
+            {% for message in messages %}
+                <div class="flash-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
 
 <div class="container mt-5">
 
@@ -132,7 +143,7 @@
                             </td>
 
                             <td>
-                                {{ user.created_at }}
+                                {{ user.created_at | datetime}}
                             </td>
 
                             <td>

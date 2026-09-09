@@ -63,15 +63,25 @@
     </div>
 </nav>
 
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash-container">
+            {% for message in messages %}
+                <div class="flash-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
 
-<!-- Main Content -->
 <main class="container py-5">
 
     <!-- Hero Section -->
     <div class="text-center">
 
         <h1 class="display-4 fw-bold">
-            Find Your Perfect Gaming Team
+            Find Your Perfect Gaming Team and Cheapest Game Deals
         </h1>
 
         <p class="lead mt-3">
@@ -147,7 +157,7 @@
 
                     <h3>🤝</h3>
 
-                    <h5>Find Teammates</h5>
+                    <h5>Find Teammates and Games</h5>
 
                     <p>
                         Find players with compatible skills

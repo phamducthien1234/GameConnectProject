@@ -22,6 +22,8 @@
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
 
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
 </head>
 
 <body class="bg-light">
@@ -55,6 +57,17 @@
     </div>
 </nav>
 
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash-container">
+            {% for message in messages %}
+                <div class="flash-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
 
 <div class="container mt-5">
 
@@ -68,24 +81,7 @@
 
                     <h2 class="mb-4">
                         My Profile
-                    </h2>
-
-                    {% with messages = get_flashed_messages() %}
-
-                        {% if messages %}
-
-                            {% for message in messages %}
-
-                                <div class="alert alert-info">
-                                    {{ message }}
-                                </div>
-
-                            {% endfor %}
-
-                        {% endif %}
-
-                    {% endwith %}
-
+                    </h2>     
 
                     <form method="POST">
 

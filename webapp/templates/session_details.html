@@ -44,6 +44,18 @@
     </div>
 </nav>
 
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash-container">
+            {% for message in messages %}
+                <div class="flash-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
 <div class="container mt-5">
 
     <div class="card shadow">
@@ -67,7 +79,7 @@
 
             <p>
                 <strong>Date & Time:</strong>
-                {{ gaming_session.session_time }}
+                {{ gaming_session.session_time | datetime}}
             </p>
 
             <p>
@@ -77,7 +89,7 @@
 
             <p>
                 <strong>Created:</strong>
-                {{ gaming_session.created_at }}
+                {{ gaming_session.created_at | datetime}}
             </p>
 
         </div>
