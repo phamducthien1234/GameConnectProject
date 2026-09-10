@@ -1,8 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>GameConnect</title>
 
@@ -22,13 +29,19 @@
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script
+        src="{{ url_for('static', filename='js/main.js') }}"
+        defer
+    ></script>
 
 </head>
 
+
 <body class="bg-light">
 
+
 <nav class="navbar navbar-dark bg-dark">
+
     <div class="container">
 
         <a
@@ -39,35 +52,50 @@
         </a>
 
         <div>
+
             <a
-                href="/dashboard"
+                href="{{ url_for('dashboard') }}"
                 class="btn btn-outline-light"
             >
                 Dashboard
             </a>
 
             <a
-                href="/logout"
+                href="{{ url_for('logout') }}"
                 class="btn btn-danger"
             >
                 Logout
             </a>
+
         </div>
 
     </div>
+
 </nav>
 
-{% with messages = get_flashed_messages() %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+
     {% if messages %}
-        <div class="flash-container">
-            {% for message in messages %}
-                <div class="flash-message">
+
+        <div class="container mt-3">
+
+            {% for category, message in messages %}
+
+                <div
+                    class="alert alert-{{ category if category in ['success', 'danger', 'warning', 'info'] else 'info' }}"
+                >
                     {{ message }}
                 </div>
+
             {% endfor %}
+
         </div>
+
     {% endif %}
+
 {% endwith %}
+
 
 <div class="container mt-5">
 
@@ -81,9 +109,77 @@
 
                     <h2 class="mb-4">
                         My Profile
-                    </h2>     
+                    </h2>
 
-                    <form method="POST">
+
+                    <!-- PROFILE IMAGE -->
+
+                    <div class="text-center mb-4">
+
+                        {% if user.profile_image_url %}
+
+                            <img
+                                src="{{ user.profile_image_url }}"
+                                alt="Profile image"
+                                class="rounded-circle border shadow-sm"
+                                width="140"
+                                height="140"
+                                style="object-fit: cover;"
+                            >
+
+                        {% else %}
+
+                            <div
+                                class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto"
+                                style="
+                                    width: 140px;
+                                    height: 140px;
+                                    font-size: 50px;
+                                "
+                            >
+                                🎮
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- PROFILE FORM -->
+
+                    <form
+                        method="POST"
+                        enctype="multipart/form-data"
+                    >
+
+
+                        <!-- PROFILE IMAGE UPLOAD -->
+
+                        <div class="mb-3">
+
+                            <label
+                                for="profileImage"
+                                class="form-label"
+                            >
+                                Profile Image
+                            </label>
+
+                            <input
+                                type="file"
+                                name="profile_image"
+                                id="profileImage"
+                                class="form-control"
+                                accept=".jpg,.jpeg,.png,.webp"
+                            >
+
+                            <div class="form-text">
+                                JPG, JPEG, PNG or WEBP.
+                            </div>
+
+                        </div>
+
+
+                        <!-- USERNAME -->
 
                         <div class="mb-3">
 
@@ -101,6 +197,8 @@
                         </div>
 
 
+                        <!-- EMAIL -->
+
                         <div class="mb-3">
 
                             <label class="form-label">
@@ -116,6 +214,8 @@
 
                         </div>
 
+
+                        <!-- REGION -->
 
                         <div class="mb-3">
 
@@ -188,6 +288,8 @@
                         </div>
 
 
+                        <!-- BIO -->
+
                         <div class="mb-3">
 
                             <label class="form-label">
@@ -200,10 +302,12 @@
                                 rows="4"
                                 maxlength="500"
                                 placeholder="Tell other players about yourself..."
-                            >{{ user.bio }}</textarea>
+                            >{{ user.bio or "" }}</textarea>
 
                         </div>
 
+
+                        <!-- SAVE -->
 
                         <button
                             type="submit"
@@ -214,8 +318,11 @@
 
                     </form>
 
+
                     <hr class="my-4">
 
+
+                    <!-- MY GAMES -->
 
                     <div class="d-flex justify-content-between align-items-center">
 
@@ -224,7 +331,7 @@
                         </h4>
 
                         <a
-                            href="/profile/add-game"
+                            href="{{ url_for('add_game') }}"
                             class="btn btn-success"
                         >
                             + Add Game
@@ -245,19 +352,65 @@
                                         {{ game.game_name }}
                                     </h5>
 
-                                    <p class="mb-1">
-                                        <strong>Rank:</strong>
-                                        {{ game.rank }}
-                                    </p>
 
                                     <p class="mb-1">
-                                        <strong>Role:</strong>
-                                        {{ game.role }}
+
+                                        <strong>
+                                            Rank:
+                                        </strong>
+
+                                        {{ game.rank }}
+
                                     </p>
+
+
+                                    {% if game.riot_verified %}
+
+                                        <p class="mb-1">
+
+                                            <span class="badge bg-success">
+                                                Riot Verified
+                                            </span>
+
+                                        </p>
+
+                                    {% endif %}
+
+
+                                    {% if game.riot_game_name and game.riot_tag_line %}
+
+                                        <p class="mb-1">
+
+                                            <strong>
+                                                Riot ID:
+                                            </strong>
+
+                                            {{ game.riot_game_name }}#{{ game.riot_tag_line }}
+
+                                        </p>
+
+                                    {% endif %}
+
+
+                                    <p class="mb-1">
+
+                                        <strong>
+                                            Role:
+                                        </strong>
+
+                                        {{ game.role }}
+
+                                    </p>
+
 
                                     <p class="mb-0">
-                                        <strong>Availability:</strong>
+
+                                        <strong>
+                                            Availability:
+                                        </strong>
+
                                         {{ game.availability }}
+
                                     </p>
 
                                 </div>
@@ -282,6 +435,7 @@
 
     </div>
 
+
     <div class="mt-4 mb-5">
 
         <a
@@ -295,5 +449,7 @@
 
 </div>
 
+
 </body>
+
 </html>

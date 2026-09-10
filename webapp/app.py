@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from boto3.dynamodb.conditions import Key, Attr
+from services.s3 import (upload_profile_image, create_profile_image_url,save_analytics_event,read_json_folder)
 from werkzeug.security import generate_password_hash, check_password_hash
 from config import Config
 from services.dynamodb import get_table
@@ -100,29 +101,106 @@ def dashboard():
         return redirect(url_for('login'))
     return render_template('dashboard.html', user=user)
 
-@app.route('/profile', methods=['GET', 'POST'])
+@app.route("/profile", methods=["GET", "POST"])
 def profile():
-    if 'user_id' not in session:
-        flash('Please log in first.')
-        return redirect(url_for('login'))
-    users_table = get_table(app.config['USERS_TABLE'])
-    player_games_table = get_table(app.config['PLAYER_GAMES_TABLE'])
-    user_id = session['user_id']
-    if request.method == 'POST':
-        region = request.form.get('region', '').strip()
-        bio = request.form.get('bio', '').strip()
-        users_table.update_item(Key={'user_id': user_id}, UpdateExpression='SET #region = :region, bio = :bio', ExpressionAttributeNames={'#region': 'region'}, ExpressionAttributeValues={':region': region, ':bio': bio})
-        flash('Profile updated successfully.')
-        return redirect(url_for('profile'))
-    response = users_table.get_item(Key={'user_id': user_id})
-    user = response.get('Item')
+    if "user_id" not in session:
+        flash("Please log in first.")
+        return redirect(url_for("login"))
+
+    users_table = get_table(Config.USERS_TABLE)
+    player_games_table = get_table(Config.PLAYER_GAMES_TABLE)
+    user_id = session["user_id"]
+
+    if request.method == "POST":
+        region = request.form.get("region", "").strip()
+        bio = request.form.get("bio", "").strip()
+        profile_image = request.files.get("profile_image")
+
+        update_expression = "SET #region = :region, bio = :bio"
+        expression_names = {"#region": "region"}
+        expression_values = {
+            ":region": region,
+            ":bio": bio
+        }
+
+        if profile_image and profile_image.filename:
+            allowed_extensions = {"jpg", "jpeg", "png", "webp"}
+
+            if "." not in profile_image.filename:
+                flash("Invalid image file.", "danger")
+                return redirect(url_for("profile"))
+
+            extension = profile_image.filename.rsplit(".", 1)[-1].lower()
+
+            if extension not in allowed_extensions:
+                flash(
+                    "Profile image must be JPG, JPEG, PNG or WEBP.",
+                    "danger"
+                )
+                return redirect(url_for("profile"))
+
+            try:
+                object_key = upload_profile_image(
+                    profile_image,
+                    user_id
+                )
+
+                update_expression += ", profile_image_key = :image_key"
+                expression_values[":image_key"] = object_key
+
+            except Exception as error:
+                print("S3 upload error:", str(error))
+                flash(
+                    "Unable to upload profile image.",
+                    "danger"
+                )
+                return redirect(url_for("profile"))
+
+        users_table.update_item(
+            Key={"user_id": user_id},
+            UpdateExpression=update_expression,
+            ExpressionAttributeNames=expression_names,
+            ExpressionAttributeValues=expression_values
+        )
+
+        flash(
+            "Profile updated successfully.",
+            "success"
+        )
+
+        return redirect(url_for("profile"))
+
+    response = users_table.get_item(
+        Key={"user_id": user_id}
+    )
+
+    user = response.get("Item")
+
     if not user:
         session.clear()
-        flash('User account could not be found.')
-        return redirect(url_for('login'))
-    response = player_games_table.query(KeyConditionExpression='user_id = :user_id', ExpressionAttributeValues={':user_id': user_id})
-    player_games = response.get('Items', [])
-    return render_template('profile.html', user=user, player_games=player_games)
+        return redirect(url_for("login"))
+
+    user["profile_image_url"] = None
+
+    if user.get("profile_image_key"):
+        try:
+            user["profile_image_url"] = create_profile_image_url(
+                user["profile_image_key"]
+            )
+        except Exception as error:
+            print("S3 URL error:", str(error))
+
+    response = player_games_table.query(
+        KeyConditionExpression=Key("user_id").eq(user_id)
+    )
+
+    player_games = response.get("Items", [])
+
+    return render_template(
+        "profile.html",
+        user=user,
+        player_games=player_games
+    )
 
 @app.route('/profile/add-game', methods=['GET', 'POST'])
 def add_game():
@@ -212,6 +290,21 @@ def find_teammates():
                 candidate['score'] = score
                 recommendations.append(candidate)
             recommendations.sort(key=lambda player: player['score'], reverse=True)
+            try:
+                save_analytics_event(
+                    "teammate_search",
+                    user_id,
+                    {
+                        "game_id": selected_game_id,
+                        "game_name": game_name,
+                        "recommendation_count": len(recommendations)
+                    }
+                )
+            except Exception as error:
+                print(
+                    "Analytics event error:",
+                    str(error)
+                )
     return render_template('find_teammates.html', games=games, recommendations=recommendations, selected_game_id=selected_game_id)
 
 @app.route('/invite/<receiver_id>/<game_id>', methods=['POST'])
@@ -240,6 +333,21 @@ def invite_player(receiver_id, game_id):
     invitation_id = str(uuid.uuid4())
     invitation = {'receiver_id': receiver_id, 'invitation_id': invitation_id, 'sender_id': sender_id, 'sender_username': sender.get('username'), 'game_id': game_id, 'game_name': game.get('game_name'), 'status': 'pending', 'created_at': datetime.utcnow().isoformat()}
     invitations_table.put_item(Item=invitation)
+    try:
+        save_analytics_event(
+            "invitation_sent",
+            sender_id,
+            {
+                "receiver_id": receiver_id,
+                "game_id": game_id,
+                "game_name": game.get("game_name")
+            }
+        )
+    except Exception as error:
+        print(
+            "Analytics event error:",
+            str(error)
+        )
     flash('Invitation sent successfully!', 'success')
     return redirect(url_for('find_teammates', game_id=game_id))
 
@@ -413,6 +521,21 @@ def create_session():
         session_id = str(uuid.uuid4())
         gaming_session = {'session_id': session_id, 'group_id': group_id, 'session_name': session_name, 'session_time': session_time, 'description': description, 'created_by': user_id, 'created_at': datetime.utcnow().isoformat()}
         sessions_table.put_item(Item=gaming_session)
+        try:
+            save_analytics_event(
+                "session_created",
+                user_id,
+                {
+                    "session_id": session_id,
+                    "group_id": group_id,
+                    "session_name": session_name
+                }
+            )
+        except Exception as error:
+            print(
+                "Analytics event error:",
+                str(error)
+            )
         session_members_table = get_table(Config.SESSION_MEMBERS_TABLE)
         session_members_table.put_item(Item={'session_id': session_id, 'user_id': user_id, 'joined_at': datetime.utcnow().isoformat()})
         flash('Gaming session created successfully!', 'success')
@@ -512,6 +635,108 @@ def admin_dashboard():
     accepted_invitations_count = sum((1 for invitation in invitations if invitation.get('status') == 'accepted'))
     rejected_invitations_count = sum((1 for invitation in invitations if invitation.get('status') == 'rejected'))
     return render_template('admin_dashboard.html', users_count=users_count, games_count=games_count, groups_count=groups_count, sessions_count=sessions_count, player_games_count=player_games_count, memberships_count=memberships_count, pending_invitations_count=pending_invitations_count, accepted_invitations_count=accepted_invitations_count, rejected_invitations_count=rejected_invitations_count)
+
+@app.route("/admin/analytics")
+def admin_analytics():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    users_table = get_table(Config.USERS_TABLE)
+
+    user_response = users_table.get_item(
+        Key={"user_id": session["user_id"]}
+    )
+
+    current_user = user_response.get("Item")
+
+    if not current_user or current_user.get("role") != "admin":
+        flash(
+            "You do not have permission to access analytics.",
+            "danger"
+        )
+        return redirect(url_for("dashboard"))
+
+    base = "analytics/results/summary"
+
+    try:
+        event_counts = read_json_folder(
+            f"{base}/event_counts/"
+        )
+
+        game_search_counts = read_json_folder(
+            f"{base}/game_search_counts/"
+        )
+
+        average_recommendations_data = read_json_folder(
+            f"{base}/average_recommendations/"
+        )
+
+        active_users_data = read_json_folder(
+            f"{base}/active_users/"
+        )
+
+        session_count_data = read_json_folder(
+            f"{base}/session_count/"
+        )
+
+        invitation_count_data = read_json_folder(
+            f"{base}/invitation_count/"
+        )
+
+    except Exception as error:
+        print("Analytics read error:", str(error))
+
+        flash(
+            "Unable to load analytics data.",
+            "danger"
+        )
+
+        return render_template(
+            "admin_analytics.html",
+            event_counts=[],
+            game_search_counts=[],
+            average_recommendations=0,
+            active_users=0,
+            sessions_created=0,
+            invitations_sent=0
+        )
+
+    average_recommendations = 0
+
+    if average_recommendations_data:
+        average_recommendations = (
+            average_recommendations_data[0]
+            .get("average_recommendations", 0)
+            or 0
+        )
+
+    active_users = len(active_users_data)
+
+    sessions_created = 0
+
+    if session_count_data:
+        sessions_created = (
+            session_count_data[0]
+            .get("sessions_created", 0)
+        )
+
+    invitations_sent = 0
+
+    if invitation_count_data:
+        invitations_sent = (
+            invitation_count_data[0]
+            .get("invitations_sent", 0)
+        )
+
+    return render_template(
+        "admin_analytics.html",
+        event_counts=event_counts,
+        game_search_counts=game_search_counts,
+        average_recommendations=average_recommendations,
+        active_users=active_users,
+        sessions_created=sessions_created,
+        invitations_sent=invitations_sent
+    )
 
 @app.route('/admin/users')
 def admin_users():

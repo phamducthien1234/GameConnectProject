@@ -108,31 +108,24 @@ RANK_SYSTEMS = {
     "Minecraft": {}
 }
 
-
 def get_rank_value(game_name, rank):
-    """
-    Convert a player's rank into a numeric value
-    based on the game's ranking system.
-    """
-
     if not game_name or not rank:
         return None
 
     rank = str(rank).strip()
-    
-    system = RANK_SYSTEMS.get(game_name)
+
+    system = None
+
+    for name, rank_system in RANK_SYSTEMS.items():
+        if name.lower() == str(game_name).strip().lower():
+            system = rank_system
+            break
 
     if not system:
         return None
 
-    # Exact match first
     if rank in system:
         return float(system[rank])
-
-    # Handle divisions such as:
-    # Iron IV
-    # Gold II
-    # Diamond I
 
     rank_lower = rank.lower()
 
@@ -144,18 +137,12 @@ def get_rank_value(game_name, rank):
     }
 
     for tier, value in system.items():
-
         if rank_lower.startswith(tier.lower()):
-
             for division, division_value in divisions.items():
+                if re.search(rf"\b{division}\b", rank_lower):
+                    return value + division_value
 
-                if re.search(
-                    rf"\b{division}\b",
-                    rank_lower
-                ):
-                    return system[tier] + division_value
-
-            return float(system[tier])
+            return float(value)
 
     return None
 

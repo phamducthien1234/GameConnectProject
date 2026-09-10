@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Analytics - GameConnect</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+</head>
+
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-dark">
+
+    <div class="container">
+
+        <a
+            class="navbar-brand"
+            href="{{ url_for('admin_dashboard') }}"
+        >
+            🎮 GameConnect Admin
+        </a>
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="btn btn-outline-light"
+        >
+            Back to Admin
+        </a>
+
+    </div>
+
+</nav>
+
+
+<div class="container mt-5 mb-5">
+
+    <h2 class="mb-4">
+        GameConnect Analytics
+    </h2>
+
+
+    <div class="row">
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>
+                        Active Users
+                    </h6>
+
+                    <h2>
+                        {{ active_users }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>
+                        Sessions Created
+                    </h6>
+
+                    <h2>
+                        {{ sessions_created }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>
+                        Invitations Sent
+                    </h6>
+
+                    <h2>
+                        {{ invitations_sent }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>
+                        Avg Recommendations
+                    </h6>
+
+                    <h2>
+                        {{ "%.2f"|format(average_recommendations) }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="card shadow-sm mt-4">
+
+        <div class="card-body">
+
+            <h4>
+                Event Statistics
+            </h4>
+
+            {% if event_counts %}
+
+                <table class="table table-striped mt-3">
+
+                    <thead>
+
+                        <tr>
+                            <th>Event Type</th>
+                            <th>Total</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for event in event_counts %}
+
+                            <tr>
+
+                                <td>
+                                    {{ event.event_type }}
+                                </td>
+
+                                <td>
+                                    {{ event.total }}
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            {% else %}
+
+                <p class="text-muted">
+                    No event analytics available.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <div class="card shadow-sm mt-4">
+
+        <div class="card-body">
+
+            <h4>
+                Most Searched Games
+            </h4>
+
+            {% if game_search_counts %}
+
+                <table class="table table-striped mt-3">
+
+                    <thead>
+
+                        <tr>
+                            <th>Game</th>
+                            <th>Searches</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for game in game_search_counts %}
+
+                            <tr>
+
+                                <td>
+                                    {{ game.game_name }}
+                                </td>
+
+                                <td>
+                                    {{ game.search_count }}
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            {% else %}
+
+                <p class="text-muted">
+                    No game search analytics available.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
