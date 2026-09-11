@@ -105,10 +105,13 @@ RANK_SYSTEMS = {
         "Grandmaster": 9,
         "Challenger": 10,
     },
+
     "Minecraft": {}
 }
 
+
 def get_rank_value(game_name, rank):
+
     if not game_name or not rank:
         return None
 
@@ -117,7 +120,9 @@ def get_rank_value(game_name, rank):
     system = None
 
     for name, rank_system in RANK_SYSTEMS.items():
+
         if name.lower() == str(game_name).strip().lower():
+
             system = rank_system
             break
 
@@ -137,9 +142,15 @@ def get_rank_value(game_name, rank):
     }
 
     for tier, value in system.items():
+
         if rank_lower.startswith(tier.lower()):
+
             for division, division_value in divisions.items():
-                if re.search(rf"\b{division}\b", rank_lower):
+
+                if re.search(
+                    rf"\b{division}\b",
+                    rank_lower
+                ):
                     return value + division_value
 
             return float(value)
@@ -147,20 +158,44 @@ def get_rank_value(game_name, rank):
     return None
 
 
-def calculate_match_score(current_player, candidate):
+def calculate_match_score(
+    current_player,
+    candidate
+):
 
-    current_game = current_player.get("game_name", "")
-    candidate_game = candidate.get("game_name", "")
+    current_game = current_player.get(
+        "game_name",
+        ""
+    ).strip()
+
+    candidate_game = candidate.get(
+        "game_name",
+        ""
+    ).strip()
 
     if (
-        current_game
-        and candidate_game
-        and current_game.lower() != candidate_game.lower()
+        not current_game
+        or not candidate_game
     ):
         return 0
 
-    current_rank = current_player.get("rank", "")
-    candidate_rank = candidate.get("rank", "")
+    if (
+        current_game.lower()
+        != candidate_game.lower()
+    ):
+        return 0
+
+    score = 30
+
+    current_rank = current_player.get(
+        "rank",
+        ""
+    ).strip()
+
+    candidate_rank = candidate.get(
+        "rank",
+        ""
+    ).strip()
 
     current_rank_value = get_rank_value(
         current_game,
@@ -197,17 +232,18 @@ def calculate_match_score(current_player, candidate):
         and current_rank.lower()
         == candidate_rank.lower()
     ):
+
         score += 25
 
     current_role = current_player.get(
         "role",
         ""
-    )
+    ).strip()
 
     candidate_role = candidate.get(
         "role",
         ""
-    )
+    ).strip()
 
     if (
         current_role
@@ -215,17 +251,18 @@ def calculate_match_score(current_player, candidate):
         and current_role.lower()
         == candidate_role.lower()
     ):
+
         score += 20
 
     current_region = current_player.get(
         "region",
         ""
-    )
+    ).strip()
 
     candidate_region = candidate.get(
         "region",
         ""
-    )
+    ).strip()
 
     if (
         current_region
@@ -233,17 +270,18 @@ def calculate_match_score(current_player, candidate):
         and current_region.lower()
         == candidate_region.lower()
     ):
+
         score += 15
 
     current_availability = current_player.get(
         "availability",
         ""
-    )
+    ).strip()
 
     candidate_availability = candidate.get(
         "availability",
         ""
-    )
+    ).strip()
 
     if (
         current_availability
@@ -251,6 +289,7 @@ def calculate_match_score(current_player, candidate):
         and current_availability.lower()
         == candidate_availability.lower()
     ):
+
         score += 10
 
     return score
