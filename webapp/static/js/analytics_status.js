@@ -36,24 +36,18 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (state === "RUNNING") {
             badge.classList.add("bg-primary");
         } else {
-            badge.classList.add(
-                "bg-warning",
-                "text-dark"
-            );
+            badge.classList.add("bg-warning", "text-dark");
         }
     }
 
     async function checkStatus() {
         try {
-            const response = await fetch(
-                statusUrl,
-                {
-                    method: "GET",
-                    headers: {
-                        "Accept": "application/json"
-                    }
+            const response = await fetch(statusUrl, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
                 }
-            );
+            });
 
             const data = await response.json();
 
@@ -69,41 +63,26 @@ document.addEventListener("DOMContentLoaded", function () {
             setBadge(state);
 
             if (state === "PENDING") {
-
-                title.textContent =
-                    "Analytics job is waiting";
-
+                title.textContent = "Analytics job is waiting";
                 text.textContent =
                     "Amazon EMR is preparing the Spark analytics job.";
-
             } else if (state === "RUNNING") {
-
-                title.textContent =
-                    "Analytics job is running";
-
+                title.textContent = "Analytics job is running";
                 text.textContent =
                     "Amazon EMR is processing the latest GameConnect events.";
-
             } else if (state === "COMPLETED") {
-
-                title.textContent =
-                    "Analytics update completed";
-
+                title.textContent = "Analytics update completed";
                 text.textContent =
                     "Loading the latest analytics results...";
 
-                spinner.classList.add(
-                    "d-none"
-                );
+                spinner.classList.add("d-none");
 
                 setTimeout(function () {
                     window.location.reload();
                 }, 1500);
 
                 return;
-
             } else if (terminalStates.has(state)) {
-
                 title.textContent =
                     "Analytics update did not complete";
 
@@ -111,32 +90,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     data.message ||
                     `EMR job ended with status ${state}.`;
 
-                spinner.classList.add(
-                    "d-none"
-                );
+                spinner.classList.add("d-none");
 
                 return;
-
             } else {
-
-                title.textContent =
-                    "Checking analytics job";
-
-                text.textContent =
-                    `Current EMR status: ${state}`;
+                title.textContent = "Checking analytics job";
+                text.textContent = `Current EMR status: ${state}`;
             }
 
-            setTimeout(
-                checkStatus,
-                5000
-            );
-
+            setTimeout(checkStatus, 5000);
         } catch (error) {
-
-            console.error(
-                "Analytics status error:",
-                error
-            );
+            console.error("Analytics status error:", error);
 
             title.textContent =
                 "Unable to check analytics status";
@@ -144,16 +108,10 @@ document.addEventListener("DOMContentLoaded", function () {
             text.textContent =
                 "GameConnect will try again automatically.";
 
-            badge.textContent =
-                "RETRYING";
+            badge.textContent = "RETRYING";
+            badge.className = "badge bg-secondary";
 
-            badge.className =
-                "badge bg-secondary";
-
-            setTimeout(
-                checkStatus,
-                8000
-            );
+            setTimeout(checkStatus, 8000);
         }
     }
 

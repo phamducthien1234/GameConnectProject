@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,17 +26,12 @@
         type="image/png"
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
-
 </head>
-
 
 <body class="bg-light">
 
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -45,11 +39,8 @@
             🎮 GameConnect
         </a>
 
-
         <div class="d-flex gap-2">
-
             {% if session.get('username') %}
-
                 <a
                     href="{{ url_for('dashboard') }}"
                     class="btn btn-outline-light"
@@ -63,9 +54,7 @@
                 >
                     Logout
                 </a>
-
             {% else %}
-
                 <a
                     href="{{ url_for('login') }}"
                     class="btn btn-outline-light"
@@ -79,50 +68,30 @@
                 >
                     Register
                 </a>
-
             {% endif %}
-
         </div>
-
     </div>
-
 </nav>
 
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
-
 
 <main>
 
-
-    <!-- HERO -->
-
     <section class="home-hero">
-
         <div class="container">
-
             <div class="row align-items-center">
 
                 <div class="col-lg-7">
-
                     <span class="home-label">
                         Gaming Community Platform
                     </span>
@@ -140,11 +109,8 @@
                         current PC game deals.
                     </p>
 
-
                     <div class="d-flex flex-wrap gap-2 mt-4">
-
                         {% if session.get('username') %}
-
                             <a
                                 href="{{ url_for('dashboard') }}"
                                 class="btn btn-primary btn-lg"
@@ -158,9 +124,7 @@
                             >
                                 Find Teammates
                             </a>
-
                         {% else %}
-
                             <a
                                 href="{{ url_for('register') }}"
                                 class="btn btn-primary btn-lg"
@@ -174,18 +138,12 @@
                             >
                                 Login
                             </a>
-
                         {% endif %}
-
                     </div>
-
                 </div>
 
-
                 <div class="col-lg-5 mt-5 mt-lg-0">
-
                     <div class="home-hero-card">
-
                         <div class="home-hero-icon">
                             🎮
                         </div>
@@ -200,9 +158,7 @@
                             in one place.
                         </p>
 
-
                         <div class="home-stat-list">
-
                             <div>
                                 <strong>100</strong>
                                 <span>Compatibility Score</span>
@@ -217,28 +173,17 @@
                                 <strong>24/7</strong>
                                 <span>Player Discovery</span>
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
 
             </div>
-
         </div>
-
     </section>
 
-
-    <!-- FEATURES -->
-
     <section class="home-features">
-
         <div class="container">
-
             <div class="text-center mb-5">
-
                 <span class="home-label">
                     Features
                 </span>
@@ -251,17 +196,12 @@
                     GameConnect combines player matching,
                     group management and game discovery.
                 </p>
-
             </div>
-
 
             <div class="row g-4">
 
-
                 <div class="col-md-6 col-lg-3">
-
                     <div class="home-feature-card h-100">
-
                         <div class="home-feature-icon">
                             🎮
                         </div>
@@ -274,16 +214,11 @@
                             Add the games you play and store your
                             rank, preferred role and availability.
                         </p>
-
                     </div>
-
                 </div>
 
-
                 <div class="col-md-6 col-lg-3">
-
                     <div class="home-feature-card h-100">
-
                         <div class="home-feature-icon">
                             🤝
                         </div>
@@ -296,16 +231,11 @@
                             Discover compatible players using
                             your gaming profile and preferences.
                         </p>
-
                     </div>
-
                 </div>
 
-
                 <div class="col-md-6 col-lg-3">
-
                     <div class="home-feature-card h-100">
-
                         <div class="home-feature-icon">
                             👥
                         </div>
@@ -318,16 +248,11 @@
                             Build gaming teams, invite members
                             and manage your group community.
                         </p>
-
                     </div>
-
                 </div>
 
-
                 <div class="col-md-6 col-lg-3">
-
                     <div class="home-feature-card h-100">
-
                         <div class="home-feature-icon">
                             💰
                         </div>
@@ -340,26 +265,16 @@
                             Search for PC games and discover
                             current prices and available deals.
                         </p>
-
                     </div>
-
                 </div>
 
             </div>
-
         </div>
-
     </section>
 
-
-    <!-- HOW IT WORKS -->
-
     <section class="home-how-it-works">
-
         <div class="container">
-
             <div class="text-center mb-5">
-
                 <span class="home-label">
                     How It Works
                 </span>
@@ -367,16 +282,12 @@
                 <h2 class="mt-2">
                     Start Playing Together
                 </h2>
-
             </div>
-
 
             <div class="row g-4">
 
                 <div class="col-md-4">
-
                     <div class="home-step-card">
-
                         <div class="home-step-number">
                             1
                         </div>
@@ -389,16 +300,11 @@
                             Add your region, bio, games,
                             rank, role and playing availability.
                         </p>
-
                     </div>
-
                 </div>
 
-
                 <div class="col-md-4">
-
                     <div class="home-step-card">
-
                         <div class="home-step-number">
                             2
                         </div>
@@ -411,16 +317,11 @@
                             GameConnect compares player profiles
                             and recommends compatible teammates.
                         </p>
-
                     </div>
-
                 </div>
 
-
                 <div class="col-md-4">
-
                     <div class="home-step-card">
-
                         <div class="home-step-number">
                             3
                         </div>
@@ -433,26 +334,18 @@
                             Invite players, create groups and
                             organise gaming sessions together.
                         </p>
-
                     </div>
-
                 </div>
 
             </div>
-
         </div>
-
     </section>
 
-
 </main>
-
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
-
 </body>
-
 </html>

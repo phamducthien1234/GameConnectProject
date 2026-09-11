@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,17 +26,12 @@
         type="image/png"
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
-
 </head>
-
 
 <body class="bg-light">
 
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -46,7 +40,6 @@
         </a>
 
         <div class="d-flex gap-2">
-
             <a
                 href="{{ url_for('dashboard') }}"
                 class="btn btn-outline-light"
@@ -67,49 +60,28 @@
             >
                 Logout
             </a>
-
         </div>
-
     </div>
-
 </nav>
 
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
 
-
 <div class="container py-5">
-
-
     <div class="row justify-content-center">
-
         <div class="col-lg-8 col-xl-7">
 
-
-            <!-- PAGE HEADER -->
-
             <div class="create-group-header mb-4">
-
                 <div>
-
                     <span class="create-group-label">
                         Group Management
                     </span>
@@ -121,7 +93,6 @@
                     <p class="text-muted mb-0">
                         Create a team for your selected game and invite players to join later.
                     </p>
-
                 </div>
 
                 <a
@@ -130,37 +101,24 @@
                 >
                     Back to Groups
                 </a>
-
             </div>
 
-
-            <!-- CREATE GROUP CARD -->
-
             <div class="create-group-card">
-
                 <div class="mb-4">
-
                     <h3 class="mb-1">
-                       👥 Group Details
+                        👥 Group Details
                     </h3>
 
                     <p class="text-muted mb-0">
                         Choose a group name and the game your team will play.
                     </p>
-
                 </div>
-
 
                 <form
                     method="POST"
                     action="{{ url_for('create_group') }}"
                 >
-
-
-                    <!-- GROUP NAME -->
-
                     <div class="mb-4">
-
                         <label
                             for="group_name"
                             class="form-label fw-semibold"
@@ -181,14 +139,9 @@
                         <div class="form-text">
                             Choose a clear name that other players can recognize.
                         </div>
-
                     </div>
 
-
-                    <!-- GAME -->
-
                     <div class="mb-4">
-
                         <label
                             for="game_id"
                             class="form-label fw-semibold"
@@ -202,38 +155,28 @@
                             class="form-select form-select-lg"
                             required
                         >
-
                             <option value="">
                                 Select a game
                             </option>
 
                             {% for game in games %}
-
-                            <option value="{{ game.game_id }}">
-                                {{ game.game_name }}
-                            </option>
-
+                                <option value="{{ game.game_id }}">
+                                    {{ game.game_name }}
+                                </option>
                             {% endfor %}
-
                         </select>
 
                         <div class="form-text">
                             The group will be associated with this game.
                         </div>
-
                     </div>
 
-
-                    <!-- INFO BOX -->
-
                     <div class="create-group-info mb-4">
-
                         <div class="create-group-info-icon">
                             💡
                         </div>
 
                         <div>
-
                             <strong>
                                 What happens after creation?
                             </strong>
@@ -242,16 +185,10 @@
                                 You will become the group owner. You can then invite teammates,
                                 add members, edit the group, and create gaming sessions.
                             </p>
-
                         </div>
-
                     </div>
 
-
-                    <!-- ACTIONS -->
-
                     <div class="create-group-actions">
-
                         <a
                             href="{{ url_for('groups') }}"
                             class="btn btn-outline-secondary"
@@ -265,28 +202,17 @@
                         >
                             Create Group
                         </button>
-
                     </div>
-
-
                 </form>
-
             </div>
 
-
         </div>
-
     </div>
-
-
 </div>
-
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
-
 </body>
-
 </html>

@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,16 +26,12 @@
         type="image/png"
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
-
 </head>
 
 <body class="bg-light">
 
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -45,7 +40,6 @@
         </a>
 
         <div class="d-flex gap-2">
-
             <a
                 href="{{ url_for('groups') }}"
                 class="btn btn-outline-light"
@@ -66,46 +60,27 @@
             >
                 Logout
             </a>
-
         </div>
-
     </div>
-
 </nav>
 
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
-
 
 <div class="container py-5">
 
-
-    <!-- GROUP HEADER -->
-
     <div class="group-header-card shadow-sm mb-4">
-
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-
             <div>
-
                 <span class="group-label">
                     Gaming Group
                 </span>
@@ -115,7 +90,6 @@
                 </h1>
 
                 <div class="group-meta">
-
                     <span>
                         🎮 {{ group.game_name }}
                     </span>
@@ -123,39 +97,26 @@
                     <span>
                         📅 {{ group.created_at | datetime }}
                     </span>
-
                 </div>
-
             </div>
 
-
             {% if group.owner_id == current_user_id %}
-
-            <a
-                href="{{ url_for(
-                    'edit_group',
-                    group_id=group.group_id
-                ) }}"
-                class="btn btn-primary"
-            >
-                Edit Group
-            </a>
-
+                <a
+                    href="{{ url_for(
+                        'edit_group',
+                        group_id=group.group_id
+                    ) }}"
+                    class="btn btn-primary"
+                >
+                    Edit Group
+                </a>
             {% endif %}
-
         </div>
-
     </div>
 
-
-    <!-- OWNER -->
-
     <div class="mb-5">
-
         <div class="section-heading">
-
             <div>
-
                 <h3 class="mb-1">
                     Group Owner
                 </h3>
@@ -163,61 +124,41 @@
                 <p class="text-muted mb-0">
                     The player responsible for managing this group.
                 </p>
-
             </div>
-
         </div>
-
 
         {% if owner %}
-
-        <div class="owner-card mt-3">
-
-            <div class="owner-avatar">
-                {{ owner.username[0] | upper }}
-            </div>
-
-            <div class="flex-grow-1">
-
-                <div class="d-flex align-items-center gap-2 mb-1">
-
-                    <h4 class="mb-0">
-                        {{ owner.username }}
-                    </h4>
-
-                    <span class="badge bg-warning text-dark">
-                        Owner
-                    </span>
-
+            <div class="owner-card mt-3">
+                <div class="owner-avatar">
+                    {{ owner.username[0] | upper }}
                 </div>
 
-                <p class="text-muted mb-0">
-                    Region: {{ owner.region or "Not specified" }}
-                </p>
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <h4 class="mb-0">
+                            {{ owner.username }}
+                        </h4>
 
+                        <span class="badge bg-warning text-dark">
+                            Owner
+                        </span>
+                    </div>
+
+                    <p class="text-muted mb-0">
+                        Region: {{ owner.region or "Not specified" }}
+                    </p>
+                </div>
             </div>
-
-        </div>
-
         {% else %}
-
-        <div class="alert alert-warning mt-3">
-            This group currently has no owner information.
-        </div>
-
+            <div class="alert alert-warning mt-3">
+                This group currently has no owner information.
+            </div>
         {% endif %}
-
     </div>
 
-
-    <!-- MEMBERS -->
-
     <div class="mb-5">
-
         <div class="section-heading">
-
             <div>
-
                 <h3 class="mb-1">
                     Group Members
                 </h3>
@@ -225,118 +166,83 @@
                 <p class="text-muted mb-0">
                     Players currently participating in this group.
                 </p>
-
             </div>
-
 
             {% if group.owner_id == current_user_id %}
-
-            <a
-                href="{{ url_for(
-                    'search_group_players',
-                    group_id=group.group_id
-                ) }}"
-                class="btn btn-primary"
-            >
-                + Add Teammate
-            </a>
-
+                <a
+                    href="{{ url_for(
+                        'search_group_players',
+                        group_id=group.group_id
+                    ) }}"
+                    class="btn btn-primary"
+                >
+                    + Add Teammate
+                </a>
             {% endif %}
-
         </div>
-
 
         {% if members %}
+            <div class="row g-4 mt-1">
+                {% for member in members %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="member-card h-100">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="member-avatar">
+                                    {{ member.username[0] | upper }}
+                                </div>
 
-        <div class="row g-4 mt-1">
+                                <div>
+                                    <h5 class="mb-1">
+                                        {{ member.username }}
+                                    </h5>
 
-            {% for member in members %}
+                                    <span class="badge bg-secondary">
+                                        Member
+                                    </span>
+                                </div>
+                            </div>
 
-            <div class="col-md-6 col-lg-4">
+                            <p class="text-muted mb-3">
+                                Region:
+                                <strong>
+                                    {{ member.region or "Not specified" }}
+                                </strong>
+                            </p>
 
-                <div class="member-card h-100">
-
-                    <div class="d-flex align-items-center gap-3 mb-3">
-
-                        <div class="member-avatar">
-                            {{ member.username[0] | upper }}
+                            {% if group.owner_id == current_user_id %}
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'remove_group_member',
+                                        group_id=group.group_id,
+                                        target_user_id=member.user_id
+                                    ) }}"
+                                    onsubmit="return confirm(
+                                        'Are you sure you want to remove {{ member.username }} from this group?'
+                                    );"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="btn btn-outline-danger btn-sm w-100"
+                                    >
+                                        Remove Member
+                                    </button>
+                                </form>
+                            {% endif %}
                         </div>
-
-                        <div>
-
-                            <h5 class="mb-1">
-                                {{ member.username }}
-                            </h5>
-
-                            <span class="badge bg-secondary">
-                                Member
-                            </span>
-
-                        </div>
-
                     </div>
-
-
-                    <p class="text-muted mb-3">
-                        Region:
-                        <strong>
-                            {{ member.region or "Not specified" }}
-                        </strong>
-                    </p>
-
-
-                    {% if group.owner_id == current_user_id %}
-
-                    <form
-                        method="POST"
-                        action="{{ url_for(
-                            'remove_group_member',
-                            group_id=group.group_id,
-                            target_user_id=member.user_id
-                        ) }}"
-                        onsubmit="return confirm(
-                            'Are you sure you want to remove {{ member.username }} from this group?'
-                        );"
-                    >
-
-                        <button
-                            type="submit"
-                            class="btn btn-outline-danger btn-sm w-100"
-                        >
-                            Remove Member
-                        </button>
-
-                    </form>
-
-                    {% endif %}
-
-                </div>
-
+                {% endfor %}
             </div>
-
-            {% endfor %}
-
-        </div>
-
         {% else %}
-
-        <div class="empty-card mt-3">
-            No additional members are currently in this group.
-        </div>
-
+            <div class="empty-card mt-3">
+                No additional members are currently in this group.
+            </div>
         {% endif %}
-
     </div>
 
-
-    <!-- GAMING SESSIONS -->
-
     <div class="mb-5">
-
         <div class="section-heading">
-
             <div>
-
                 <h3 class="mb-1">
                     Gaming Sessions
                 </h3>
@@ -344,7 +250,6 @@
                 <p class="text-muted mb-0">
                     Upcoming sessions created for this group.
                 </p>
-
             </div>
 
             <a
@@ -356,95 +261,68 @@
             >
                 + Create Session
             </a>
-
         </div>
-
 
         {% if gaming_sessions %}
+            <div class="mt-3">
+                {% for gaming_session in gaming_sessions %}
+                    <div class="session-card mb-3">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <div>
+                                <h5 class="mb-2">
+                                    {{ gaming_session.session_name }}
+                                </h5>
 
-        <div class="mt-3">
+                                <p class="mb-1">
+                                    <strong>Time:</strong>
+                                    {{ gaming_session.session_time }}
+                                </p>
 
-            {% for gaming_session in gaming_sessions %}
+                                {% if gaming_session.description %}
+                                    <p class="text-muted mb-0">
+                                        {{ gaming_session.description }}
+                                    </p>
+                                {% endif %}
+                            </div>
 
-            <div class="session-card mb-3">
+                            <div class="session-actions">
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'join_session',
+                                        session_id=gaming_session.session_id
+                                    ) }}"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="btn btn-success"
+                                    >
+                                        Join
+                                    </button>
+                                </form>
 
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
-                    <div>
-
-                        <h5 class="mb-2">
-                            {{ gaming_session.session_name }}
-                        </h5>
-
-                        <p class="mb-1">
-                            <strong>Time:</strong>
-                            {{ gaming_session.session_time }}
-                        </p>
-
-
-                        {% if gaming_session.description %}
-
-                        <p class="text-muted mb-0">
-                            {{ gaming_session.description }}
-                        </p>
-
-                        {% endif %}
-
+                                <a
+                                    href="{{ url_for(
+                                        'session_details',
+                                        session_id=gaming_session.session_id
+                                    ) }}"
+                                    class="btn btn-outline-primary"
+                                >
+                                    View
+                                </a>
+                            </div>
+                        </div>
                     </div>
-
-
-                    <div class="session-actions">
-
-                        <form
-                            method="POST"
-                            action="{{ url_for(
-                                'join_session',
-                                session_id=gaming_session.session_id
-                            ) }}"
-                        >
-
-                            <button
-                                type="submit"
-                                class="btn btn-success"
-                            >
-                                Join
-                            </button>
-
-                        </form>
-
-
-                        <a
-                            href="{{ url_for(
-                                'session_details',
-                                session_id=gaming_session.session_id
-                            ) }}"
-                            class="btn btn-outline-primary"
-                        >
-                            View
-                        </a>
-
-                    </div>
-
-                </div>
-
+                {% endfor %}
             </div>
-
-            {% endfor %}
-
-        </div>
-
         {% else %}
-
-        <div class="empty-card mt-3">
-            No gaming sessions have been created yet.
-        </div>
-
+            <div class="empty-card mt-3">
+                No gaming sessions have been created yet.
+            </div>
         {% endif %}
-
     </div>
 
     <div class="group-footer-actions">
-
         <a
             href="{{ url_for('groups') }}"
             class="btn btn-primary"
@@ -463,42 +341,32 @@
                 'Are you sure you want to leave this group?'
             );"
         >
-
             {% if group.owner_id == current_user_id %}
-
-            <button
-                type="submit"
-                class="btn btn-danger"
-                onclick="return confirm(
-                    'You are the owner. Ownership will automatically transfer to another member. If no members remain, the group will be deleted. Continue?'
-                );"
-            >
-                Leave Group
-            </button>
-
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                    onclick="return confirm(
+                        'You are the owner. Ownership will automatically transfer to another member. If no members remain, the group will be deleted. Continue?'
+                    );"
+                >
+                    Leave Group
+                </button>
             {% else %}
-
-            <button
-                type="submit"
-                class="btn btn-danger"
-            >
-                Leave Group
-            </button>
-
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                >
+                    Leave Group
+                </button>
             {% endif %}
-
         </form>
-
     </div>
-    
-</div>
 
+</div>
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
-
 </body>
-
 </html>

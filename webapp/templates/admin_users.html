@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,17 +26,12 @@
         type="image/png"
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
-
 </head>
-
 
 <body class="bg-light">
 
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('admin_dashboard') }}"
@@ -51,42 +45,25 @@
         >
             Admin Dashboard
         </a>
-
     </div>
-
 </nav>
 
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
-
 
 <div class="container py-5">
 
-
-    <!-- PAGE HEADER -->
-
     <div class="admin-users-header mb-5">
-
         <div>
-
             <span class="admin-users-label">
                 User Management
             </span>
@@ -98,7 +75,6 @@
             <p class="text-muted mb-0">
                 View registered accounts and manage GameConnect users.
             </p>
-
         </div>
 
         <a
@@ -107,18 +83,11 @@
         >
             Back to Admin
         </a>
-
     </div>
 
-
-    <!-- USERS -->
-
     <div class="admin-users-card">
-
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-
             <div>
-
                 <h3 class="mb-1">
                     Registered Users
                 </h3>
@@ -126,249 +95,160 @@
                 <p class="text-muted mb-0">
                     Accounts currently registered on GameConnect.
                 </p>
-
             </div>
-
 
             <span class="admin-users-count">
                 {{ users|length }} Users
             </span>
-
         </div>
-
 
         {% if users %}
+            <div class="table-responsive">
+                <table class="table align-middle admin-users-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                User
+                            </th>
 
-        <div class="table-responsive">
+                            <th>
+                                Email
+                            </th>
 
-            <table class="table align-middle admin-users-table">
+                            <th>
+                                Region
+                            </th>
 
-                <thead>
+                            <th>
+                                Role
+                            </th>
 
-                    <tr>
+                            <th>
+                                Created
+                            </th>
 
-                        <th>
-                            User
-                        </th>
+                            <th class="text-end">
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
 
-                        <th>
-                            Email
-                        </th>
+                    <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="admin-user-avatar">
+                                            {{ user.username[0]|upper if user.username else "U" }}
+                                        </div>
 
-                        <th>
-                            Region
-                        </th>
+                                        <div>
+                                            <strong>
+                                                {{ user.username }}
+                                            </strong>
 
-                        <th>
-                            Role
-                        </th>
-
-                        <th>
-                            Created
-                        </th>
-
-                        <th class="text-end">
-                            Action
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    {% for user in users %}
-
-                    <tr>
-
-
-                        <!-- USER -->
-
-                        <td>
-
-                            <div class="d-flex align-items-center gap-3">
-
-                                <div class="admin-user-avatar">
-
-                                    {{ user.username[0]|upper if user.username else "U" }}
-
-                                </div>
-
-
-                                <div>
-
-                                    <strong>
-                                        {{ user.username }}
-                                    </strong>
-
-
-                                    {% if user.user_id == current_user_id %}
-
-                                    <div class="small text-muted">
-                                        Current account
+                                            {% if user.user_id == current_user_id %}
+                                                <div class="small text-muted">
+                                                    Current account
+                                                </div>
+                                            {% else %}
+                                                <div class="small text-muted">
+                                                    GameConnect user
+                                                </div>
+                                            {% endif %}
+                                        </div>
                                     </div>
+                                </td>
 
+                                <td>
+                                    <span class="admin-user-email">
+                                        {{ user.email }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {% if user.region %}
+                                        <span class="admin-region-badge">
+                                            🌍 {{ user.region }}
+                                        </span>
                                     {% else %}
-
-                                    <div class="small text-muted">
-                                        GameConnect user
-                                    </div>
-
+                                        <span class="text-muted">
+                                            Not specified
+                                        </span>
                                     {% endif %}
+                                </td>
 
-                                </div>
+                                <td>
+                                    {% if user.get("role") == "admin" %}
+                                        <span class="admin-role-badge admin-role-admin">
+                                            Admin
+                                        </span>
+                                    {% else %}
+                                        <span class="admin-role-badge admin-role-player">
+                                            Player
+                                        </span>
+                                    {% endif %}
+                                </td>
 
-                            </div>
+                                <td>
+                                    <span class="admin-created-date">
+                                        {{ user.created_at | datetime }}
+                                    </span>
+                                </td>
 
-                        </td>
-
-
-                        <!-- EMAIL -->
-
-                        <td>
-
-                            <span class="admin-user-email">
-                                {{ user.email }}
-                            </span>
-
-                        </td>
-
-
-                        <!-- REGION -->
-
-                        <td>
-
-                            {% if user.region %}
-
-                            <span class="admin-region-badge">
-                                🌍 {{ user.region }}
-                            </span>
-
-                            {% else %}
-
-                            <span class="text-muted">
-                                Not specified
-                            </span>
-
-                            {% endif %}
-
-                        </td>
-
-
-                        <!-- ROLE -->
-
-                        <td>
-
-                            {% if user.get("role") == "admin" %}
-
-                            <span class="admin-role-badge admin-role-admin">
-                                Admin
-                            </span>
-
-                            {% else %}
-
-                            <span class="admin-role-badge admin-role-player">
-                                Player
-                            </span>
-
-                            {% endif %}
-
-                        </td>
-
-
-                        <!-- CREATED -->
-
-                        <td>
-
-                            <span class="admin-created-date">
-                                {{ user.created_at | datetime }}
-                            </span>
-
-                        </td>
-
-
-                        <!-- ACTION -->
-
-                        <td class="text-end">
-
-                            {% if user.user_id != current_user_id %}
-
-                            <form
-                                action="{{ url_for(
-                                    'delete_user',
-                                    target_user_id=user.user_id
-                                ) }}"
-                                method="POST"
-                                class="d-inline"
-                                onsubmit="return confirm(
-                                    'Are you sure you want to delete this user?'
-                                );"
-                            >
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-outline-danger btn-sm"
-                                >
-                                    Delete
-                                </button>
-
-                            </form>
-
-
-                            {% else %}
-
-                            <span class="admin-current-account">
-                                You
-                            </span>
-
-                            {% endif %}
-
-                        </td>
-
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        {% else %}
-
-        <div class="admin-users-empty">
-
-            <div class="admin-users-empty-icon">
-                👤
+                                <td class="text-end">
+                                    {% if user.user_id != current_user_id %}
+                                        <form
+                                            action="{{ url_for(
+                                                'delete_user',
+                                                target_user_id=user.user_id
+                                            ) }}"
+                                            method="POST"
+                                            class="d-inline"
+                                            onsubmit="return confirm(
+                                                'Are you sure you want to delete this user?'
+                                            );"
+                                        >
+                                            <button
+                                                type="submit"
+                                                class="btn btn-outline-danger btn-sm"
+                                            >
+                                                Delete
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span class="admin-current-account">
+                                            You
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
+        {% else %}
+            <div class="admin-users-empty">
+                <div class="admin-users-empty-icon">
+                    👤
+                </div>
 
-            <h5>
-                No users found
-            </h5>
+                <h5>
+                    No users found
+                </h5>
 
-            <p class="text-muted mb-0">
-                There are currently no registered GameConnect users.
-            </p>
-
-        </div>
-
+                <p class="text-muted mb-0">
+                    There are currently no registered GameConnect users.
+                </p>
+            </div>
         {% endif %}
-
     </div>
 
-
 </div>
-
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
-
 </body>
-
 </html>

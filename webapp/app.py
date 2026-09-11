@@ -300,10 +300,6 @@ def find_teammates():
     recommendations = []
     random_teammates = []
 
-    # --------------------------------------------------
-    # RANDOM TEAMMATES
-    # --------------------------------------------------
-
     users_response = users_table.scan()
     all_users = users_response.get('Items', [])
 
@@ -378,10 +374,6 @@ def find_teammates():
                         ''
                     )
                 })
-
-    # --------------------------------------------------
-    # MATCHED TEAMMATES
-    # --------------------------------------------------
 
     if selected_game_id:
 
@@ -829,7 +821,6 @@ def group_details(group_id):
     games_table = get_table(Config.GAMES_TABLE)
     sessions_table = get_table(Config.SESSIONS_TABLE)
 
-    # Get group
     group_response = groups_table.get_item(
         Key={'group_id': group_id}
     )
@@ -840,7 +831,6 @@ def group_details(group_id):
         flash('Group not found.')
         return redirect(url_for('groups'))
 
-    # Check current user is a member
     membership_response = members_table.get_item(
         Key={
             'group_id': group_id,
@@ -854,7 +844,6 @@ def group_details(group_id):
         flash('You are not a member of this group.')
         return redirect(url_for('groups'))
 
-    # Get game name
     game_name = 'Unknown'
 
     if group.get('game_id'):
@@ -872,7 +861,6 @@ def group_details(group_id):
 
     group['game_name'] = game_name
 
-    # Get group members
     members_response = members_table.query(
         KeyConditionExpression=Key(
             'group_id'
@@ -912,13 +900,11 @@ def group_details(group_id):
             )
         }
 
-        # Separate owner from normal members
         if member['user_id'] == group.get('owner_id'):
             owner = member_data
         else:
             members.append(member_data)
 
-    # Get gaming sessions
     sessions_response = sessions_table.query(
         IndexName='group-session-index',
         KeyConditionExpression=Key(
@@ -992,13 +978,8 @@ def leave_group(group_id):
 
     is_owner = group.get("owner_id") == user_id
 
-    # --------------------------------------------------
-    # Owner is leaving
-    # --------------------------------------------------
-
     if is_owner:
 
-        # No members left -> delete the entire group
         if not remaining_members:
 
             sessions_response = sessions_table.query(
@@ -1044,10 +1025,6 @@ def leave_group(group_id):
 
             return redirect(url_for("groups"))
 
-        # --------------------------------------------------
-        # Choose the oldest remaining member as new owner
-        # --------------------------------------------------
-
         remaining_members.sort(
             key=lambda member: member.get("joined_at", "")
         )
@@ -1089,10 +1066,6 @@ def leave_group(group_id):
         flash("You left the group. Ownership was automatically transferred to another member.")
 
         return redirect(url_for("groups"))
-
-    # --------------------------------------------------
-    # Normal member leaves
-    # --------------------------------------------------
 
     members_table.delete_item(
         Key={
@@ -1703,7 +1676,6 @@ def remove_group_member(group_id, target_user_id):
         flash("Group not found.")
         return redirect(url_for("groups"))
 
-    # Only the owner can remove members
     if group.get("owner_id") != current_user_id:
         flash("Only the group owner can remove members.")
         return redirect(
@@ -1713,7 +1685,6 @@ def remove_group_member(group_id, target_user_id):
             )
         )
 
-    # Owner cannot remove themselves
     if target_user_id == current_user_id:
         flash("You cannot remove yourself. Use Leave Group instead.")
         return redirect(
@@ -1749,7 +1720,6 @@ def remove_group_member(group_id, target_user_id):
         else "Player"
     )
 
-    # Remove the player from gaming sessions belonging to this group
     sessions_response = sessions_table.query(
         IndexName="group-session-index",
         KeyConditionExpression=Key("group_id").eq(group_id)
@@ -1773,7 +1743,6 @@ def remove_group_member(group_id, target_user_id):
                 }
             )
 
-    # Remove from group
     members_table.delete_item(
         Key={
             "group_id": group_id,
@@ -1820,7 +1789,6 @@ def run_admin_analytics():
         if api_response.status_code in [200, 202] and data.get('success'):
             step_id = data.get('step_id', '')
 
-            # Save the EMR step ID so the page can track it
             session['analytics_step_id'] = step_id
 
             flash(
@@ -1957,7 +1925,6 @@ def logout():
     session.clear()
     flash('You have been logged out.')
     return redirect(url_for('login'))
-
 
 if __name__ == '__main__':
     app.run(debug=True)

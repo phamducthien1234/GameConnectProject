@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,17 +26,12 @@
         rel="stylesheet"
         href="{{ url_for('static', filename='css/style.css') }}"
     >
-
 </head>
-
 
 <body class="bg-light">
 
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -46,7 +40,6 @@
         </a>
 
         <div class="d-flex gap-2">
-
             <a
                 href="{{ url_for('dashboard') }}"
                 class="btn btn-outline-light"
@@ -67,46 +60,27 @@
             >
                 Logout
             </a>
-
         </div>
-
     </div>
-
 </nav>
 
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
-
 
 <div class="container py-5">
 
-
-    <!-- PAGE HEADER -->
-
     <div class="deals-header-card mb-4">
-
         <div class="row align-items-center">
-
             <div class="col-lg-8">
-
                 <span class="deals-label">
                     Game Marketplace
                 </span>
@@ -118,30 +92,20 @@
                 <p class="text-muted mb-0">
                     Search for current PC game prices and discover available deals.
                 </p>
-
             </div>
 
-
             <div class="col-lg-4 mt-3 mt-lg-0 text-lg-end">
-
                 <a
                     href="{{ url_for('dashboard') }}"
                     class="btn btn-primary"
                 >
                     Back to Dashboard
                 </a>
-
             </div>
-
         </div>
-
     </div>
 
-
-    <!-- SEARCH -->
-
     <div class="deals-search-card mb-5">
-
         <h3 class="mb-1">
             Search Game Deals
         </h3>
@@ -150,9 +114,7 @@
             Enter a game name to check current prices and offers.
         </p>
 
-
         <div class="input-group">
-
             <input
                 type="text"
                 id="gameSearch"
@@ -167,19 +129,13 @@
             >
                 Search
             </button>
-
         </div>
-
     </div>
-
-
-    <!-- LOADING -->
 
     <div
         id="loading"
         class="deals-loading d-none"
     >
-
         <div
             class="spinner-border"
             role="status"
@@ -188,16 +144,10 @@
         <p class="mt-2 mb-0">
             Searching for deals...
         </p>
-
     </div>
 
-
-    <!-- FEATURED / RESULTS HEADER -->
-
     <div class="section-heading mb-3">
-
         <div>
-
             <h3 class="mb-1">
                 Featured Games
             </h3>
@@ -205,9 +155,7 @@
             <p class="text-muted mb-0">
                 Discover popular games or search for something specific.
             </p>
-
         </div>
-
 
         <button
             type="button"
@@ -216,18 +164,14 @@
         >
             ↻ Show Different Games
         </button>
-
     </div>
-
 
     <div
         id="results"
         class="row g-4"
     ></div>
 
-
 </div>
-
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
@@ -237,7 +181,5 @@
     src="{{ url_for('static', filename='js/game_deals.js') }}"
 ></script>
 
-
 </body>
-
 </html>

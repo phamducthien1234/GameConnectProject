@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,17 +26,12 @@
         type="image/png"
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
-
 </head>
-
 
 <body class="bg-light">
 
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -46,9 +40,7 @@
         </a>
 
         <div class="d-flex gap-2">
-
             {% if session.get('username') %}
-
                 <a
                     href="{{ url_for('dashboard') }}"
                     class="btn btn-outline-light"
@@ -62,59 +54,37 @@
                 >
                     Logout
                 </a>
-
             {% else %}
-
                 <a
                     href="{{ url_for('login') }}"
                     class="btn btn-primary"
                 >
                     Login
                 </a>
-
             {% endif %}
-
         </div>
-
     </div>
-
 </nav>
 
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
 
-
 <main class="register-page">
-
     <div class="container">
-
         <div class="row justify-content-center">
-
             <div class="col-lg-6 col-md-8">
-
                 <div class="register-card">
 
-
                     <div class="text-center mb-4">
-
                         <div class="register-icon">
                             🎮
                         </div>
@@ -131,15 +101,10 @@
                             Create your gaming profile and start finding
                             compatible teammates and groups.
                         </p>
-
                     </div>
 
-
                     <form method="POST">
-
-
                         <div class="mb-3">
-
                             <label class="form-label">
                                 Username
                             </label>
@@ -151,12 +116,9 @@
                                 placeholder="Choose a username"
                                 required
                             >
-
                         </div>
 
-
                         <div class="mb-3">
-
                             <label class="form-label">
                                 Email
                             </label>
@@ -168,12 +130,9 @@
                                 placeholder="Enter your email"
                                 required
                             >
-
                         </div>
 
-
                         <div class="mb-3">
-
                             <label class="form-label">
                                 Password
                             </label>
@@ -185,12 +144,9 @@
                                 placeholder="Create a password"
                                 required
                             >
-
                         </div>
 
-
                         <div class="mb-4">
-
                             <label class="form-label">
                                 Region
                             </label>
@@ -200,7 +156,6 @@
                                 class="form-select register-input"
                                 required
                             >
-
                                 <option value="">
                                     Select your region
                                 </option>
@@ -228,11 +183,8 @@
                                 <option value="JP">
                                     Japan
                                 </option>
-
                             </select>
-
                         </div>
-
 
                         <button
                             type="submit"
@@ -240,18 +192,13 @@
                         >
                             Create Account
                         </button>
-
                     </form>
 
-
                     <div class="register-divider">
-
                         <span>
                             Already have an account?
                         </span>
-
                     </div>
-
 
                     <a
                         href="{{ url_for('login') }}"
@@ -260,35 +207,24 @@
                         Login to GameConnect
                     </a>
 
-
                     <div class="text-center mt-4">
-
                         <a
                             href="{{ url_for('index') }}"
                             class="register-home-link"
                         >
                             ← Back to Home
                         </a>
-
                     </div>
 
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </main>
-
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
-
 </body>
-
 </html>

@@ -120,14 +120,6 @@ body {
     color: #6c757d;
 }
 
-.section-heading {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
 .owner-card {
     display: flex;
     align-items: center;
@@ -204,15 +196,6 @@ body {
     color: #6c757d;
 }
 
-.group-footer-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 24px;
-    border-top: 1px solid #dee2e6;
-    margin-bottom: 40px;
-}
-
 @media (max-width: 768px) {
 
     .group-header-card {
@@ -251,11 +234,11 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 16px;
-    margin-top: 40px;
-    margin-bottom: 40px;
     padding-top: 24px;
     border-top: 1px solid #dee2e6;
+    margin-bottom: 40px;
+    gap: 16px;
+    margin-top: 40px;
 }
 
 .group-footer-actions form {
@@ -396,14 +379,6 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-}
-
-.section-heading {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
 }
 
 .teammate-card {
@@ -604,14 +579,6 @@ body {
 #results .card-title {
     font-weight: 700;
     margin-bottom: 10px;
-}
-
-.section-heading {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
 }
 
 @media (max-width: 768px) {
@@ -892,10 +859,6 @@ body {
     }
 }
 
-/* ============================= */
-/* INVITATIONS PAGE              */
-/* ============================= */
-
 .invitations-header-card {
     background: white;
     border: 1px solid #e5e7eb;
@@ -1020,10 +983,6 @@ body {
         padding: 35px 20px;
     }
 }
-
-/* ============================= */
-/* HOME PAGE                     */
-/* ============================= */
 
 .home-hero {
     padding: 90px 0;
@@ -1195,10 +1154,6 @@ body {
     }
 }
 
-/* ============================= */
-/* LOGIN PAGE                    */
-/* ============================= */
-
 .login-page {
     min-height: calc(100vh - 70px);
     display: flex;
@@ -1294,10 +1249,6 @@ body {
     }
 }
 
-/* ============================= */
-/* REGISTER PAGE                 */
-/* ============================= */
-
 .register-page {
     min-height: calc(100vh - 70px);
     display: flex;
@@ -1392,10 +1343,6 @@ body {
         padding: 25px;
     }
 }
-
-/* ============================= */
-/* SESSION DETAILS PAGE          */
-/* ============================= */
 
 .session-details-header {
     background: white;
@@ -1527,51 +1474,8 @@ body {
     }
 }
 
-/* ============================= */
-/* ADMIN MANAGEMENT              */
-/* ============================= */
-
 .admin-management-section {
     margin-bottom: 50px;
-}
-
-.admin-management-card {
-    display: flex;
-    flex-direction: column;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    padding: 26px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.admin-management-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
-
-.admin-management-icon {
-    width: 58px;
-    height: 58px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f1f3f5;
-    font-size: 28px;
-    margin-bottom: 18px;
-}
-
-.admin-management-card h4 {
-    font-size: 20px;
-    margin-bottom: 10px;
-}
-
-.admin-management-card p {
-    flex-grow: 1;
-    font-size: 14px;
-    line-height: 1.6;
 }
 
 @media (max-width: 768px) {
@@ -1580,10 +1484,6 @@ body {
         padding: 22px;
     }
 }
-
-/* ============================= */
-/* ADMIN ANALYTICS PAGE          */
-/* ============================= */
 
 .analytics-header-card {
     background: white;
@@ -1711,10 +1611,6 @@ body {
     }
 }
 
-/* ============================= */
-/* ANALYTICS LIVE JOB STATUS     */
-/* ============================= */
-
 .analytics-job-status {
     background: white;
     border: 1px solid #e5e7eb;
@@ -1731,10 +1627,6 @@ body {
 .analytics-job-status .spinner-border {
     color: #0d6efd;
 }
-
-/* ============================= */
-/* CREATE GROUP PAGE             */
-/* ============================= */
 
 .create-group-header {
     display: flex;
@@ -1838,10 +1730,6 @@ body {
     }
 }
 
-/* ============================= */
-/* CREATE SESSION PAGE           */
-/* ============================= */
-
 .create-session-header {
     display: flex;
     justify-content: space-between;
@@ -1943,9 +1831,6 @@ body {
         width: 100%;
     }
 }
-/* ============================= */
-/* ADD GAME PAGE                 */
-/* ============================= */
 
 .add-game-header {
     display: flex;
@@ -2076,10 +1961,6 @@ body {
     }
 }
 
-/* ============================= */
-/* ADMIN DASHBOARD               */
-/* ============================= */
-
 .admin-dashboard-header {
     background: white;
     border: 1px solid #e5e7eb;
@@ -2144,9 +2025,6 @@ body {
     margin-bottom: 0;
 }
 
-
-/* PLATFORM ACTIVITY */
-
 .admin-activity-card {
     background: white;
     border: 1px solid #e5e7eb;
@@ -2182,9 +2060,6 @@ body {
     font-size: 18px;
 }
 
-
-/* INVITATIONS */
-
 .admin-invitation-card {
     background: white;
     border: 1px solid #e5e7eb;
@@ -2212,17 +2087,14 @@ body {
     font-size: 24px;
 }
 
-
-/* MANAGEMENT */
-
 .admin-management-card {
+    display: flex;
+    flex-direction: column;
     background: white;
     border: 1px solid #e5e7eb;
     border-radius: 18px;
     padding: 26px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
-    display: flex;
-    flex-direction: column;
     transition: 0.2s ease;
 }
 
@@ -2234,25 +2106,25 @@ body {
 .admin-management-icon {
     width: 58px;
     height: 58px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #f1f3f5;
-    border-radius: 16px;
     font-size: 27px;
     margin-bottom: 18px;
 }
 
 .admin-management-card h4 {
     font-size: 20px;
+    margin-bottom: 10px;
 }
 
 .admin-management-card p {
     flex-grow: 1;
+    font-size: 14px;
+    line-height: 1.6;
 }
-
-
-/* RESPONSIVE */
 
 @media (max-width: 768px) {
 
@@ -2267,10 +2139,6 @@ body {
         padding: 20px;
     }
 }
-
-/* ============================= */
-/* ADMIN GAME MANAGEMENT         */
-/* ============================= */
 
 .admin-games-header {
     display: flex;
@@ -2416,10 +2284,6 @@ body {
         max-width: 140px;
     }
 }
-
-/* ============================= */
-/* ADMIN USER MANAGEMENT         */
-/* ============================= */
 
 .admin-users-header {
     display: flex;
@@ -2578,10 +2442,6 @@ body {
         width: 100%;
     }
 }
-
-/* ============================= */
-/* EDIT GROUP PAGE               */
-/* ============================= */
 
 .edit-group-header {
     display: flex;

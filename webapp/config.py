@@ -28,5 +28,5 @@ class Config:
     INVITATIONS_TABLE = "Invitations"
 
     SESSIONS_TABLE = "Sessions"
-    
+
     SESSION_MEMBERS_TABLE = "SessionMembers"

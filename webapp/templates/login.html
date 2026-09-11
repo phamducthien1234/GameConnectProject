@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,17 +26,12 @@
         type="image/png"
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
-
 </head>
-
 
 <body class="bg-light">
 
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -46,9 +40,7 @@
         </a>
 
         <div class="d-flex gap-2">
-
             {% if session.get('username') %}
-
                 <a
                     href="{{ url_for('dashboard') }}"
                     class="btn btn-outline-light"
@@ -62,58 +54,37 @@
                 >
                     Logout
                 </a>
-
             {% else %}
-
                 <a
                     href="{{ url_for('register') }}"
                     class="btn btn-primary"
                 >
                     Register
                 </a>
-
             {% endif %}
-
         </div>
-
     </div>
-
 </nav>
 
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
 
-
 <main class="login-page">
-
     <div class="container">
-
         <div class="row justify-content-center align-items-center">
-
             <div class="col-lg-5 col-md-7">
-
                 <div class="login-card">
 
                     <div class="text-center mb-4">
-
                         <div class="login-icon">
                             🎮
                         </div>
@@ -130,15 +101,10 @@
                             Sign in to find teammates, manage groups
                             and join gaming sessions.
                         </p>
-
                     </div>
 
-
                     <form method="POST">
-
-
                         <div class="mb-3">
-
                             <label class="form-label">
                                 Username
                             </label>
@@ -150,12 +116,9 @@
                                 placeholder="Enter your username"
                                 required
                             >
-
                         </div>
 
-
                         <div class="mb-4">
-
                             <label class="form-label">
                                 Password
                             </label>
@@ -167,9 +130,7 @@
                                 placeholder="Enter your password"
                                 required
                             >
-
                         </div>
-
 
                         <button
                             type="submit"
@@ -177,16 +138,13 @@
                         >
                             Login
                         </button>
-
                     </form>
-
 
                     <div class="login-divider">
                         <span>
                             New to GameConnect?
                         </span>
                     </div>
-
 
                     <a
                         href="{{ url_for('register') }}"
@@ -195,34 +153,24 @@
                         Create an Account
                     </a>
 
-
                     <div class="text-center mt-4">
-
                         <a
                             href="{{ url_for('index') }}"
                             class="login-home-link"
                         >
                             ← Back to Home
                         </a>
-
                     </div>
 
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </main>
-
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
-
 </body>
-
 </html>

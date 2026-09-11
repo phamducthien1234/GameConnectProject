@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,17 +26,12 @@
         type="image/png"
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
-
 </head>
-
 
 <body class="bg-light">
 
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -46,7 +40,6 @@
         </a>
 
         <div class="d-flex gap-2">
-
             <a
                 href="{{ url_for('dashboard') }}"
                 class="btn btn-outline-light"
@@ -67,46 +60,27 @@
             >
                 Logout
             </a>
-
         </div>
-
     </div>
-
 </nav>
 
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
-
 
 <div class="container py-5">
 
-
-    <!-- PAGE HEADER -->
-
     <div class="invitations-header-card mb-5">
-
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
             <div>
-
                 <span class="invitations-label">
                     Team Requests
                 </span>
@@ -118,9 +92,7 @@
                 <p class="text-muted mb-0">
                     Review teammate invitations sent to your GameConnect account.
                 </p>
-
             </div>
-
 
             <a
                 href="{{ url_for('dashboard') }}"
@@ -128,18 +100,11 @@
             >
                 Back to Dashboard
             </a>
-
         </div>
-
     </div>
 
-
-    <!-- INVITATION SECTION -->
-
     <div class="section-heading mb-3">
-
         <div>
-
             <h3 class="mb-1">
                 Your Invitations
             </h3>
@@ -147,228 +112,155 @@
             <p class="text-muted mb-0">
                 Accept or reject invitations from other players.
             </p>
-
         </div>
-
     </div>
-
 
     {% if invitations %}
+        <div class="row g-4">
+            {% for invitation in invitations %}
+                <div class="col-md-6">
+                    <div class="invitation-card h-100">
 
+                        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="invitation-avatar">
+                                    {{ invitation.sender_username[0] | upper }}
+                                </div>
 
-    <div class="row g-4">
+                                <div>
+                                    <h4 class="mb-1">
+                                        {{ invitation.sender_username }}
+                                    </h4>
 
-        {% for invitation in invitations %}
+                                    <span class="text-muted">
+                                        Team Invitation
+                                    </span>
+                                </div>
+                            </div>
 
-        <div class="col-md-6">
-
-            <div class="invitation-card h-100">
-
-
-                <!-- INVITATION HEADER -->
-
-                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
-
-                    <div class="d-flex align-items-center gap-3">
-
-                        <div class="invitation-avatar">
-                            {{ invitation.sender_username[0] | upper }}
+                            {% if invitation.status == "pending" %}
+                                <span class="badge bg-warning text-dark">
+                                    Pending
+                                </span>
+                            {% elif invitation.status == "accepted" %}
+                                <span class="badge bg-success">
+                                    Accepted
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger">
+                                    Rejected
+                                </span>
+                            {% endif %}
                         </div>
 
-                        <div>
-
-                            <h4 class="mb-1">
-                                {{ invitation.sender_username }}
-                            </h4>
-
-                            <span class="text-muted">
-                                Team Invitation
+                        <div class="invitation-game">
+                            <span>
+                                Game
                             </span>
 
+                            <strong>
+                                🎮 {{ invitation.game_name }}
+                            </strong>
                         </div>
 
+                        <p class="invitation-message">
+                            <strong>
+                                {{ invitation.sender_username }}
+                            </strong>
+                            wants to play
+                            <strong>
+                                {{ invitation.game_name }}
+                            </strong>
+                            with you.
+                        </p>
+
+                        {% if invitation.status == "pending" %}
+                            <div class="invitation-actions mt-auto">
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'respond_invitation',
+                                        invitation_id=invitation.invitation_id
+                                    ) }}"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="response"
+                                        value="accepted"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-success w-100"
+                                    >
+                                        Accept Invitation
+                                    </button>
+                                </form>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'respond_invitation',
+                                        invitation_id=invitation.invitation_id
+                                    ) }}"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="response"
+                                        value="rejected"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-outline-danger w-100"
+                                    >
+                                        Reject
+                                    </button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="invitation-status-message mt-auto">
+                                {% if invitation.status == "accepted" %}
+                                    This invitation has been accepted.
+                                {% else %}
+                                    This invitation has been rejected.
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
                     </div>
-
-
-                    {% if invitation.status == "pending" %}
-
-                    <span class="badge bg-warning text-dark">
-                        Pending
-                    </span>
-
-                    {% elif invitation.status == "accepted" %}
-
-                    <span class="badge bg-success">
-                        Accepted
-                    </span>
-
-                    {% else %}
-
-                    <span class="badge bg-danger">
-                        Rejected
-                    </span>
-
-                    {% endif %}
-
                 </div>
-
-
-                <!-- GAME INFORMATION -->
-
-                <div class="invitation-game">
-
-                    <span>
-                        Game
-                    </span>
-
-                    <strong>
-                        🎮 {{ invitation.game_name }}
-                    </strong>
-
-                </div>
-
-
-                <p class="invitation-message">
-                    <strong>
-                        {{ invitation.sender_username }}
-                    </strong>
-                    wants to play
-                    <strong>
-                        {{ invitation.game_name }}
-                    </strong>
-                    with you.
-                </p>
-
-
-                <!-- ACTIONS -->
-
-                {% if invitation.status == "pending" %}
-
-                <div class="invitation-actions mt-auto">
-
-
-                    <form
-                        method="POST"
-                        action="{{ url_for(
-                            'respond_invitation',
-                            invitation_id=invitation.invitation_id
-                        ) }}"
-                    >
-
-                        <input
-                            type="hidden"
-                            name="response"
-                            value="accepted"
-                        >
-
-                        <button
-                            type="submit"
-                            class="btn btn-success w-100"
-                        >
-                            Accept Invitation
-                        </button>
-
-                    </form>
-
-
-                    <form
-                        method="POST"
-                        action="{{ url_for(
-                            'respond_invitation',
-                            invitation_id=invitation.invitation_id
-                        ) }}"
-                    >
-
-                        <input
-                            type="hidden"
-                            name="response"
-                            value="rejected"
-                        >
-
-                        <button
-                            type="submit"
-                            class="btn btn-outline-danger w-100"
-                        >
-                            Reject
-                        </button>
-
-                    </form>
-
-
-                </div>
-
-                {% else %}
-
-
-                <div class="invitation-status-message mt-auto">
-
-                    {% if invitation.status == "accepted" %}
-
-                        This invitation has been accepted.
-
-                    {% else %}
-
-                        This invitation has been rejected.
-
-                    {% endif %}
-
-                </div>
-
-
-                {% endif %}
-
-
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="invitations-empty-state">
+            <div class="invitations-empty-icon">
+                🔔
             </div>
 
+            <h3>
+                No Invitations
+            </h3>
+
+            <p class="text-muted">
+                You currently have no teammate invitations.
+                Find players and create groups to start connecting with other gamers.
+            </p>
+
+            <a
+                href="{{ url_for('find_teammates') }}"
+                class="btn btn-primary"
+            >
+                Find Teammates
+            </a>
         </div>
-
-        {% endfor %}
-
-    </div>
-
-
-    {% else %}
-
-
-    <!-- EMPTY STATE -->
-
-    <div class="invitations-empty-state">
-
-        <div class="invitations-empty-icon">
-            🔔
-        </div>
-
-        <h3>
-            No Invitations
-        </h3>
-
-        <p class="text-muted">
-            You currently have no teammate invitations.
-            Find players and create groups to start connecting with other gamers.
-        </p>
-
-
-        <a
-            href="{{ url_for('find_teammates') }}"
-            class="btn btn-primary"
-        >
-            Find Teammates
-        </a>
-
-    </div>
-
-
     {% endif %}
 
-
 </div>
-
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
-
 </body>
-
 </html>

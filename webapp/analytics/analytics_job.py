@@ -44,10 +44,6 @@ df = spark.read.json(INPUT_PATH)
 
 print("Total events:", df.count())
 
-# --------------------------------------------------
-# 1. Event type counts
-# --------------------------------------------------
-
 event_counts = (
     df.groupBy("event_type")
     .agg(count("*").alias("total"))
@@ -57,10 +53,6 @@ event_counts = (
 event_counts.write.mode("overwrite").json(
     OUTPUT_PATH + "/event_counts"
 )
-
-# --------------------------------------------------
-# 2. Most searched games
-# --------------------------------------------------
 
 teammate_searches = df.filter(
     col("event_type") == "teammate_search"
@@ -77,10 +69,6 @@ game_search_counts.write.mode("overwrite").json(
     OUTPUT_PATH + "/game_search_counts"
 )
 
-# --------------------------------------------------
-# 3. Average recommendation count
-# --------------------------------------------------
-
 average_recommendations = (
     teammate_searches
     .agg(
@@ -93,10 +81,6 @@ average_recommendations.write.mode("overwrite").json(
     OUTPUT_PATH + "/average_recommendations"
 )
 
-# --------------------------------------------------
-# 4. Active users
-# --------------------------------------------------
-
 active_users = (
     df.select("user_id")
     .distinct()
@@ -105,10 +89,6 @@ active_users = (
 active_users.write.mode("overwrite").json(
     OUTPUT_PATH + "/active_users"
 )
-
-# --------------------------------------------------
-# 5. Session creation count
-# --------------------------------------------------
 
 session_events = df.filter(
     col("event_type") == "session_created"
@@ -122,10 +102,6 @@ session_count = (
 session_count.write.mode("overwrite").json(
     OUTPUT_PATH + "/session_count"
 )
-
-# --------------------------------------------------
-# 6. Invitation count
-# --------------------------------------------------
 
 invitation_events = df.filter(
     col("event_type") == "invitation_sent"

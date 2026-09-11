@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,17 +26,12 @@
         type="image/png"
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
-
 </head>
-
 
 <body class="bg-light">
 
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -46,7 +40,6 @@
         </a>
 
         <div class="d-flex gap-2">
-
             <a
                 href="{{ url_for('dashboard') }}"
                 class="btn btn-outline-light"
@@ -60,48 +53,28 @@
             >
                 Gaming Sessions
             </a>
-
         </div>
-
     </div>
-
 </nav>
 
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
 
-
 <div class="container py-5">
-
     <div class="row justify-content-center">
-
         <div class="col-lg-8 col-xl-7">
 
-
-            <!-- PAGE HEADER -->
-
             <div class="create-session-header mb-4">
-
                 <div>
-
                     <span class="create-session-label">
                         Gaming Sessions
                     </span>
@@ -113,9 +86,7 @@
                     <p class="text-muted mb-0">
                         Schedule a session with one of your groups.
                     </p>
-
                 </div>
-
 
                 <a
                     href="{{ url_for('sessions') }}"
@@ -123,16 +94,10 @@
                 >
                     Back to Sessions
                 </a>
-
             </div>
 
-
-            <!-- SESSION FORM CARD -->
-
             <div class="create-session-card">
-
                 <div class="mb-4">
-
                     <h3 class="mb-1">
                         🎮 Session Details
                     </h3>
@@ -140,17 +105,11 @@
                     <p class="text-muted mb-0">
                         Enter the details for your upcoming gaming session.
                     </p>
-
                 </div>
-
 
                 <form method="POST">
 
-
-                    <!-- GROUP -->
-
                     <div class="mb-4">
-
                         <label
                             for="group_id"
                             class="form-label fw-semibold"
@@ -164,37 +123,28 @@
                             class="form-select form-select-lg"
                             required
                         >
-
                             <option value="">
                                 Select a group
                             </option>
 
                             {% for group in groups %}
-
-                            <option
-                                value="{{ group.group_id }}"
-                                {% if selected_group_id == group.group_id %}
-                                    selected
-                                {% endif %}
-                            >
-                                {{ group.group_name }}
-                            </option>
-
+                                <option
+                                    value="{{ group.group_id }}"
+                                    {% if selected_group_id == group.group_id %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ group.group_name }}
+                                </option>
                             {% endfor %}
-
                         </select>
 
                         <div class="form-text">
                             Choose the group that will participate in this session.
                         </div>
-
                     </div>
 
-
-                    <!-- SESSION NAME -->
-
                     <div class="mb-4">
-
                         <label
                             for="session_name"
                             class="form-label fw-semibold"
@@ -215,14 +165,9 @@
                         <div class="form-text">
                             Give your session a clear and recognizable name.
                         </div>
-
                     </div>
 
-
-                    <!-- DATE AND TIME -->
-
                     <div class="mb-4">
-
                         <label
                             for="session_time"
                             class="form-label fw-semibold"
@@ -241,14 +186,9 @@
                         <div class="form-text">
                             Select when the gaming session will begin.
                         </div>
-
                     </div>
 
-
-                    <!-- DESCRIPTION -->
-
                     <div class="mb-4">
-
                         <label
                             for="description"
                             class="form-label fw-semibold"
@@ -267,20 +207,14 @@
                         <div class="form-text">
                             Add any useful information for players joining the session.
                         </div>
-
                     </div>
 
-
-                    <!-- INFO BOX -->
-
                     <div class="create-session-info mb-4">
-
                         <div class="create-session-info-icon">
                             💡
                         </div>
 
                         <div>
-
                             <strong>
                                 After creating the session
                             </strong>
@@ -289,16 +223,10 @@
                                 The session will appear in your group and Gaming Sessions page.
                                 Group members will be able to view and join it.
                             </p>
-
                         </div>
-
                     </div>
 
-
-                    <!-- ACTION BUTTONS -->
-
                     <div class="create-session-actions">
-
                         <a
                             href="{{ url_for('sessions') }}"
                             class="btn btn-outline-secondary"
@@ -312,27 +240,18 @@
                         >
                             Create Session
                         </button>
-
                     </div>
 
-
                 </form>
-
             </div>
 
-
         </div>
-
     </div>
-
 </div>
-
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
-
 </body>
-
 </html>

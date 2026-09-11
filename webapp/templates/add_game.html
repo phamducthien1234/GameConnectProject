@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,17 +26,12 @@
         type="image/png"
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
-
 </head>
-
 
 <body class="bg-light">
 
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -46,7 +40,6 @@
         </a>
 
         <div class="d-flex gap-2">
-
             <a
                 href="{{ url_for('dashboard') }}"
                 class="btn btn-outline-light"
@@ -67,48 +60,28 @@
             >
                 Logout
             </a>
-
         </div>
-
     </div>
-
 </nav>
 
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
 
-
 <div class="container py-5">
-
     <div class="row justify-content-center">
-
         <div class="col-lg-8 col-xl-7">
 
-
-            <!-- PAGE HEADER -->
-
             <div class="add-game-header mb-4">
-
                 <div>
-
                     <span class="add-game-label">
                         Player Profile
                     </span>
@@ -120,9 +93,7 @@
                     <p class="text-muted mb-0">
                         Add a game to your profile so GameConnect can recommend compatible teammates.
                     </p>
-
                 </div>
-
 
                 <a
                     href="{{ url_for('profile') }}"
@@ -130,16 +101,10 @@
                 >
                     Back to Profile
                 </a>
-
             </div>
 
-
-            <!-- FORM CARD -->
-
             <div class="add-game-card">
-
                 <div class="mb-4">
-
                     <h3 class="mb-1">
                         🎮 Game Profile
                     </h3>
@@ -147,17 +112,11 @@
                     <p class="text-muted mb-0">
                         Enter your game, rank, role and availability.
                     </p>
-
                 </div>
-
 
                 <form method="POST">
 
-
-                    <!-- GAME -->
-
                     <div class="mb-4">
-
                         <label
                             for="gameSelect"
                             class="form-label fw-semibold"
@@ -171,47 +130,36 @@
                             class="form-select form-select-lg"
                             required
                         >
-
                             <option value="">
                                 Select a game
                             </option>
 
                             {% for game in games %}
-
-                            <option
-                                value="{{ game.game_id }}"
-                                data-name="{{ game.game_name }}"
-                            >
-                                {{ game.game_name }}
-                            </option>
-
+                                <option
+                                    value="{{ game.game_id }}"
+                                    data-name="{{ game.game_name }}"
+                                >
+                                    {{ game.game_name }}
+                                </option>
                             {% endfor %}
-
                         </select>
 
                         <div class="form-text">
                             Select the game you want to add to your GameConnect profile.
                         </div>
-
                     </div>
-
-
-                    <!-- RIOT ACCOUNT SECTION -->
 
                     <div
                         id="riotSection"
                         class="riot-account-card mb-4"
                         style="display: none;"
                     >
-
                         <div class="d-flex align-items-start gap-3">
-
                             <div class="riot-account-icon">
                                 ⚔️
                             </div>
 
                             <div class="flex-grow-1">
-
                                 <h4 class="mb-1">
                                     Riot Account Verification
                                 </h4>
@@ -220,11 +168,8 @@
                                     Enter your Riot ID to retrieve your League of Legends profile and rank.
                                 </p>
 
-
                                 <div class="row g-3">
-
                                     <div class="col-md-6">
-
                                         <label
                                             for="riotGameName"
                                             class="form-label fw-semibold"
@@ -238,12 +183,9 @@
                                             class="form-control"
                                             placeholder="e.g. João"
                                         >
-
                                     </div>
 
-
                                     <div class="col-md-6">
-
                                         <label
                                             for="riotTagLine"
                                             class="form-label fw-semibold"
@@ -257,11 +199,8 @@
                                             class="form-control"
                                             placeholder="e.g. VN123"
                                         >
-
                                     </div>
-
                                 </div>
-
 
                                 <button
                                     type="button"
@@ -271,12 +210,10 @@
                                     Fetch Riot Profile
                                 </button>
 
-
                                 <div
                                     id="riotResult"
                                     class="mt-3"
                                 ></div>
-
 
                                 <input
                                     type="hidden"
@@ -301,18 +238,11 @@
                                     name="riot_rank"
                                     id="riotRank"
                                 >
-
                             </div>
-
                         </div>
-
                     </div>
 
-
-                    <!-- RANK -->
-
                     <div class="mb-4">
-
                         <label
                             for="rank"
                             class="form-label fw-semibold"
@@ -335,14 +265,9 @@
                         >
                             Enter your current rank.
                         </div>
-
                     </div>
 
-
-                    <!-- ROLE -->
-
                     <div class="mb-4">
-
                         <label
                             for="role"
                             class="form-label fw-semibold"
@@ -362,14 +287,9 @@
                         <div class="form-text">
                             Enter your preferred role or position.
                         </div>
-
                     </div>
 
-
-                    <!-- AVAILABILITY -->
-
                     <div class="mb-4">
-
                         <label
                             for="availability"
                             class="form-label fw-semibold"
@@ -389,20 +309,14 @@
                         <div class="form-text">
                             Tell other players when you are usually available.
                         </div>
-
                     </div>
 
-
-                    <!-- INFO BOX -->
-
                     <div class="add-game-info mb-4">
-
                         <div class="add-game-info-icon">
                             💡
                         </div>
 
                         <div>
-
                             <strong>
                                 How this information is used
                             </strong>
@@ -411,16 +325,10 @@
                                 GameConnect uses your game, rank, role and availability
                                 to calculate teammate compatibility and improve recommendations.
                             </p>
-
                         </div>
-
                     </div>
 
-
-                    <!-- ACTIONS -->
-
                     <div class="add-game-actions">
-
                         <a
                             href="{{ url_for('profile') }}"
                             class="btn btn-outline-secondary"
@@ -434,37 +342,26 @@
                         >
                             Add Game
                         </button>
-
                     </div>
 
-
                 </form>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
-
 
 <script>
     window.GAMECONNECT_API_BASE =
         "https://q4bibcud7b.execute-api.us-east-1.amazonaws.com";
 </script>
 
-
 <script
     src="{{ url_for('static', filename='js/add_game.js') }}"
 ></script>
-
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
-
 </body>
-
 </html>

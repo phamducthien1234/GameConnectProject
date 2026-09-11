@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,19 +26,12 @@
         type="image/png"
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
-
 </head>
-
 
 <body class="bg-light">
 
-
-<!-- NAVBAR -->
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('admin_dashboard') }}"
@@ -53,44 +45,25 @@
         >
             Player Dashboard
         </a>
-
     </div>
-
 </nav>
 
-
-<!-- FLASH MESSAGES -->
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
-
 
 <div class="container py-5">
 
-
-    <!-- PAGE HEADER -->
-
     <div class="admin-dashboard-header mb-5">
-
         <div>
-
             <span class="admin-dashboard-label">
                 Administration
             </span>
@@ -102,18 +75,11 @@
             <p class="text-muted mb-0">
                 Monitor platform activity, manage GameConnect data and review analytics.
             </p>
-
         </div>
-
     </div>
 
-
-    <!-- PLATFORM OVERVIEW -->
-
     <div class="section-heading mb-3">
-
         <div>
-
             <h3 class="mb-1">
                 Platform Overview
             </h3>
@@ -121,21 +87,13 @@
             <p class="text-muted mb-0">
                 Current GameConnect platform statistics.
             </p>
-
         </div>
-
     </div>
-
 
     <div class="row g-4">
 
-
-        <!-- USERS -->
-
         <div class="col-md-6 col-lg-3">
-
             <div class="admin-stat-card h-100">
-
                 <div class="admin-stat-icon">
                     👤
                 </div>
@@ -151,18 +109,11 @@
                 <p>
                     Registered GameConnect accounts.
                 </p>
-
             </div>
-
         </div>
 
-
-        <!-- GAMES -->
-
         <div class="col-md-6 col-lg-3">
-
             <div class="admin-stat-card h-100">
-
                 <div class="admin-stat-icon">
                     🎮
                 </div>
@@ -178,18 +129,11 @@
                 <p>
                     Games available on the platform.
                 </p>
-
             </div>
-
         </div>
 
-
-        <!-- GROUPS -->
-
         <div class="col-md-6 col-lg-3">
-
             <div class="admin-stat-card h-100">
-
                 <div class="admin-stat-icon">
                     👥
                 </div>
@@ -205,18 +149,11 @@
                 <p>
                     Player groups currently created.
                 </p>
-
             </div>
-
         </div>
 
-
-        <!-- SESSIONS -->
-
         <div class="col-md-6 col-lg-3">
-
             <div class="admin-stat-card h-100">
-
                 <div class="admin-stat-icon">
                     🕹️
                 </div>
@@ -232,21 +169,13 @@
                 <p>
                     Gaming sessions created by groups.
                 </p>
-
             </div>
-
         </div>
-
 
     </div>
 
-
-    <!-- PLATFORM ACTIVITY -->
-
     <div class="section-heading mt-5 mb-3">
-
         <div>
-
             <h3 class="mb-1">
                 Platform Activity
             </h3>
@@ -254,23 +183,14 @@
             <p class="text-muted mb-0">
                 Player participation and community activity.
             </p>
-
         </div>
-
     </div>
-
 
     <div class="row g-4">
 
-
-        <!-- PLAYER GAMES -->
-
         <div class="col-md-4">
-
             <div class="admin-activity-card h-100">
-
                 <div class="admin-activity-top">
-
                     <div class="admin-activity-icon">
                         🎯
                     </div>
@@ -278,7 +198,6 @@
                     <span class="admin-activity-value">
                         {{ player_games_count }}
                     </span>
-
                 </div>
 
                 <h4>
@@ -288,20 +207,12 @@
                 <p class="text-muted mb-0">
                     Game profiles created by players.
                 </p>
-
             </div>
-
         </div>
 
-
-        <!-- MEMBERSHIPS -->
-
         <div class="col-md-4">
-
             <div class="admin-activity-card h-100">
-
                 <div class="admin-activity-top">
-
                     <div class="admin-activity-icon">
                         👥
                     </div>
@@ -309,7 +220,6 @@
                     <span class="admin-activity-value">
                         {{ memberships_count }}
                     </span>
-
                 </div>
 
                 <h4>
@@ -319,20 +229,12 @@
                 <p class="text-muted mb-0">
                     Players currently participating in groups.
                 </p>
-
             </div>
-
         </div>
 
-
-        <!-- PENDING INVITATIONS -->
-
         <div class="col-md-4">
-
             <div class="admin-activity-card h-100">
-
                 <div class="admin-activity-top">
-
                     <div class="admin-activity-icon">
                         ✉️
                     </div>
@@ -340,7 +242,6 @@
                     <span class="admin-activity-value">
                         {{ pending_invitations_count }}
                     </span>
-
                 </div>
 
                 <h4>
@@ -350,21 +251,13 @@
                 <p class="text-muted mb-0">
                     Invitations currently waiting for a response.
                 </p>
-
             </div>
-
         </div>
-
 
     </div>
 
-
-    <!-- INVITATION STATISTICS -->
-
     <div class="admin-invitation-card mt-5">
-
         <div class="mb-4">
-
             <h3 class="mb-1">
                 Invitation Statistics
             </h3>
@@ -372,17 +265,12 @@
             <p class="text-muted mb-0">
                 Current status of teammate invitations.
             </p>
-
         </div>
-
 
         <div class="row g-3">
 
-
             <div class="col-md-4">
-
                 <div class="invitation-status-item">
-
                     <span class="invitation-status-label">
                         Pending
                     </span>
@@ -390,16 +278,11 @@
                     <strong>
                         {{ pending_invitations_count }}
                     </strong>
-
                 </div>
-
             </div>
 
-
             <div class="col-md-4">
-
                 <div class="invitation-status-item">
-
                     <span class="invitation-status-label">
                         Accepted
                     </span>
@@ -407,16 +290,11 @@
                     <strong>
                         {{ accepted_invitations_count }}
                     </strong>
-
                 </div>
-
             </div>
 
-
             <div class="col-md-4">
-
                 <div class="invitation-status-item">
-
                     <span class="invitation-status-label">
                         Rejected
                     </span>
@@ -424,25 +302,15 @@
                     <strong>
                         {{ rejected_invitations_count }}
                     </strong>
-
                 </div>
-
             </div>
 
-
         </div>
-
     </div>
 
-
-    <!-- MANAGEMENT -->
-
     <div class="admin-management-section mt-5">
-
         <div class="section-heading mb-3">
-
             <div>
-
                 <h3 class="mb-1">
                     Management
                 </h3>
@@ -450,21 +318,13 @@
                 <p class="text-muted mb-0">
                     Manage users, games and platform analytics.
                 </p>
-
             </div>
-
         </div>
-
 
         <div class="row g-4">
 
-
-            <!-- MANAGE USERS -->
-
             <div class="col-md-4">
-
                 <div class="admin-management-card h-100">
-
                     <div class="admin-management-icon">
                         👤
                     </div>
@@ -483,18 +343,11 @@
                     >
                         Manage Users
                     </a>
-
                 </div>
-
             </div>
 
-
-            <!-- MANAGE GAMES -->
-
             <div class="col-md-4">
-
                 <div class="admin-management-card h-100">
-
                     <div class="admin-management-icon">
                         🎮
                     </div>
@@ -513,18 +366,11 @@
                     >
                         Manage Games
                     </a>
-
                 </div>
-
             </div>
 
-
-            <!-- ANALYTICS -->
-
             <div class="col-md-4">
-
                 <div class="admin-management-card h-100">
-
                     <div class="admin-management-icon">
                         📊
                     </div>
@@ -543,25 +389,18 @@
                     >
                         View Analytics
                     </a>
-
                 </div>
-
             </div>
 
-
         </div>
-
     </div>
 
-
 </div>
-
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
-
 </body>
-
 </html>
+```

@@ -1,16 +1,12 @@
 import boto3
 from config import Config
 
-
 dynamodb = boto3.resource(
     "dynamodb",
     region_name=Config.AWS_REGION
 )
 
-table = dynamodb.Table(
-    Config.GAMES_TABLE
-)
-
+table = dynamodb.Table(Config.GAMES_TABLE)
 
 games = [
     {
@@ -65,16 +61,8 @@ games = [
     }
 ]
 
-
 for game in games:
-
-    table.put_item(
-        Item=game
-    )
-
-    print(
-        f"Added: {game['game_name']}"
-    )
-
+    table.put_item(Item=game)
+    print(f"Added: {game['game_name']}")
 
 print("Finished seeding games.")

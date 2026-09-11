@@ -149,28 +149,15 @@ def get_rank_value(game_name, rank):
 
 def calculate_match_score(current_player, candidate):
 
-    # Base score
-    score = 30
-
-    # ========================================
-    # GAME
-    # ========================================
-
     current_game = current_player.get("game_name", "")
     candidate_game = candidate.get("game_name", "")
 
-    # Different games should not normally
-    # be matched together.
     if (
         current_game
         and candidate_game
         and current_game.lower() != candidate_game.lower()
     ):
         return 0
-
-    # ========================================
-    # RANK - 25 POINTS
-    # ========================================
 
     current_rank = current_player.get("rank", "")
     candidate_rank = candidate.get("rank", "")
@@ -210,12 +197,7 @@ def calculate_match_score(current_player, candidate):
         and current_rank.lower()
         == candidate_rank.lower()
     ):
-        # Unknown/special rank but exact same text
         score += 25
-
-    # ========================================
-    # ROLE - 20 POINTS
-    # ========================================
 
     current_role = current_player.get(
         "role",
@@ -235,10 +217,6 @@ def calculate_match_score(current_player, candidate):
     ):
         score += 20
 
-    # ========================================
-    # REGION - 15 POINTS
-    # ========================================
-
     current_region = current_player.get(
         "region",
         ""
@@ -256,10 +234,6 @@ def calculate_match_score(current_player, candidate):
         == candidate_region.lower()
     ):
         score += 15
-
-    # ========================================
-    # AVAILABILITY - 10 POINTS
-    # ========================================
 
     current_availability = current_player.get(
         "availability",

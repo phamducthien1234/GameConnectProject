@@ -38,8 +38,7 @@ const featuredGames = [
     }
 ];
 
-const refreshFeaturedButton =
-    document.getElementById("refreshFeatured");
+const refreshFeaturedButton = document.getElementById("refreshFeatured");
 
 if (refreshFeaturedButton) {
     refreshFeaturedButton.addEventListener(
@@ -64,7 +63,6 @@ function displayFeaturedGames() {
 
         card.innerHTML = `
             <div class="card h-100 shadow-sm">
-
                 <img
                     src="${game.image}"
                     class="card-img-top"
@@ -73,7 +71,6 @@ function displayFeaturedGames() {
                 >
 
                 <div class="card-body d-flex flex-column">
-
                     <h5 class="card-title">
                         ${game.name}
                     </h5>
@@ -88,9 +85,7 @@ function displayFeaturedGames() {
                     >
                         Find Deals
                     </button>
-
                 </div>
-
             </div>
         `;
 
@@ -135,6 +130,7 @@ async function searchGames(gameName = null) {
                     </div>
                 </div>
             `;
+
             return;
         }
 
@@ -152,11 +148,11 @@ async function searchGames(gameName = null) {
                     </div>
                 </div>
             `;
+
             return;
         }
 
         displaySearchResults(games);
-
     } catch (error) {
         console.error(error);
 
@@ -188,7 +184,6 @@ function displaySearchResults(games) {
 
         card.innerHTML = `
             <div class="card h-100 shadow-sm">
-
                 ${
                     image
                         ? `
@@ -203,7 +198,6 @@ function displaySearchResults(games) {
                 }
 
                 <div class="card-body">
-
                     <h5 class="card-title">
                         ${game.name || "Unknown Game"}
                     </h5>
@@ -223,9 +217,7 @@ function displaySearchResults(games) {
                             `
                             : ""
                     }
-
                 </div>
-
             </div>
         `;
 

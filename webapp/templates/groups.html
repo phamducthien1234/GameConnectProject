@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,17 +26,12 @@
         type="image/png"
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
-
 </head>
-
 
 <body class="bg-light">
 
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -46,7 +40,6 @@
         </a>
 
         <div class="d-flex gap-2">
-
             <a
                 href="{{ url_for('dashboard') }}"
                 class="btn btn-outline-light"
@@ -67,46 +60,27 @@
             >
                 Logout
             </a>
-
         </div>
-
     </div>
-
 </nav>
 
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
-
 
 <div class="container py-5">
 
-
-    <!-- PAGE HEADER -->
-
     <div class="groups-header-card mb-5">
-
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
             <div>
-
                 <span class="groups-label">
                     Gaming Teams
                 </span>
@@ -118,9 +92,7 @@
                 <p class="text-muted mb-0">
                     View and manage the gaming groups and teams you are part of.
                 </p>
-
             </div>
-
 
             <a
                 href="{{ url_for('dashboard') }}"
@@ -128,187 +100,21 @@
             >
                 Back to Dashboard
             </a>
-
         </div>
-
     </div>
-
 
     {% if groups %}
 
+        <div class="section-heading mb-3">
+            <div>
+                <h3 class="mb-1">
+                    Your Groups
+                </h3>
 
-    <!-- YOUR GROUPS HEADING -->
-
-    <div class="section-heading mb-3">
-
-        <div>
-
-            <h3 class="mb-1">
-                Your Groups
-            </h3>
-
-            <p class="text-muted mb-0">
-                Groups you currently own or participate in.
-            </p>
-
-        </div>
-
-
-        <a
-            href="{{ url_for('create_group') }}"
-            class="btn btn-primary"
-        >
-            + Create Group
-        </a>
-
-    </div>
-
-
-    <!-- GROUP LIST -->
-
-    <div class="row g-4">
-
-        {% for group in groups %}
-
-        <div class="col-md-6 col-lg-4">
-
-            <div class="group-list-card h-100">
-
-
-                <!-- GROUP HEADER -->
-
-                <div class="d-flex justify-content-between align-items-start mb-3">
-
-                    <div>
-
-                        <h4 class="mb-1">
-                            {{ group.group_name }}
-                        </h4>
-
-                        <span class="group-game-name">
-                            🎮 {{ group.game_name }}
-                        </span>
-
-                    </div>
-
-
-                    {% if group.member_role == "owner" %}
-
-                    <span class="badge bg-warning text-dark">
-                        Owner
-                    </span>
-
-                    {% else %}
-
-                    <span class="badge bg-secondary">
-                        Member
-                    </span>
-
-                    {% endif %}
-
-                </div>
-
-
-                <!-- GROUP INFORMATION -->
-
-                <div class="group-list-details">
-
-                    <div>
-
-                        <span>
-                            Your Role
-                        </span>
-
-                        <strong>
-                            {{ group.member_role | title }}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            Created
-                        </span>
-
-                        <strong>
-                            {{ group.created_at | datetime }}
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                <!-- VIEW GROUP -->
-
-                <a
-                    href="{{ url_for(
-                        'group_details',
-                        group_id=group.group_id
-                    ) }}"
-                    class="btn btn-primary w-100 mt-auto"
-                >
-                    View Group
-                </a>
-
+                <p class="text-muted mb-0">
+                    Groups you currently own or participate in.
+                </p>
             </div>
-
-        </div>
-
-        {% endfor %}
-
-    </div>
-
-
-    {% else %}
-
-
-    <!-- NO GROUPS -->
-
-    <div class="section-heading mb-3">
-
-        <div>
-
-            <h3 class="mb-1">
-                Your Groups
-            </h3>
-
-            <p class="text-muted mb-0">
-                Groups you currently own or participate in.
-            </p>
-
-        </div>
-
-
-        <a
-            href="{{ url_for('create_group') }}"
-            class="btn btn-primary"
-        >
-            + Create Group
-        </a>
-
-    </div>
-
-
-    <div class="groups-empty-state">
-
-        <div class="groups-empty-icon">
-            👥
-        </div>
-
-        <h3>
-            No Groups Yet
-        </h3>
-
-        <p class="text-muted">
-            You are not currently a member of any gaming groups.
-            Create your own group or find teammates to get started.
-        </p>
-
-
-        <div class="d-flex justify-content-center gap-2 flex-wrap">
 
             <a
                 href="{{ url_for('create_group') }}"
@@ -316,30 +122,129 @@
             >
                 + Create Group
             </a>
-
-            <a
-                href="{{ url_for('find_teammates') }}"
-                class="btn btn-primary"
-            >
-                Find Teammates
-            </a>
-
         </div>
 
-    </div>
+        <div class="row g-4">
+            {% for group in groups %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="group-list-card h-100">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h4 class="mb-1">
+                                    {{ group.group_name }}
+                                </h4>
 
+                                <span class="group-game-name">
+                                    🎮 {{ group.game_name }}
+                                </span>
+                            </div>
+
+                            {% if group.member_role == "owner" %}
+                                <span class="badge bg-warning text-dark">
+                                    Owner
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    Member
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="group-list-details">
+                            <div>
+                                <span>
+                                    Your Role
+                                </span>
+
+                                <strong>
+                                    {{ group.member_role | title }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>
+                                    Created
+                                </span>
+
+                                <strong>
+                                    {{ group.created_at | datetime }}
+                                </strong>
+                            </div>
+                        </div>
+
+                        <a
+                            href="{{ url_for(
+                                'group_details',
+                                group_id=group.group_id
+                            ) }}"
+                            class="btn btn-primary w-100 mt-auto"
+                        >
+                            View Group
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    {% else %}
+
+        <div class="section-heading mb-3">
+            <div>
+                <h3 class="mb-1">
+                    Your Groups
+                </h3>
+
+                <p class="text-muted mb-0">
+                    Groups you currently own or participate in.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('create_group') }}"
+                class="btn btn-primary"
+            >
+                + Create Group
+            </a>
+        </div>
+
+        <div class="groups-empty-state">
+            <div class="groups-empty-icon">
+                👥
+            </div>
+
+            <h3>
+                No Groups Yet
+            </h3>
+
+            <p class="text-muted">
+                You are not currently a member of any gaming groups.
+                Create your own group or find teammates to get started.
+            </p>
+
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <a
+                    href="{{ url_for('create_group') }}"
+                    class="btn btn-primary"
+                >
+                    + Create Group
+                </a>
+
+                <a
+                    href="{{ url_for('find_teammates') }}"
+                    class="btn btn-primary"
+                >
+                    Find Teammates
+                </a>
+            </div>
+        </div>
 
     {% endif %}
 
-
 </div>
-
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
-
 </body>
-
 </html>

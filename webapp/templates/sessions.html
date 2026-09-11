@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,17 +26,12 @@
         type="image/png"
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
-
 </head>
-
 
 <body class="bg-light">
 
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -46,7 +40,6 @@
         </a>
 
         <div class="d-flex gap-2">
-
             <a
                 href="{{ url_for('dashboard') }}"
                 class="btn btn-outline-light"
@@ -67,46 +60,27 @@
             >
                 Logout
             </a>
-
         </div>
-
     </div>
-
 </nav>
 
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
-
 
 <div class="container py-5">
 
-
-    <!-- PAGE HEADER -->
-
     <div class="sessions-header-card mb-5">
-
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
             <div>
-
                 <span class="sessions-label">
                     Group Activities
                 </span>
@@ -118,9 +92,7 @@
                 <p class="text-muted mb-0">
                     View upcoming gaming sessions from your groups.
                 </p>
-
             </div>
-
 
             <a
                 href="{{ url_for('dashboard') }}"
@@ -128,18 +100,11 @@
             >
                 Back to Dashboard
             </a>
-
         </div>
-
     </div>
 
-
-    <!-- SESSION SECTION HEADER -->
-
     <div class="section-heading mb-3">
-
         <div>
-
             <h3 class="mb-1">
                 Upcoming Sessions
             </h3>
@@ -147,9 +112,7 @@
             <p class="text-muted mb-0">
                 Join a session or view more information about it.
             </p>
-
         </div>
-
 
         <a
             href="{{ url_for('create_session') }}"
@@ -157,176 +120,122 @@
         >
             + Create Session
         </a>
-
     </div>
-
-
-    <!-- SESSION LIST -->
 
     {% if sessions %}
+        <div class="row g-4">
+            {% for gaming_session in sessions %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="session-list-card h-100">
 
-    <div class="row g-4">
+                        <div class="mb-3">
+                            <span class="session-badge">
+                                Gaming Session
+                            </span>
 
-        {% for gaming_session in sessions %}
+                            <h4 class="mt-2 mb-1">
+                                {{ gaming_session.session_name }}
+                            </h4>
 
-        <div class="col-md-6 col-lg-4">
+                            <span class="session-group-name">
+                                👥 {{ gaming_session.group_name }}
+                            </span>
+                        </div>
 
-            <div class="session-list-card h-100">
+                        <div class="session-list-details">
+                            <div>
+                                <span>
+                                    Group
+                                </span>
 
+                                <strong>
+                                    {{ gaming_session.group_name }}
+                                </strong>
+                            </div>
 
-                <!-- SESSION NAME -->
+                            <div>
+                                <span>
+                                    Session Time
+                                </span>
 
-                <div class="mb-3">
+                                <strong>
+                                    {{ gaming_session.session_time | datetime }}
+                                </strong>
+                            </div>
+                        </div>
 
-                    <span class="session-badge">
-                        Gaming Session
-                    </span>
+                        {% if gaming_session.description %}
+                            <div class="session-description">
+                                <span>
+                                    Description
+                                </span>
 
-                    <h4 class="mt-2 mb-1">
-                        {{ gaming_session.session_name }}
-                    </h4>
+                                <p class="mb-0">
+                                    {{ gaming_session.description }}
+                                </p>
+                            </div>
+                        {% endif %}
 
-                    <span class="session-group-name">
-                        👥 {{ gaming_session.group_name }}
-                    </span>
+                        <div class="session-list-actions mt-auto">
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'join_session',
+                                    session_id=gaming_session.session_id
+                                ) }}"
+                            >
+                                <button
+                                    type="submit"
+                                    class="btn btn-success w-100"
+                                >
+                                    Join Session
+                                </button>
+                            </form>
 
-                </div>
-
-
-                <!-- SESSION INFO -->
-
-                <div class="session-list-details">
-
-                    <div>
-
-                        <span>
-                            Group
-                        </span>
-
-                        <strong>
-                            {{ gaming_session.group_name }}
-                        </strong>
+                            <a
+                                href="{{ url_for(
+                                    'session_details',
+                                    session_id=gaming_session.session_id
+                                ) }}"
+                                class="btn btn-primary w-100"
+                            >
+                                View Session
+                            </a>
+                        </div>
 
                     </div>
-
-
-                    <div>
-
-                        <span>
-                            Session Time
-                        </span>
-
-                        <strong>
-                            {{ gaming_session.session_time | datetime }}
-                        </strong>
-
-                    </div>
-
                 </div>
-
-
-                {% if gaming_session.description %}
-
-                <div class="session-description">
-
-                    <span>
-                        Description
-                    </span>
-
-                    <p class="mb-0">
-                        {{ gaming_session.description }}
-                    </p>
-
-                </div>
-
-                {% endif %}
-
-
-                <!-- ACTIONS -->
-
-                <div class="session-list-actions mt-auto">
-
-                    <form
-                        method="POST"
-                        action="{{ url_for(
-                            'join_session',
-                            session_id=gaming_session.session_id
-                        ) }}"
-                    >
-
-                        <button
-                            type="submit"
-                            class="btn btn-success w-100"
-                        >
-                            Join Session
-                        </button>
-
-                    </form>
-
-
-                    <a
-                        href="{{ url_for(
-                            'session_details',
-                            session_id=gaming_session.session_id
-                        ) }}"
-                        class="btn btn-primary w-100"
-                    >
-                        View Session
-                    </a>
-
-                </div>
-
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="sessions-empty-state">
+            <div class="sessions-empty-icon">
+                🎮
             </div>
 
+            <h3>
+                No Gaming Sessions Yet
+            </h3>
+
+            <p class="text-muted">
+                There are currently no gaming sessions available.
+                Create a session for one of your groups to get started.
+            </p>
+
+            <a
+                href="{{ url_for('create_session') }}"
+                class="btn btn-primary"
+            >
+                + Create Session
+            </a>
         </div>
-
-        {% endfor %}
-
-    </div>
-
-
-    {% else %}
-
-
-    <!-- EMPTY STATE -->
-
-    <div class="sessions-empty-state">
-
-        <div class="sessions-empty-icon">
-            🎮
-        </div>
-
-        <h3>
-            No Gaming Sessions Yet
-        </h3>
-
-        <p class="text-muted">
-            There are currently no gaming sessions available.
-            Create a session for one of your groups to get started.
-        </p>
-
-
-        <a
-            href="{{ url_for('create_session') }}"
-            class="btn btn-primary"
-        >
-            + Create Session
-        </a>
-
-    </div>
-
-
     {% endif %}
 
-
 </div>
-
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
-
 </body>
-
 </html>

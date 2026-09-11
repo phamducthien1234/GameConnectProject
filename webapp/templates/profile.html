@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -32,17 +31,12 @@
         src="{{ url_for('static', filename='js/main.js') }}"
         defer
     ></script>
-
 </head>
-
 
 <body class="bg-light">
 
-
 <nav class="navbar navbar-dark bg-dark">
-
     <div class="container">
-
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -51,7 +45,6 @@
         </a>
 
         <div class="d-flex gap-2">
-
             <a
                 href="{{ url_for('dashboard') }}"
                 class="btn btn-outline-light"
@@ -65,67 +58,42 @@
             >
                 Logout
             </a>
-
         </div>
-
     </div>
-
 </nav>
 
-
 {% with messages = get_flashed_messages() %}
-
     {% if messages %}
-
         <div class="flash-container">
-
             {% for message in messages %}
-
                 <div class="flash-message">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% endif %}
-
 {% endwith %}
-
 
 <div class="container py-5">
 
-
-    <!-- PROFILE HEADER -->
-
     <div class="profile-header-card mb-4">
-
         <div class="row align-items-center">
 
             <div class="col-md-auto text-center mb-3 mb-md-0">
-
                 {% if user.profile_image_url %}
-
-                <img
-                    src="{{ user.profile_image_url }}"
-                    alt="{{ user.username }}"
-                    class="profile-main-avatar"
-                >
-
+                    <img
+                        src="{{ user.profile_image_url }}"
+                        alt="{{ user.username }}"
+                        class="profile-main-avatar"
+                    >
                 {% else %}
-
-                <div class="profile-main-avatar profile-avatar-placeholder">
-                    {{ user.username[0] | upper }}
-                </div>
-
+                    <div class="profile-main-avatar profile-avatar-placeholder">
+                        {{ user.username[0] | upper }}
+                    </div>
                 {% endif %}
-
             </div>
 
-
             <div class="col-md">
-
                 <p class="profile-label mb-1">
                     GameConnect Player
                 </p>
@@ -135,7 +103,6 @@
                 </h1>
 
                 <div class="profile-header-info">
-
                     <span>
                         📧 {{ user.email }}
                     </span>
@@ -143,41 +110,29 @@
                     <span>
                         🌍 {{ user.region }}
                     </span>
-
                 </div>
 
                 <p class="text-muted mt-3 mb-0">
                     {{ user.bio or "No bio yet." }}
                 </p>
-
             </div>
 
-
             <div class="col-md-auto mt-3 mt-md-0">
-
                 <a
                     href="{{ url_for('dashboard') }}"
                     class="btn btn-primary"
                 >
                     Back to Dashboard
                 </a>
-
             </div>
 
         </div>
-
     </div>
-
 
     <div class="row g-4">
 
-
-        <!-- EDIT PROFILE -->
-
         <div class="col-lg-5">
-
             <div class="profile-section-card h-100">
-
                 <h3 class="mb-1">
                     Edit Profile
                 </h3>
@@ -186,15 +141,11 @@
                     Update your player information and profile image.
                 </p>
 
-
                 <form
                     method="POST"
                     enctype="multipart/form-data"
                 >
-
-
                     <div class="mb-3">
-
                         <label
                             for="profileImage"
                             class="form-label"
@@ -213,12 +164,9 @@
                         <div class="form-text">
                             JPG, JPEG, PNG or WEBP.
                         </div>
-
                     </div>
 
-
                     <div class="mb-3">
-
                         <label class="form-label">
                             Username
                         </label>
@@ -229,12 +177,9 @@
                             value="{{ user.username }}"
                             disabled
                         >
-
                     </div>
 
-
                     <div class="mb-3">
-
                         <label class="form-label">
                             Email
                         </label>
@@ -245,12 +190,9 @@
                             value="{{ user.email }}"
                             disabled
                         >
-
                     </div>
 
-
                     <div class="mb-3">
-
                         <label class="form-label">
                             Region
                         </label>
@@ -260,11 +202,10 @@
                             class="form-select"
                             required
                         >
-
                             <option
                                 value="SEA"
                                 {% if user.region == "SEA" %}
-                                selected
+                                    selected
                                 {% endif %}
                             >
                                 Southeast Asia
@@ -273,7 +214,7 @@
                             <option
                                 value="OCE"
                                 {% if user.region == "OCE" %}
-                                selected
+                                    selected
                                 {% endif %}
                             >
                                 Oceania
@@ -282,7 +223,7 @@
                             <option
                                 value="NA"
                                 {% if user.region == "NA" %}
-                                selected
+                                    selected
                                 {% endif %}
                             >
                                 North America
@@ -291,7 +232,7 @@
                             <option
                                 value="EU"
                                 {% if user.region == "EU" %}
-                                selected
+                                    selected
                                 {% endif %}
                             >
                                 Europe
@@ -300,7 +241,7 @@
                             <option
                                 value="KR"
                                 {% if user.region == "KR" %}
-                                selected
+                                    selected
                                 {% endif %}
                             >
                                 Korea
@@ -309,19 +250,15 @@
                             <option
                                 value="JP"
                                 {% if user.region == "JP" %}
-                                selected
+                                    selected
                                 {% endif %}
                             >
                                 Japan
                             </option>
-
                         </select>
-
                     </div>
 
-
                     <div class="mb-4">
-
                         <label class="form-label">
                             Bio
                         </label>
@@ -333,9 +270,7 @@
                             maxlength="500"
                             placeholder="Tell other players about yourself..."
                         >{{ user.bio or "" }}</textarea>
-
                     </div>
-
 
                     <button
                         type="submit"
@@ -343,24 +278,14 @@
                     >
                         Save Profile
                     </button>
-
                 </form>
-
             </div>
-
         </div>
 
-
-        <!-- MY GAMES -->
-
         <div class="col-lg-7">
-
             <div class="profile-section-card h-100">
-
                 <div class="d-flex justify-content-between align-items-center mb-4">
-
                     <div>
-
                         <h3 class="mb-1">
                             My Games
                         </h3>
@@ -368,9 +293,7 @@
                         <p class="text-muted mb-0">
                             Your games, ranks, roles and availability.
                         </p>
-
                     </div>
-
 
                     <a
                         href="{{ url_for('add_game') }}"
@@ -378,89 +301,59 @@
                     >
                         + Add Game
                     </a>
-
                 </div>
 
-
                 {% if player_games %}
-
                     <div class="row g-3">
-
                         {% for game in player_games %}
+                            <div class="col-12">
+                                <div class="profile-game-card">
+                                    <div class="d-flex justify-content-between align-items-start gap-3">
+                                        <div>
+                                            <h5 class="mb-2">
+                                                {{ game.game_name }}
+                                            </h5>
 
-                        <div class="col-12">
+                                            {% if game.riot_verified %}
+                                                <span class="badge bg-success mb-2">
+                                                    Riot Verified
+                                                </span>
+                                            {% endif %}
+                                        </div>
 
-                            <div class="profile-game-card">
-
-                                <div class="d-flex justify-content-between align-items-start gap-3">
-
-                                    <div>
-
-                                        <h5 class="mb-2">
-                                            {{ game.game_name }}
-                                        </h5>
-
-                                        {% if game.riot_verified %}
-
-                                            <span class="badge bg-success mb-2">
-                                                Riot Verified
-                                            </span>
-
-                                        {% endif %}
-
+                                        <span class="profile-game-role">
+                                            {{ game.role }}
+                                        </span>
                                     </div>
 
-                                    <span class="profile-game-role">
-                                        {{ game.role }}
-                                    </span>
+                                    <div class="row mt-2">
+                                        <div class="col-sm-6">
+                                            <p class="mb-2">
+                                                <strong>Rank:</strong>
+                                                {{ game.rank }}
+                                            </p>
+                                        </div>
 
-                                </div>
+                                        <div class="col-sm-6">
+                                            <p class="mb-2">
+                                                <strong>Availability:</strong>
+                                                {{ game.availability }}
+                                            </p>
+                                        </div>
+                                    </div>
 
-
-                                <div class="row mt-2">
-
-                                    <div class="col-sm-6">
-
-                                        <p class="mb-2">
-                                            <strong>Rank:</strong>
-                                            {{ game.rank }}
+                                    {% if game.riot_game_name and game.riot_tag_line %}
+                                        <p class="mb-0 text-muted">
+                                            <strong>Riot ID:</strong>
+                                            {{ game.riot_game_name }}#{{ game.riot_tag_line }}
                                         </p>
-
-                                    </div>
-
-                                    <div class="col-sm-6">
-
-                                        <p class="mb-2">
-                                            <strong>Availability:</strong>
-                                            {{ game.availability }}
-                                        </p>
-
-                                    </div>
-
+                                    {% endif %}
                                 </div>
-
-
-                                {% if game.riot_game_name and game.riot_tag_line %}
-
-                                <p class="mb-0 text-muted">
-                                    <strong>Riot ID:</strong>
-                                    {{ game.riot_game_name }}#{{ game.riot_tag_line }}
-                                </p>
-
-                                {% endif %}
-
                             </div>
-
-                        </div>
-
                         {% endfor %}
-
                     </div>
-
                 {% else %}
-
                     <div class="profile-empty-state">
-
                         <div class="profile-empty-icon">
                             🎮
                         </div>
@@ -479,25 +372,18 @@
                         >
                             + Add Game
                         </a>
-
                     </div>
-
                 {% endif %}
-
             </div>
-
         </div>
 
     </div>
 
 </div>
 
-
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
-
 </body>
-
 </html>
