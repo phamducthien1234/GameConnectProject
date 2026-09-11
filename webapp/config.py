@@ -15,6 +15,8 @@ class Config:
         "us-east-1"
     )
 
+    ANALYTICS_API_URL = ( "https://q4bibcud7b.execute-api.us-east-1.amazonaws.com" "/analytics/run")
+
     S3_BUCKET = os.getenv("S3_BUCKET")
 
     RIOT_API_KEY = os.getenv("RIOT_API_KEY")

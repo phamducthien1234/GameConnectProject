@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -20,11 +21,21 @@
         rel="stylesheet"
         href="{{ url_for('static', filename='css/style.css') }}"
     >
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="{{ url_for('static', filename='gaco_logo.png') }}"
+    >
+
 </head>
+
 
 <body class="bg-light">
 
+
 <nav class="navbar navbar-dark bg-dark">
+
     <div class="container">
 
         <a
@@ -34,84 +45,228 @@
             🎮 GameConnect
         </a>
 
+        <div class="d-flex gap-2">
+
+            <a
+                href="{{ url_for('groups') }}"
+                class="btn btn-outline-light"
+            >
+                My Groups
+            </a>
+
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="btn btn-outline-light"
+            >
+                Dashboard
+            </a>
+
+        </div>
+
     </div>
+
 </nav>
 
-<div class="container mt-5">
 
-    <div class="card shadow-sm">
+{% with messages = get_flashed_messages() %}
 
-        <div class="card-body">
+    {% if messages %}
 
-            <h2 class="mb-4">
-                Edit Group
-            </h2>
+        <div class="flash-container">
 
-            <form method="POST">
+            {% for message in messages %}
 
-                <div class="mb-3">
+                <div class="flash-message">
+                    {{ message }}
+                </div>
 
-                    <label class="form-label">
-                        Group Name
-                    </label>
+            {% endfor %}
 
-                    <input
-                        type="text"
-                        name="group_name"
-                        class="form-control"
-                        value="{{ group.group_name }}"
-                        required
-                    >
+        </div>
+
+    {% endif %}
+
+{% endwith %}
+
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8 col-xl-7">
+
+            <div class="edit-group-header mb-4">
+
+                <div>
+
+                    <span class="edit-group-label">
+                        Group Management
+                    </span>
+
+                    <h1 class="mt-2 mb-2">
+                        Edit Group
+                    </h1>
+
+                    <p class="text-muted mb-0">
+                        Update your group name or change the associated game.
+                    </p>
 
                 </div>
 
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        Game
-                    </label>
-
-                    <select
-                        name="game_id"
-                        class="form-select"
-                        required
-                    >
-
-                        {% for game in games %}
-
-                        <option
-                            value="{{ game.game_id }}"
-                            {% if game.game_id == group.game_id %}
-                                selected
-                            {% endif %}
-                        >
-                            {{ game.game_name }}
-                        </option>
-
-                        {% endfor %}
-
-                    </select>
-
-                </div>
-
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
-                    Save Changes
-                </button>
 
                 <a
                     href="{{ url_for(
                         'group_details',
                         group_id=group.group_id
                     ) }}"
-                    class="btn btn-secondary"
+                    class="btn btn-outline-secondary"
                 >
-                    Cancel
+                    Back to Group
                 </a>
 
-            </form>
+            </div>
+
+
+            <!-- EDIT GROUP CARD -->
+
+            <div class="edit-group-card">
+
+                <div class="mb-4">
+
+                    <h3 class="mb-1">
+                        ✏️ Group Details
+                    </h3>
+
+                    <p class="text-muted mb-0">
+                        Make changes to the group information below.
+                    </p>
+
+                </div>
+
+
+                <form method="POST">
+
+
+                    <!-- GROUP NAME -->
+
+                    <div class="mb-4">
+
+                        <label
+                            for="group_name"
+                            class="form-label fw-semibold"
+                        >
+                            Group Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="group_name"
+                            name="group_name"
+                            class="form-control form-control-lg"
+                            value="{{ group.group_name }}"
+                            maxlength="100"
+                            required
+                        >
+
+                        <div class="form-text">
+                            Choose a clear group name that members can recognize.
+                        </div>
+
+                    </div>
+
+
+                    <!-- GAME -->
+
+                    <div class="mb-4">
+
+                        <label
+                            for="game_id"
+                            class="form-label fw-semibold"
+                        >
+                            Game
+                        </label>
+
+                        <select
+                            id="game_id"
+                            name="game_id"
+                            class="form-select form-select-lg"
+                            required
+                        >
+
+                            {% for game in games %}
+
+                            <option
+                                value="{{ game.game_id }}"
+                                {% if game.game_id == group.game_id %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ game.game_name }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                        <div class="form-text">
+                            Select the game associated with this group.
+                        </div>
+
+                    </div>
+
+
+                    <!-- INFO -->
+
+                    <div class="edit-group-info mb-4">
+
+                        <div class="edit-group-info-icon">
+                            💡
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Group changes
+                            </strong>
+
+                            <p class="mb-0 mt-1">
+                                Updating the group will change how it appears to members
+                                and which game is associated with the group.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACTIONS -->
+
+                    <div class="edit-group-actions">
+
+                        <a
+                            href="{{ url_for(
+                                'group_details',
+                                group_id=group.group_id
+                            ) }}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary px-4"
+                        >
+                            Save Changes
+                        </button>
+
+                    </div>
+
+
+                </form>
+
+            </div>
+
 
         </div>
 
@@ -119,7 +274,12 @@
 
 </div>
 
-<script src="{{ url_for('static', filename='js/notification.js') }}"></script>
+
+<script
+    src="{{ url_for('static', filename='js/notification.js') }}"
+></script>
+
 
 </body>
+
 </html>

@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -20,9 +21,18 @@
         rel="stylesheet"
         href="{{ url_for('static', filename='css/style.css') }}"
     >
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="{{ url_for('static', filename='gaco_logo.png') }}"
+    >
+
 </head>
 
+
 <body class="bg-light">
+
 
 <nav class="navbar navbar-dark bg-dark">
 
@@ -35,227 +45,503 @@
             🎮 GameConnect Admin
         </a>
 
-        <a
-            href="{{ url_for('admin_dashboard') }}"
-            class="btn btn-outline-light"
-        >
-            Back to Admin
-        </a>
+        <div class="d-flex gap-2">
+
+            <a
+                href="{{ url_for('admin_dashboard') }}"
+                class="btn btn-outline-light"
+            >
+                Admin Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="btn btn-outline-light"
+            >
+                Player Dashboard
+            </a>
+
+        </div>
 
     </div>
 
 </nav>
 
 
-<div class="container mt-5 mb-5">
+<!-- FLASH MESSAGES -->
 
-    <h2 class="mb-4">
-        GameConnect Analytics
-    </h2>
+{% with messages = get_flashed_messages() %}
 
+    {% if messages %}
 
-    <div class="row">
+        <div class="flash-container">
 
-        <div class="col-md-3 mb-3">
+            {% for message in messages %}
 
-            <div class="card shadow-sm h-100">
-
-                <div class="card-body text-center">
-
-                    <h6>
-                        Active Users
-                    </h6>
-
-                    <h2>
-                        {{ active_users }}
-                    </h2>
-
+                <div class="flash-message">
+                    {{ message }}
                 </div>
 
-            </div>
+            {% endfor %}
 
         </div>
 
+    {% endif %}
 
-        <div class="col-md-3 mb-3">
-
-            <div class="card shadow-sm h-100">
-
-                <div class="card-body text-center">
-
-                    <h6>
-                        Sessions Created
-                    </h6>
-
-                    <h2>
-                        {{ sessions_created }}
-                    </h2>
-
-                </div>
-
-            </div>
-
-        </div>
+{% endwith %}
 
 
-        <div class="col-md-3 mb-3">
-
-            <div class="card shadow-sm h-100">
-
-                <div class="card-body text-center">
-
-                    <h6>
-                        Invitations Sent
-                    </h6>
-
-                    <h2>
-                        {{ invitations_sent }}
-                    </h2>
-
-                </div>
-
-            </div>
-
-        </div>
+<div class="container py-5">
 
 
-        <div class="col-md-3 mb-3">
+    <!-- PAGE HEADER -->
 
-            <div class="card shadow-sm h-100">
+    <div class="analytics-header-card mb-4">
 
-                <div class="card-body text-center">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-                    <h6>
-                        Avg Recommendations
-                    </h6>
+            <div>
 
-                    <h2>
-                        {{ "%.2f"|format(average_recommendations) }}
-                    </h2>
+                <span class="analytics-label">
+                    Platform Analytics
+                </span>
 
-                </div>
+                <h1 class="mt-2 mb-2">
+                    GameConnect Analytics
+                </h1>
 
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="card shadow-sm mt-4">
-
-        <div class="card-body">
-
-            <h4>
-                Event Statistics
-            </h4>
-
-            {% if event_counts %}
-
-                <table class="table table-striped mt-3">
-
-                    <thead>
-
-                        <tr>
-                            <th>Event Type</th>
-                            <th>Total</th>
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        {% for event in event_counts %}
-
-                            <tr>
-
-                                <td>
-                                    {{ event.event_type }}
-                                </td>
-
-                                <td>
-                                    {{ event.total }}
-                                </td>
-
-                            </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            {% else %}
-
-                <p class="text-muted">
-                    No event analytics available.
+                <p class="text-muted mb-0">
+                    Analytics generated from GameConnect activity using Amazon EMR.
                 </p>
 
-            {% endif %}
+            </div>
+
+
+            <form
+                method="POST"
+                action="{{ url_for('run_admin_analytics') }}"
+                class="m-0"
+            >
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    {% if analytics_step_id %}
+                        disabled
+                    {% endif %}
+                >
+
+                    {% if analytics_step_id %}
+                        Analytics Running...
+                    {% else %}
+                        ↻ Run Analytics
+                    {% endif %}
+
+                </button>
+
+            </form>
 
         </div>
 
     </div>
 
 
-    <div class="card shadow-sm mt-4">
+    <!-- LIVE ANALYTICS JOB STATUS -->
 
-        <div class="card-body">
+    {% if analytics_step_id %}
 
-            <h4>
-                Most Searched Games
-            </h4>
+    <div
+        id="analyticsJobStatus"
+        class="analytics-job-status mb-5"
+        data-step-id="{{ analytics_step_id }}"
+        data-status-url="{{ url_for('admin_analytics_status') }}"
+    >
 
-            {% if game_search_counts %}
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-                <table class="table table-striped mt-3">
+            <div class="d-flex align-items-center gap-3">
 
-                    <thead>
+                <div
+                    id="analyticsStatusSpinner"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                >
+                    <span class="visually-hidden">
+                        Loading...
+                    </span>
+                </div>
 
-                        <tr>
-                            <th>Game</th>
-                            <th>Searches</th>
-                        </tr>
 
-                    </thead>
+                <div>
 
-                    <tbody>
+                    <strong id="analyticsStatusTitle">
+                        Analytics update is running
+                    </strong>
 
-                        {% for game in game_search_counts %}
+                    <div
+                        id="analyticsStatusText"
+                        class="small mt-1"
+                    >
+                        Waiting for Amazon EMR status...
+                    </div>
 
-                            <tr>
+                </div>
 
-                                <td>
-                                    {{ game.game_name }}
-                                </td>
+            </div>
 
-                                <td>
-                                    {{ game.search_count }}
-                                </td>
 
-                            </tr>
+            <span
+                id="analyticsStatusBadge"
+                class="badge bg-warning text-dark"
+            >
+                PENDING
+            </span>
 
-                        {% endfor %}
+        </div>
 
-                    </tbody>
+    </div>
 
-                </table>
+    {% endif %}
 
-            {% else %}
 
-                <p class="text-muted">
-                    No game search analytics available.
+    <!-- MAIN STATISTICS -->
+
+    <div class="section-heading mb-3">
+
+        <div>
+
+            <h3 class="mb-1">
+                Analytics Summary
+            </h3>
+
+            <p class="text-muted mb-0">
+                Latest analytics results generated from platform activity.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="row g-4">
+
+
+        <!-- ACTIVE USERS -->
+
+        <div class="col-md-6 col-lg-3">
+
+            <div class="analytics-stat-card h-100">
+
+                <div class="analytics-stat-icon">
+                    👤
+                </div>
+
+                <span>
+                    Active Users
+                </span>
+
+                <h2>
+                    {{ active_users }}
+                </h2>
+
+                <p>
+                    Users recorded in analytics activity.
                 </p>
 
-            {% endif %}
+            </div>
 
         </div>
 
+
+        <!-- SESSIONS CREATED -->
+
+        <div class="col-md-6 col-lg-3">
+
+            <div class="analytics-stat-card h-100">
+
+                <div class="analytics-stat-icon">
+                    🎮
+                </div>
+
+                <span>
+                    Sessions Created
+                </span>
+
+                <h2>
+                    {{ sessions_created }}
+                </h2>
+
+                <p>
+                    Gaming sessions recorded by GameConnect.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- INVITATIONS SENT -->
+
+        <div class="col-md-6 col-lg-3">
+
+            <div class="analytics-stat-card h-100">
+
+                <div class="analytics-stat-icon">
+                    ✉️
+                </div>
+
+                <span>
+                    Invitations Sent
+                </span>
+
+                <h2>
+                    {{ invitations_sent }}
+                </h2>
+
+                <p>
+                    Team invitations recorded by the platform.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- AVERAGE RECOMMENDATIONS -->
+
+        <div class="col-md-6 col-lg-3">
+
+            <div class="analytics-stat-card h-100">
+
+                <div class="analytics-stat-icon">
+                    🤝
+                </div>
+
+                <span>
+                    Avg Recommendations
+                </span>
+
+                <h2>
+                    {{ "%.2f"|format(average_recommendations) }}
+                </h2>
+
+                <p>
+                    Average teammate recommendations per search.
+                </p>
+
+            </div>
+
+        </div>
+
+
     </div>
+
+
+    <!-- EVENT STATISTICS -->
+
+    <div class="analytics-table-card mt-5">
+
+        <div class="analytics-table-header">
+
+            <div>
+
+                <h3 class="mb-1">
+                    Event Statistics
+                </h3>
+
+                <p class="text-muted mb-0">
+                    Total platform events processed by the analytics job.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if event_counts %}
+
+        <div class="table-responsive mt-3">
+
+            <table class="table align-middle analytics-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Event Type
+                        </th>
+
+                        <th class="text-end">
+                            Total
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for event in event_counts %}
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+                                {{ event.event_type }}
+                            </strong>
+
+                        </td>
+
+                        <td class="text-end">
+
+                            <span class="analytics-count">
+                                {{ event.total }}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="analytics-empty-state mt-3">
+
+            <p class="mb-0">
+                No event analytics available.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- MOST SEARCHED GAMES -->
+
+    <div class="analytics-table-card mt-4">
+
+        <div class="analytics-table-header">
+
+            <div>
+
+                <h3 class="mb-1">
+                    Most Searched Games
+                </h3>
+
+                <p class="text-muted mb-0">
+                    Games most frequently used for teammate searches.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if game_search_counts %}
+
+        <div class="table-responsive mt-3">
+
+            <table class="table align-middle analytics-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Game
+                        </th>
+
+                        <th class="text-end">
+                            Searches
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for game in game_search_counts %}
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+                                🎮 {{ game.game_name }}
+                            </strong>
+
+                        </td>
+
+                        <td class="text-end">
+
+                            <span class="analytics-count">
+                                {{ game.search_count }}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="analytics-empty-state mt-3">
+
+            <p class="mb-0">
+                No game search analytics available.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    <div class="mt-4 mb-4">
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="btn btn-primary"
+        >
+            Back to Admin Dashboard
+        </a>
+
+    </div>
+
 
 </div>
 
-<script src="{{ url_for('static', filename='js/notification.js') }}"></script>
+<script
+    src="{{ url_for('static', filename='js/notification.js') }}"
+></script>
+
+
+<script
+    src="{{ url_for('static', filename='js/analytics_status.js') }}"
+></script>
 
 
 </body>

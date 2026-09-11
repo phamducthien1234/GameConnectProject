@@ -30,7 +30,9 @@
 
 </head>
 
+
 <body class="bg-light">
+
 
 <nav class="navbar navbar-dark bg-dark">
 
@@ -43,7 +45,8 @@
             🎮 GameConnect
         </a>
 
-        <div>
+        <div class="d-flex gap-2">
+
             <a
                 href="{{ url_for('dashboard') }}"
                 class="btn btn-outline-light"
@@ -64,23 +67,23 @@
             >
                 Logout
             </a>
+
         </div>
+
     </div>
 
 </nav>
 
 
-{% with messages = get_flashed_messages(with_categories=true) %}
+{% with messages = get_flashed_messages() %}
 
     {% if messages %}
 
-        <div class="container mt-3">
+        <div class="flash-container">
 
-            {% for category, message in messages %}
+            {% for message in messages %}
 
-                <div
-                    class="alert alert-{{ category if category in ['success', 'danger', 'warning', 'info'] else 'info' }}"
-                >
+                <div class="flash-message">
                     {{ message }}
                 </div>
 
@@ -93,89 +96,138 @@
 {% endwith %}
 
 
-<div class="container mt-5 mb-5">
+<div class="container py-5">
 
     <div class="row justify-content-center">
 
-        <div class="col-md-8">
+        <div class="col-lg-8 col-xl-7">
 
-            <div class="card shadow">
 
-                <div class="card-body p-4">
+            <!-- PAGE HEADER -->
 
-                    <h2 class="mb-2">
+            <div class="add-game-header mb-4">
+
+                <div>
+
+                    <span class="add-game-label">
+                        Player Profile
+                    </span>
+
+                    <h1 class="mt-2 mb-2">
                         Add a Game
-                    </h2>
+                    </h1>
 
-                    <p class="text-muted mb-4">
-                        Add a game to your GameConnect profile.
+                    <p class="text-muted mb-0">
+                        Add a game to your profile so GameConnect can recommend compatible teammates.
                     </p>
 
-
-                    <form method="POST">
-
-
-                        <div class="mb-3">
-
-                            <label
-                                for="gameSelect"
-                                class="form-label"
-                            >
-                                Game
-                            </label>
-
-                            <select
-                                name="game_id"
-                                id="gameSelect"
-                                class="form-select"
-                                required
-                            >
-
-                                <option value="">
-                                    Select a game
-                                </option>
-
-                                {% for game in games %}
-
-                                    <option
-                                        value="{{ game.game_id }}"
-                                        data-name="{{ game.game_name }}"
-                                    >
-                                        {{ game.game_name }}
-                                    </option>
-
-                                {% endfor %}
-
-                            </select>
-
-                        </div>
+                </div>
 
 
-                        <div
-                            id="riotSection"
-                            class="card border-primary mb-4"
-                            style="display: none;"
+                <a
+                    href="{{ url_for('profile') }}"
+                    class="btn btn-outline-secondary"
+                >
+                    Back to Profile
+                </a>
+
+            </div>
+
+
+            <!-- FORM CARD -->
+
+            <div class="add-game-card">
+
+                <div class="mb-4">
+
+                    <h3 class="mb-1">
+                        🎮 Game Profile
+                    </h3>
+
+                    <p class="text-muted mb-0">
+                        Enter your game, rank, role and availability.
+                    </p>
+
+                </div>
+
+
+                <form method="POST">
+
+
+                    <!-- GAME -->
+
+                    <div class="mb-4">
+
+                        <label
+                            for="gameSelect"
+                            class="form-label fw-semibold"
+                        >
+                            Game
+                        </label>
+
+                        <select
+                            name="game_id"
+                            id="gameSelect"
+                            class="form-select form-select-lg"
+                            required
                         >
 
-                            <div class="card-body">
+                            <option value="">
+                                Select a game
+                            </option>
 
-                                <h5 class="card-title">
-                                    Riot Account
-                                </h5>
+                            {% for game in games %}
 
-                                <p class="text-muted">
-                                    Enter your Riot ID to automatically
-                                    retrieve your League of Legends rank.
+                            <option
+                                value="{{ game.game_id }}"
+                                data-name="{{ game.game_name }}"
+                            >
+                                {{ game.game_name }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                        <div class="form-text">
+                            Select the game you want to add to your GameConnect profile.
+                        </div>
+
+                    </div>
+
+
+                    <!-- RIOT ACCOUNT SECTION -->
+
+                    <div
+                        id="riotSection"
+                        class="riot-account-card mb-4"
+                        style="display: none;"
+                    >
+
+                        <div class="d-flex align-items-start gap-3">
+
+                            <div class="riot-account-icon">
+                                ⚔️
+                            </div>
+
+                            <div class="flex-grow-1">
+
+                                <h4 class="mb-1">
+                                    Riot Account Verification
+                                </h4>
+
+                                <p class="text-muted mb-4">
+                                    Enter your Riot ID to retrieve your League of Legends profile and rank.
                                 </p>
 
 
-                                <div class="row g-2">
+                                <div class="row g-3">
 
                                     <div class="col-md-6">
 
                                         <label
                                             for="riotGameName"
-                                            class="form-label"
+                                            class="form-label fw-semibold"
                                         >
                                             Riot Game Name
                                         </label>
@@ -194,7 +246,7 @@
 
                                         <label
                                             for="riotTagLine"
-                                            class="form-label"
+                                            class="form-label fw-semibold"
                                         >
                                             Riot Tag
                                         </label>
@@ -254,96 +306,139 @@
 
                         </div>
 
-
-                        <div class="mb-3">
-
-                            <label
-                                for="rank"
-                                class="form-label"
-                            >
-                                Rank
-                            </label>
-
-                            <input
-                                type="text"
-                                name="rank"
-                                id="rank"
-                                class="form-control"
-                                placeholder="e.g. Diamond"
-                                required
-                            >
-
-                            <div
-                                id="rankHelp"
-                                class="form-text"
-                            >
-                                Enter your current rank.
-                            </div>
-
-                        </div>
+                    </div>
 
 
-                        <div class="mb-3">
+                    <!-- RANK -->
 
-                            <label
-                                for="role"
-                                class="form-label"
-                            >
-                                Role
-                            </label>
+                    <div class="mb-4">
 
-                            <input
-                                type="text"
-                                name="role"
-                                id="role"
-                                class="form-control"
-                                placeholder="e.g. Duelist, Support, ADC"
-                                required
-                            >
-
-                        </div>
-
-
-                        <div class="mb-4">
-
-                            <label
-                                for="availability"
-                                class="form-label"
-                            >
-                                Availability
-                            </label>
-
-                            <input
-                                type="text"
-                                name="availability"
-                                id="availability"
-                                class="form-control"
-                                placeholder="e.g. Friday evening"
-                                required
-                            >
-
-                        </div>
-
-
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
+                        <label
+                            for="rank"
+                            class="form-label fw-semibold"
                         >
-                            Add Game
-                        </button>
+                            Rank
+                        </label>
 
+                        <input
+                            type="text"
+                            name="rank"
+                            id="rank"
+                            class="form-control form-control-lg"
+                            placeholder="e.g. Diamond"
+                            required
+                        >
+
+                        <div
+                            id="rankHelp"
+                            class="form-text"
+                        >
+                            Enter your current rank.
+                        </div>
+
+                    </div>
+
+
+                    <!-- ROLE -->
+
+                    <div class="mb-4">
+
+                        <label
+                            for="role"
+                            class="form-label fw-semibold"
+                        >
+                            Role
+                        </label>
+
+                        <input
+                            type="text"
+                            name="role"
+                            id="role"
+                            class="form-control form-control-lg"
+                            placeholder="e.g. Duelist, Support, ADC"
+                            required
+                        >
+
+                        <div class="form-text">
+                            Enter your preferred role or position.
+                        </div>
+
+                    </div>
+
+
+                    <!-- AVAILABILITY -->
+
+                    <div class="mb-4">
+
+                        <label
+                            for="availability"
+                            class="form-label fw-semibold"
+                        >
+                            Availability
+                        </label>
+
+                        <input
+                            type="text"
+                            name="availability"
+                            id="availability"
+                            class="form-control form-control-lg"
+                            placeholder="e.g. Friday evening"
+                            required
+                        >
+
+                        <div class="form-text">
+                            Tell other players when you are usually available.
+                        </div>
+
+                    </div>
+
+
+                    <!-- INFO BOX -->
+
+                    <div class="add-game-info mb-4">
+
+                        <div class="add-game-info-icon">
+                            💡
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                How this information is used
+                            </strong>
+
+                            <p class="mb-0 mt-1">
+                                GameConnect uses your game, rank, role and availability
+                                to calculate teammate compatibility and improve recommendations.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACTIONS -->
+
+                    <div class="add-game-actions">
 
                         <a
                             href="{{ url_for('profile') }}"
-                            class="btn btn-secondary"
+                            class="btn btn-outline-secondary"
                         >
                             Cancel
                         </a>
 
+                        <button
+                            type="submit"
+                            class="btn btn-primary px-4"
+                        >
+                            Add Game
+                        </button>
 
-                    </form>
+                    </div>
 
-                </div>
+
+                </form>
 
             </div>
 
@@ -359,11 +454,15 @@
         "https://q4bibcud7b.execute-api.us-east-1.amazonaws.com";
 </script>
 
+
 <script
     src="{{ url_for('static', filename='js/add_game.js') }}"
 ></script>
 
-<script src="{{ url_for('static', filename='js/notification.js') }}"></script>
+
+<script
+    src="{{ url_for('static', filename='js/notification.js') }}"
+></script>
 
 
 </body>

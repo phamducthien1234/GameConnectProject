@@ -10,7 +10,7 @@
         content="width=device-width, initial-scale=1"
     >
 
-    <title>GameConnect</title>
+    <title>Game Management - GameConnect</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -30,7 +30,9 @@
 
 </head>
 
-<body>
+
+<body class="bg-light">
+
 
 <nav class="navbar navbar-dark bg-dark">
 
@@ -54,235 +56,358 @@
 
 </nav>
 
+
 {% with messages = get_flashed_messages() %}
+
     {% if messages %}
+
         <div class="flash-container">
+
             {% for message in messages %}
+
                 <div class="flash-message">
                     {{ message }}
                 </div>
+
             {% endfor %}
+
         </div>
+
     {% endif %}
+
 {% endwith %}
 
-<div class="container mt-5">
 
-    <h1>Game Management</h1>
-
-    <p class="text-muted">
-        Add and manage games available on GameConnect.
-    </p>
+<div class="container py-5">
 
 
-    <!-- Add Game -->
+    <!-- PAGE HEADER -->
 
-    <div class="card shadow mt-4">
+    <div class="admin-games-header mb-5">
 
-        <div class="card-body">
+        <div>
 
-            <h4>Add New Game</h4>
+            <span class="admin-games-label">
+                Game Management
+            </span>
 
-            <form
-                action="{{ url_for('add_admin_game') }}"
-                method="POST"
-                class="row g-3 mt-1"
-            >
+            <h1 class="mt-2 mb-2">
+                Manage Games
+            </h1>
 
-                <div class="col-md-5">
-
-                    <label class="form-label">
-                        Game Name
-                    </label>
-
-                    <input
-                        type="text"
-                        name="game_name"
-                        class="form-control"
-                        placeholder="e.g. PUBG"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="col-md-4">
-
-                    <label class="form-label">
-                        Genre
-                    </label>
-
-                    <select
-                        name="genre"
-                        class="form-select"
-                        required
-                    >
-
-                        <option value="">
-                            Select genre
-                        </option>
-
-                        <option value="FPS">
-                            FPS
-                        </option>
-
-                        <option value="MOBA">
-                            MOBA
-                        </option>
-
-                        <option value="Battle Royale">
-                            Battle Royale
-                        </option>
-
-                        <option value="Sports">
-                            Sports
-                        </option>
-
-                        <option value="Sandbox">
-                            Sandbox
-                        </option>
-
-                        <option value="RPG">
-                            RPG
-                        </option>
-
-                        <option value="Strategy">
-                            Strategy
-                        </option>
-
-                        <option value="Other">
-                            Other
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="col-md-3 d-flex align-items-end">
-
-                    <button
-                        type="submit"
-                        class="btn btn-success w-100"
-                    >
-                        Add Game
-                    </button>
-
-                </div>
-
-            </form>
+            <p class="text-muted mb-0">
+                Add and manage games available to GameConnect players.
+            </p>
 
         </div>
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="btn btn-outline-secondary"
+        >
+            Back to Admin
+        </a>
 
     </div>
 
 
-    <!-- Existing Games -->
+    <!-- ADD GAME -->
 
-    <div class="card shadow mt-4">
+    <div class="admin-game-form-card mb-5">
 
-        <div class="card-body">
+        <div class="d-flex align-items-center gap-3 mb-4">
 
-            <h4>Available Games</h4>
+            <div class="admin-game-form-icon">
+                ➕
+            </div>
 
-            <div class="table-responsive mt-3">
+            <div>
 
-                <table class="table table-hover">
+                <h3 class="mb-1">
+                    Add New Game
+                </h3>
 
-                    <thead>
-
-                        <tr>
-
-                            <th>Game Name</th>
-
-                            <th>Genre</th>
-
-                            <th>Game ID</th>
-
-                            <th>Action</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        {% for game in games %}
-
-                        <tr>
-
-                            <td>
-                                <strong>
-                                    {{ game.game_name }}
-                                </strong>
-                            </td>
-
-                            <td>
-                                <span class="badge bg-secondary">
-                                    {{ game.genre }}
-                                </span>
-                            </td>
-
-                            <td>
-                                <small>
-                                    {{ game.game_id }}
-                                </small>
-                            </td>
-
-                            <td>
-
-                                <form
-                                    action="{{ url_for(
-                                        'delete_admin_game',
-                                        game_id=game.game_id
-                                    ) }}"
-                                    method="POST"
-                                    onsubmit="return confirm(
-                                        'Are you sure you want to delete this game?'
-                                    );"
-                                >
-
-                                    <button
-                                        type="submit"
-                                        class="btn btn-danger btn-sm"
-                                    >
-                                        Delete
-                                    </button>
-
-                                </form>
-
-                            </td>
-
-                        </tr>
-
-                        {% else %}
-
-                        <tr>
-
-                            <td
-                                colspan="4"
-                                class="text-center text-muted"
-                            >
-                                No games found.
-                            </td>
-
-                        </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
+                <p class="text-muted mb-0">
+                    Add a new title to the GameConnect game library.
+                </p>
 
             </div>
 
         </div>
 
+
+        <form
+            action="{{ url_for('add_admin_game') }}"
+            method="POST"
+            class="row g-3"
+        >
+
+
+            <div class="col-md-5">
+
+                <label
+                    for="game_name"
+                    class="form-label fw-semibold"
+                >
+                    Game Name
+                </label>
+
+                <input
+                    type="text"
+                    id="game_name"
+                    name="game_name"
+                    class="form-control form-control-lg"
+                    placeholder="e.g. PUBG"
+                    required
+                >
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label
+                    for="genre"
+                    class="form-label fw-semibold"
+                >
+                    Genre
+                </label>
+
+                <select
+                    id="genre"
+                    name="genre"
+                    class="form-select form-select-lg"
+                    required
+                >
+
+                    <option value="">
+                        Select genre
+                    </option>
+
+                    <option value="FPS">
+                        FPS
+                    </option>
+
+                    <option value="MOBA">
+                        MOBA
+                    </option>
+
+                    <option value="Battle Royale">
+                        Battle Royale
+                    </option>
+
+                    <option value="Sports">
+                        Sports
+                    </option>
+
+                    <option value="Sandbox">
+                        Sandbox
+                    </option>
+
+                    <option value="RPG">
+                        RPG
+                    </option>
+
+                    <option value="Strategy">
+                        Strategy
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="col-md-3 d-flex align-items-end">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary btn-lg w-100"
+                >
+                    Add Game
+                </button>
+
+            </div>
+
+        </form>
+
     </div>
+
+
+    <!-- AVAILABLE GAMES -->
+
+    <div class="admin-games-list-card">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+
+            <div>
+
+                <h3 class="mb-1">
+                    Available Games
+                </h3>
+
+                <p class="text-muted mb-0">
+                    Games currently available for player profiles and groups.
+                </p>
+
+            </div>
+
+            <span class="admin-games-count">
+                {{ games|length }} Games
+            </span>
+
+        </div>
+
+
+        {% if games %}
+
+        <div class="table-responsive">
+
+            <table class="table align-middle admin-games-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Game
+                        </th>
+
+                        <th>
+                            Genre
+                        </th>
+
+                        <th>
+                            Game ID
+                        </th>
+
+                        <th class="text-end">
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for game in games %}
+
+                    <tr>
+
+                        <td>
+
+                            <div class="d-flex align-items-center gap-3">
+
+                                <div class="admin-game-avatar">
+                                    🎮
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        {{ game.game_name }}
+                                    </strong>
+
+                                    <div class="small text-muted">
+                                        GameConnect title
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="admin-genre-badge">
+                                {{ game.genre }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <code class="admin-game-id">
+                                {{ game.game_id }}
+                            </code>
+
+                        </td>
+
+
+                        <td class="text-end">
+
+                            <form
+                                action="{{ url_for(
+                                    'delete_admin_game',
+                                    game_id=game.game_id
+                                ) }}"
+                                method="POST"
+                                class="d-inline"
+                                onsubmit="return confirm(
+                                    'Are you sure you want to delete this game?'
+                                );"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-outline-danger btn-sm"
+                                >
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="admin-games-empty">
+
+            <div class="admin-games-empty-icon">
+                🎮
+            </div>
+
+            <h5>
+                No games available
+            </h5>
+
+            <p class="text-muted mb-0">
+                Add your first game using the form above.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
 
 </div>
 
-<script src="{{ url_for('static', filename='js/notification.js') }}"></script>
+
+<script
+    src="{{ url_for('static', filename='js/notification.js') }}"
+></script>
+
 
 </body>
 

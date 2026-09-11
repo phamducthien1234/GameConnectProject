@@ -10,7 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>GameConnect</title>
+    <title>Create Gaming Session - GameConnect</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -31,7 +31,8 @@
 </head>
 
 
-<body>
+<body class="bg-light">
+
 
 <nav class="navbar navbar-dark bg-dark">
 
@@ -44,144 +45,292 @@
             🎮 GameConnect
         </a>
 
-        <a
-            href="{{ url_for('sessions') }}"
-            class="btn btn-outline-light"
-        >
-            Gaming Sessions
-        </a>
+        <div class="d-flex gap-2">
+
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="btn btn-outline-light"
+            >
+                Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('sessions') }}"
+                class="btn btn-outline-light"
+            >
+                Gaming Sessions
+            </a>
+
+        </div>
 
     </div>
 
 </nav>
 
+
 {% with messages = get_flashed_messages() %}
+
     {% if messages %}
+
         <div class="flash-container">
+
             {% for message in messages %}
+
                 <div class="flash-message">
                     {{ message }}
                 </div>
+
             {% endfor %}
+
         </div>
+
     {% endif %}
+
 {% endwith %}
 
-<div class="container mt-5">
 
-    <h1>Create Gaming Session</h1>
+<div class="container py-5">
 
-    <p class="text-muted">
-        Schedule a gaming session with one of your groups.
-    </p>
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8 col-xl-7">
 
 
-    <form method="POST">
+            <!-- PAGE HEADER -->
 
-        <div class="mb-3">
+            <div class="create-session-header mb-4">
 
-            <label class="form-label">
-                Group
-            </label>
+                <div>
 
-            <select
-                name="group_id"
-                class="form-select"
-                required
-            >
+                    <span class="create-session-label">
+                        Gaming Sessions
+                    </span>
 
-                <option value="">
-                    -- Select Group --
-                </option>
+                    <h1 class="mt-2 mb-2">
+                        Create Gaming Session
+                    </h1>
 
-                {% for group in groups %}
+                    <p class="text-muted mb-0">
+                        Schedule a session with one of your groups.
+                    </p>
 
-                <option
-                    value="{{ group.group_id }}"
-                    {% if selected_group_id == group.group_id %}
-                        selected
-                    {% endif %}
+                </div>
+
+
+                <a
+                    href="{{ url_for('sessions') }}"
+                    class="btn btn-outline-secondary"
                 >
+                    Back to Sessions
+                </a>
 
-                    {{ group.group_name }}
+            </div>
 
-                </option>
 
-                {% endfor %}
+            <!-- SESSION FORM CARD -->
 
-            </select>
+            <div class="create-session-card">
+
+                <div class="mb-4">
+
+                    <h3 class="mb-1">
+                        🎮 Session Details
+                    </h3>
+
+                    <p class="text-muted mb-0">
+                        Enter the details for your upcoming gaming session.
+                    </p>
+
+                </div>
+
+
+                <form method="POST">
+
+
+                    <!-- GROUP -->
+
+                    <div class="mb-4">
+
+                        <label
+                            for="group_id"
+                            class="form-label fw-semibold"
+                        >
+                            Group
+                        </label>
+
+                        <select
+                            id="group_id"
+                            name="group_id"
+                            class="form-select form-select-lg"
+                            required
+                        >
+
+                            <option value="">
+                                Select a group
+                            </option>
+
+                            {% for group in groups %}
+
+                            <option
+                                value="{{ group.group_id }}"
+                                {% if selected_group_id == group.group_id %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ group.group_name }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                        <div class="form-text">
+                            Choose the group that will participate in this session.
+                        </div>
+
+                    </div>
+
+
+                    <!-- SESSION NAME -->
+
+                    <div class="mb-4">
+
+                        <label
+                            for="session_name"
+                            class="form-label fw-semibold"
+                        >
+                            Session Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="session_name"
+                            name="session_name"
+                            class="form-control form-control-lg"
+                            placeholder="e.g. Friday Valorant Ranked"
+                            maxlength="100"
+                            required
+                        >
+
+                        <div class="form-text">
+                            Give your session a clear and recognizable name.
+                        </div>
+
+                    </div>
+
+
+                    <!-- DATE AND TIME -->
+
+                    <div class="mb-4">
+
+                        <label
+                            for="session_time"
+                            class="form-label fw-semibold"
+                        >
+                            Date and Time
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            id="session_time"
+                            name="session_time"
+                            class="form-control form-control-lg"
+                            required
+                        >
+
+                        <div class="form-text">
+                            Select when the gaming session will begin.
+                        </div>
+
+                    </div>
+
+
+                    <!-- DESCRIPTION -->
+
+                    <div class="mb-4">
+
+                        <label
+                            for="description"
+                            class="form-label fw-semibold"
+                        >
+                            Description
+                        </label>
+
+                        <textarea
+                            id="description"
+                            name="description"
+                            class="form-control"
+                            rows="5"
+                            placeholder="e.g. Ranked games, 5v5, aiming for promotion..."
+                        ></textarea>
+
+                        <div class="form-text">
+                            Add any useful information for players joining the session.
+                        </div>
+
+                    </div>
+
+
+                    <!-- INFO BOX -->
+
+                    <div class="create-session-info mb-4">
+
+                        <div class="create-session-info-icon">
+                            💡
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                After creating the session
+                            </strong>
+
+                            <p class="mb-0 mt-1">
+                                The session will appear in your group and Gaming Sessions page.
+                                Group members will be able to view and join it.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACTION BUTTONS -->
+
+                    <div class="create-session-actions">
+
+                        <a
+                            href="{{ url_for('sessions') }}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary px-4"
+                        >
+                            Create Session
+                        </button>
+
+                    </div>
+
+
+                </form>
+
+            </div>
+
 
         </div>
 
-
-        <div class="mb-3">
-
-            <label class="form-label">
-                Session Name
-            </label>
-
-            <input
-                type="text"
-                name="session_name"
-                class="form-control"
-                placeholder="Friday Valorant Session"
-                required
-            >
-
-        </div>
-
-
-        <div class="mb-3">
-
-            <label class="form-label">
-                Date and Time
-            </label>
-
-            <input
-                type="datetime-local"
-                name="session_time"
-                class="form-control"
-                required
-            >
-
-        </div>
-
-
-        <div class="mb-3">
-
-            <label class="form-label">
-                Description
-            </label>
-
-            <textarea
-                name="description"
-                class="form-control"
-                rows="4"
-                placeholder="Ranked games, 5v5..."
-            ></textarea>
-
-        </div>
-
-
-        <button
-            type="submit"
-            class="btn btn-primary"
-        >
-            Create Session
-        </button>
-
-        <a
-            href="{{ url_for('sessions') }}"
-            class="btn btn-secondary"
-        >
-            Cancel
-        </a>
-
-    </form>
+    </div>
 
 </div>
 
-<script src="{{ url_for('static', filename='js/notification.js') }}"></script>
+
+<script
+    src="{{ url_for('static', filename='js/notification.js') }}"
+></script>
 
 
 </body>

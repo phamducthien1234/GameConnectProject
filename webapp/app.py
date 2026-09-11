@@ -8,6 +8,7 @@ from services.matching import calculate_match_score
 import uuid
 from datetime import datetime, timezone, timedelta
 import random
+import requests
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -1341,6 +1342,8 @@ def admin_analytics():
         flash("You do not have permission to access analytics.")
         return redirect(url_for("dashboard"))
 
+    analytics_step_id = session.get("analytics_step_id")
+
     base = "analytics/results/summary"
 
     try:
@@ -1380,7 +1383,8 @@ def admin_analytics():
             average_recommendations=0,
             active_users=0,
             sessions_created=0,
-            invitations_sent=0
+            invitations_sent=0,
+            analytics_step_id=analytics_step_id
         )
 
     average_recommendations = 0
@@ -1400,6 +1404,7 @@ def admin_analytics():
         sessions_created = (
             session_count_data[0]
             .get("sessions_created", 0)
+            or 0
         )
 
     invitations_sent = 0
@@ -1408,6 +1413,7 @@ def admin_analytics():
         invitations_sent = (
             invitation_count_data[0]
             .get("invitations_sent", 0)
+            or 0
         )
 
     return render_template(
@@ -1417,7 +1423,8 @@ def admin_analytics():
         average_recommendations=average_recommendations,
         active_users=active_users,
         sessions_created=sessions_created,
-        invitations_sent=invitations_sent
+        invitations_sent=invitations_sent,
+        analytics_step_id=analytics_step_id
     )
 
 @app.route('/admin/users')
@@ -1784,6 +1791,160 @@ def remove_group_member(group_id, target_user_id):
             group_id=group_id
         )
     )
+
+@app.route('/admin/analytics/run', methods=['POST'])
+def run_admin_analytics():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    users_table = get_table(Config.USERS_TABLE)
+
+    user_response = users_table.get_item(
+        Key={'user_id': session['user_id']}
+    )
+
+    user = user_response.get('Item')
+
+    if not user or user.get('role') != 'admin':
+        flash('Admin access required.')
+        return redirect(url_for('dashboard'))
+
+    try:
+        api_response = requests.post(
+            Config.ANALYTICS_API_URL,
+            timeout=15
+        )
+
+        data = api_response.json()
+
+        if api_response.status_code in [200, 202] and data.get('success'):
+            step_id = data.get('step_id', '')
+
+            # Save the EMR step ID so the page can track it
+            session['analytics_step_id'] = step_id
+
+            flash(
+                f'Analytics update started successfully. '
+                f'EMR Step: {step_id}'
+            )
+
+        else:
+            print(
+                'Analytics API error:',
+                api_response.status_code,
+                api_response.text
+            )
+
+            flash('Unable to start analytics update.')
+
+    except Exception as error:
+        print(
+            'Analytics trigger error:',
+            str(error)
+        )
+
+        flash('Unable to start analytics update.')
+
+    return redirect(
+        url_for('admin_analytics')
+    )
+
+@app.route('/admin/analytics/status')
+def admin_analytics_status():
+    if 'user_id' not in session:
+        return jsonify({
+            'success': False,
+            'message': 'Not logged in.'
+        }), 401
+
+    users_table = get_table(Config.USERS_TABLE)
+
+    user_response = users_table.get_item(
+        Key={'user_id': session['user_id']}
+    )
+
+    user = user_response.get('Item')
+
+    if not user or user.get('role') != 'admin':
+        return jsonify({
+            'success': False,
+            'message': 'Admin access required.'
+        }), 403
+
+    step_id = session.get('analytics_step_id')
+
+    if not step_id:
+        return jsonify({
+            'success': False,
+            'message': 'No analytics job is currently being tracked.'
+        }), 404
+
+    try:
+        base_url = Config.ANALYTICS_API_URL.rsplit(
+            '/analytics/run',
+            1
+        )[0]
+
+        status_url = (
+            f'{base_url}/analytics/status/{step_id}'
+        )
+
+        api_response = requests.get(
+            status_url,
+            timeout=15
+        )
+
+        data = api_response.json()
+
+        if not api_response.ok or not data.get('success'):
+            return jsonify({
+                'success': False,
+                'message': data.get(
+                    'message',
+                    'Unable to check analytics status.'
+                )
+            }), api_response.status_code
+
+        analytics = data.get('analytics', {})
+
+        state = analytics.get(
+            'state',
+            'UNKNOWN'
+        )
+
+        message = analytics.get(
+            'message',
+            ''
+        )
+
+        if state in [
+            'COMPLETED',
+            'FAILED',
+            'CANCELLED',
+            'INTERRUPTED'
+        ]:
+            session.pop(
+                'analytics_step_id',
+                None
+            )
+
+        return jsonify({
+            'success': True,
+            'step_id': step_id,
+            'state': state,
+            'message': message
+        })
+
+    except Exception as error:
+        print(
+            'Analytics status error:',
+            str(error)
+        )
+
+        return jsonify({
+            'success': False,
+            'message': 'Unable to check analytics status.'
+        }), 500
 
 @app.route('/game-deals')
 def game_deals():
