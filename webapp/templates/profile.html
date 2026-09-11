@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -11,7 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>GameConnect</title>
+    <title>My Profile - GameConnect</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -51,7 +50,7 @@
             🎮 GameConnect
         </a>
 
-        <div>
+        <div class="d-flex gap-2">
 
             <a
                 href="{{ url_for('dashboard') }}"
@@ -74,17 +73,15 @@
 </nav>
 
 
-{% with messages = get_flashed_messages(with_categories=true) %}
+{% with messages = get_flashed_messages() %}
 
     {% if messages %}
 
-        <div class="container mt-3">
+        <div class="flash-container">
 
-            {% for category, message in messages %}
+            {% for message in messages %}
 
-                <div
-                    class="alert alert-{{ category if category in ['success', 'danger', 'warning', 'info'] else 'info' }}"
-                >
+                <div class="flash-message">
                     {{ message }}
                 </div>
 
@@ -97,337 +94,73 @@
 {% endwith %}
 
 
-<div class="container mt-5">
+<div class="container py-5">
 
-    <div class="row justify-content-center">
 
-        <div class="col-md-8">
+    <!-- PROFILE HEADER -->
 
-            <div class="card shadow">
+    <div class="profile-header-card mb-4">
 
-                <div class="card-body p-4">
+        <div class="row align-items-center">
 
-                    <h2 class="mb-4">
-                        My Profile
-                    </h2>
+            <div class="col-md-auto text-center mb-3 mb-md-0">
 
+                {% if user.profile_image_url %}
 
-                    <!-- PROFILE IMAGE -->
+                <img
+                    src="{{ user.profile_image_url }}"
+                    alt="{{ user.username }}"
+                    class="profile-main-avatar"
+                >
 
-                    <div class="text-center mb-4">
+                {% else %}
 
-                        {% if user.profile_image_url %}
+                <div class="profile-main-avatar profile-avatar-placeholder">
+                    {{ user.username[0] | upper }}
+                </div>
 
-                            <img
-                                src="{{ user.profile_image_url }}"
-                                alt="Profile image"
-                                class="rounded-circle border shadow-sm"
-                                width="140"
-                                height="140"
-                                style="object-fit: cover;"
-                            >
+                {% endif %}
 
-                        {% else %}
+            </div>
 
-                            <div
-                                class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto"
-                                style="
-                                    width: 140px;
-                                    height: 140px;
-                                    font-size: 50px;
-                                "
-                            >
-                                🎮
-                            </div>
 
-                        {% endif %}
+            <div class="col-md">
 
-                    </div>
+                <p class="profile-label mb-1">
+                    GameConnect Player
+                </p>
 
+                <h1 class="mb-2">
+                    {{ user.username }}
+                </h1>
 
-                    <!-- PROFILE FORM -->
+                <div class="profile-header-info">
 
-                    <form
-                        method="POST"
-                        enctype="multipart/form-data"
-                    >
+                    <span>
+                        📧 {{ user.email }}
+                    </span>
 
-
-                        <!-- PROFILE IMAGE UPLOAD -->
-
-                        <div class="mb-3">
-
-                            <label
-                                for="profileImage"
-                                class="form-label"
-                            >
-                                Profile Image
-                            </label>
-
-                            <input
-                                type="file"
-                                name="profile_image"
-                                id="profileImage"
-                                class="form-control"
-                                accept=".jpg,.jpeg,.png,.webp"
-                            >
-
-                            <div class="form-text">
-                                JPG, JPEG, PNG or WEBP.
-                            </div>
-
-                        </div>
-
-
-                        <!-- USERNAME -->
-
-                        <div class="mb-3">
-
-                            <label class="form-label">
-                                Username
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                value="{{ user.username }}"
-                                disabled
-                            >
-
-                        </div>
-
-
-                        <!-- EMAIL -->
-
-                        <div class="mb-3">
-
-                            <label class="form-label">
-                                Email
-                            </label>
-
-                            <input
-                                type="email"
-                                class="form-control"
-                                value="{{ user.email }}"
-                                disabled
-                            >
-
-                        </div>
-
-
-                        <!-- REGION -->
-
-                        <div class="mb-3">
-
-                            <label class="form-label">
-                                Region
-                            </label>
-
-                            <select
-                                name="region"
-                                class="form-select"
-                                required
-                            >
-
-                                <option
-                                    value="SEA"
-                                    {% if user.region == "SEA" %}
-                                    selected
-                                    {% endif %}
-                                >
-                                    Southeast Asia
-                                </option>
-
-                                <option
-                                    value="OCE"
-                                    {% if user.region == "OCE" %}
-                                    selected
-                                    {% endif %}
-                                >
-                                    Oceania
-                                </option>
-
-                                <option
-                                    value="NA"
-                                    {% if user.region == "NA" %}
-                                    selected
-                                    {% endif %}
-                                >
-                                    North America
-                                </option>
-
-                                <option
-                                    value="EU"
-                                    {% if user.region == "EU" %}
-                                    selected
-                                    {% endif %}
-                                >
-                                    Europe
-                                </option>
-
-                                <option
-                                    value="KR"
-                                    {% if user.region == "KR" %}
-                                    selected
-                                    {% endif %}
-                                >
-                                    Korea
-                                </option>
-
-                                <option
-                                    value="JP"
-                                    {% if user.region == "JP" %}
-                                    selected
-                                    {% endif %}
-                                >
-                                    Japan
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- BIO -->
-
-                        <div class="mb-3">
-
-                            <label class="form-label">
-                                Bio
-                            </label>
-
-                            <textarea
-                                name="bio"
-                                class="form-control"
-                                rows="4"
-                                maxlength="500"
-                                placeholder="Tell other players about yourself..."
-                            >{{ user.bio or "" }}</textarea>
-
-                        </div>
-
-
-                        <!-- SAVE -->
-
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                        >
-                            Save Profile
-                        </button>
-
-                    </form>
-
-
-                    <hr class="my-4">
-
-
-                    <!-- MY GAMES -->
-
-                    <div class="d-flex justify-content-between align-items-center">
-
-                        <h4>
-                            My Games
-                        </h4>
-
-                        <a
-                            href="{{ url_for('add_game') }}"
-                            class="btn btn-success"
-                        >
-                            + Add Game
-                        </a>
-
-                    </div>
-
-
-                    {% if player_games %}
-
-                        {% for game in player_games %}
-
-                            <div class="card mt-3">
-
-                                <div class="card-body">
-
-                                    <h5>
-                                        {{ game.game_name }}
-                                    </h5>
-
-
-                                    <p class="mb-1">
-
-                                        <strong>
-                                            Rank:
-                                        </strong>
-
-                                        {{ game.rank }}
-
-                                    </p>
-
-
-                                    {% if game.riot_verified %}
-
-                                        <p class="mb-1">
-
-                                            <span class="badge bg-success">
-                                                Riot Verified
-                                            </span>
-
-                                        </p>
-
-                                    {% endif %}
-
-
-                                    {% if game.riot_game_name and game.riot_tag_line %}
-
-                                        <p class="mb-1">
-
-                                            <strong>
-                                                Riot ID:
-                                            </strong>
-
-                                            {{ game.riot_game_name }}#{{ game.riot_tag_line }}
-
-                                        </p>
-
-                                    {% endif %}
-
-
-                                    <p class="mb-1">
-
-                                        <strong>
-                                            Role:
-                                        </strong>
-
-                                        {{ game.role }}
-
-                                    </p>
-
-
-                                    <p class="mb-0">
-
-                                        <strong>
-                                            Availability:
-                                        </strong>
-
-                                        {{ game.availability }}
-
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                        {% endfor %}
-
-                    {% else %}
-
-                        <p class="text-muted mt-3">
-                            You have not added any games yet.
-                        </p>
-
-                    {% endif %}
+                    <span>
+                        🌍 {{ user.region }}
+                    </span>
 
                 </div>
+
+                <p class="text-muted mt-3 mb-0">
+                    {{ user.bio or "No bio yet." }}
+                </p>
+
+            </div>
+
+
+            <div class="col-md-auto mt-3 mt-md-0">
+
+                <a
+                    href="{{ url_for('dashboard') }}"
+                    class="btn btn-primary"
+                >
+                    Back to Dashboard
+                </a>
 
             </div>
 
@@ -436,18 +169,333 @@
     </div>
 
 
-    <div class="mt-4 mb-5">
+    <div class="row g-4">
 
-        <a
-            href="{{ url_for('dashboard') }}"
-            class="btn btn-secondary"
-        >
-            Back to Dashboard
-        </a>
+
+        <!-- EDIT PROFILE -->
+
+        <div class="col-lg-5">
+
+            <div class="profile-section-card h-100">
+
+                <h3 class="mb-1">
+                    Edit Profile
+                </h3>
+
+                <p class="text-muted mb-4">
+                    Update your player information and profile image.
+                </p>
+
+
+                <form
+                    method="POST"
+                    enctype="multipart/form-data"
+                >
+
+
+                    <div class="mb-3">
+
+                        <label
+                            for="profileImage"
+                            class="form-label"
+                        >
+                            Profile Image
+                        </label>
+
+                        <input
+                            type="file"
+                            name="profile_image"
+                            id="profileImage"
+                            class="form-control"
+                            accept=".jpg,.jpeg,.png,.webp"
+                        >
+
+                        <div class="form-text">
+                            JPG, JPEG, PNG or WEBP.
+                        </div>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Username
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="{{ user.username }}"
+                            disabled
+                        >
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Email
+                        </label>
+
+                        <input
+                            type="email"
+                            class="form-control"
+                            value="{{ user.email }}"
+                            disabled
+                        >
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Region
+                        </label>
+
+                        <select
+                            name="region"
+                            class="form-select"
+                            required
+                        >
+
+                            <option
+                                value="SEA"
+                                {% if user.region == "SEA" %}
+                                selected
+                                {% endif %}
+                            >
+                                Southeast Asia
+                            </option>
+
+                            <option
+                                value="OCE"
+                                {% if user.region == "OCE" %}
+                                selected
+                                {% endif %}
+                            >
+                                Oceania
+                            </option>
+
+                            <option
+                                value="NA"
+                                {% if user.region == "NA" %}
+                                selected
+                                {% endif %}
+                            >
+                                North America
+                            </option>
+
+                            <option
+                                value="EU"
+                                {% if user.region == "EU" %}
+                                selected
+                                {% endif %}
+                            >
+                                Europe
+                            </option>
+
+                            <option
+                                value="KR"
+                                {% if user.region == "KR" %}
+                                selected
+                                {% endif %}
+                            >
+                                Korea
+                            </option>
+
+                            <option
+                                value="JP"
+                                {% if user.region == "JP" %}
+                                selected
+                                {% endif %}
+                            >
+                                Japan
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+                            Bio
+                        </label>
+
+                        <textarea
+                            name="bio"
+                            class="form-control"
+                            rows="5"
+                            maxlength="500"
+                            placeholder="Tell other players about yourself..."
+                        >{{ user.bio or "" }}</textarea>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100"
+                    >
+                        Save Profile
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- MY GAMES -->
+
+        <div class="col-lg-7">
+
+            <div class="profile-section-card h-100">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <div>
+
+                        <h3 class="mb-1">
+                            My Games
+                        </h3>
+
+                        <p class="text-muted mb-0">
+                            Your games, ranks, roles and availability.
+                        </p>
+
+                    </div>
+
+
+                    <a
+                        href="{{ url_for('add_game') }}"
+                        class="btn btn-primary"
+                    >
+                        + Add Game
+                    </a>
+
+                </div>
+
+
+                {% if player_games %}
+
+                    <div class="row g-3">
+
+                        {% for game in player_games %}
+
+                        <div class="col-12">
+
+                            <div class="profile-game-card">
+
+                                <div class="d-flex justify-content-between align-items-start gap-3">
+
+                                    <div>
+
+                                        <h5 class="mb-2">
+                                            {{ game.game_name }}
+                                        </h5>
+
+                                        {% if game.riot_verified %}
+
+                                            <span class="badge bg-success mb-2">
+                                                Riot Verified
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                    <span class="profile-game-role">
+                                        {{ game.role }}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="row mt-2">
+
+                                    <div class="col-sm-6">
+
+                                        <p class="mb-2">
+                                            <strong>Rank:</strong>
+                                            {{ game.rank }}
+                                        </p>
+
+                                    </div>
+
+                                    <div class="col-sm-6">
+
+                                        <p class="mb-2">
+                                            <strong>Availability:</strong>
+                                            {{ game.availability }}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                {% if game.riot_game_name and game.riot_tag_line %}
+
+                                <p class="mb-0 text-muted">
+                                    <strong>Riot ID:</strong>
+                                    {{ game.riot_game_name }}#{{ game.riot_tag_line }}
+                                </p>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="profile-empty-state">
+
+                        <div class="profile-empty-icon">
+                            🎮
+                        </div>
+
+                        <h5>
+                            No games added yet
+                        </h5>
+
+                        <p class="text-muted">
+                            Add a game to start finding compatible teammates.
+                        </p>
+
+                        <a
+                            href="{{ url_for('add_game') }}"
+                            class="btn btn-primary"
+                        >
+                            + Add Game
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
 
     </div>
 
 </div>
+
+
+<script
+    src="{{ url_for('static', filename='js/notification.js') }}"
+></script>
 
 
 </body>

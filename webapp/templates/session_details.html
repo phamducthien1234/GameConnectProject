@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>GameConnect</title>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>{{ gaming_session.session_name }} - GameConnect</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -24,10 +30,14 @@
 
 </head>
 
-<body>
+
+<body class="bg-light">
+
 
 <nav class="navbar navbar-dark bg-dark">
+
     <div class="container">
+
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -35,127 +45,293 @@
             🎮 GameConnect
         </a>
 
-        <a
-            class="btn btn-outline-light"
-            href="{{ url_for('sessions') }}"
-        >
-            Back to Sessions
-        </a>
+        <div class="d-flex gap-2">
+
+            <a
+                href="{{ url_for('sessions') }}"
+                class="btn btn-outline-light"
+            >
+                Gaming Sessions
+            </a>
+
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="btn btn-outline-light"
+            >
+                Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('logout') }}"
+                class="btn btn-danger"
+            >
+                Logout
+            </a>
+
+        </div>
+
     </div>
+
 </nav>
 
+
 {% with messages = get_flashed_messages() %}
+
     {% if messages %}
+
         <div class="flash-container">
+
             {% for message in messages %}
+
                 <div class="flash-message">
                     {{ message }}
                 </div>
+
             {% endfor %}
+
         </div>
+
     {% endif %}
+
 {% endwith %}
 
-<div class="container mt-5">
 
-    <div class="card shadow">
+<div class="container py-5">
 
-        <div class="card-body">
 
-            <h2>
-                {{ gaming_session.session_name }}
-            </h2>
+    <!-- SESSION HEADER -->
 
-            <p class="text-muted">
-                Group:
-                <strong>
-                    {{ group.group_name }}
-                </strong>
-            </p>
+    <div class="session-details-header mb-5">
 
-            <hr>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-            <h5>Session Information</h5>
+            <div>
 
-            <p>
-                <strong>Date & Time:</strong>
-                {{ gaming_session.session_time | datetime}}
-            </p>
+                <span class="session-details-label">
+                    Gaming Session
+                </span>
 
-            <p>
-                <strong>Description:</strong>
-                {{ gaming_session.description or "No description provided." }}
-            </p>
+                <h1 class="mt-2 mb-2">
+                    {{ gaming_session.session_name }}
+                </h1>
 
-            <p>
-                <strong>Created:</strong>
-                {{ gaming_session.created_at | datetime}}
-            </p>
+                <p class="text-muted mb-0">
+                    Hosted for
+                    <strong>
+                        {{ group.group_name }}
+                    </strong>
+                </p>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('sessions') }}"
+                class="btn btn-primary"
+            >
+                Back to Sessions
+            </a>
 
         </div>
 
     </div>
 
 
-    <div class="card shadow mt-4">
+    <div class="row g-4">
 
-        <div class="card-body">
 
-            <div class="d-flex justify-content-between align-items-center">
+        <!-- SESSION INFORMATION -->
 
-                <h4>
-                    Joined Players
-                </h4>
+        <div class="col-lg-5">
 
-                <span class="badge bg-primary">
-                    {{ members|length }} player(s)
-                </span>
+            <div class="session-info-card h-100">
+
+                <h3 class="mb-1">
+                    Session Information
+                </h3>
+
+                <p class="text-muted mb-4">
+                    Details about this gaming session.
+                </p>
+
+
+                <div class="session-info-list">
+
+                    <div>
+
+                        <span>
+                            Group
+                        </span>
+
+                        <strong>
+                            {{ group.group_name }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Date & Time
+                        </span>
+
+                        <strong>
+                            {{ gaming_session.session_time | datetime }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Created
+                        </span>
+
+                        <strong>
+                            {{ gaming_session.created_at | datetime }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="session-description-box">
+
+                    <span>
+                        Description
+                    </span>
+
+                    <p class="mb-0">
+                        {{ gaming_session.description or "No description provided." }}
+                    </p>
+
+                </div>
 
             </div>
 
-            <hr>
+        </div>
 
-            {% if members %}
 
-                {% for member in members %}
+        <!-- JOINED PLAYERS -->
 
-                    <div class="border rounded p-3 mb-3">
+        <div class="col-lg-7">
 
-                        <div class="d-flex justify-content-between">
+            <div class="session-members-card h-100">
 
-                            <div>
+                <div class="d-flex justify-content-between align-items-center mb-4">
 
-                                <h5 class="mb-1">
-                                    {{ member.username }}
+                    <div>
 
-                                    {% if member.user_id == gaming_session.created_by %}
-                                        <span class="badge bg-success">
-                                            Creator
-                                        </span>
-                                    {% endif %}
+                        <h3 class="mb-1">
+                            Joined Players
+                        </h3>
 
-                                </h5>
+                        <p class="text-muted mb-0">
+                            Players currently participating in this session.
+                        </p>
 
-                                <small class="text-muted">
-                                    Region:
-                                    {{ member.region or "Not specified" }}
-                                </small>
+                    </div>
+
+
+                    <span class="session-player-count">
+                        {{ members|length }} player(s)
+                    </span>
+
+                </div>
+
+
+                {% if members %}
+
+                    <div class="row g-3">
+
+                        {% for member in members %}
+
+                        <div class="col-12">
+
+                            <div class="session-member-item">
+
+                                <div class="d-flex align-items-center gap-3">
+
+                                    <div class="session-member-avatar">
+                                        {{ member.username[0] | upper }}
+                                    </div>
+
+
+                                    <div class="flex-grow-1">
+
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+
+                                            <h5 class="mb-0">
+                                                {{ member.username }}
+                                            </h5>
+
+
+                                            {% if member.user_id == gaming_session.created_by %}
+
+                                            <span class="badge bg-success">
+                                                Creator
+                                            </span>
+
+                                            {% else %}
+
+                                            <span class="badge bg-secondary">
+                                                Player
+                                            </span>
+
+                                            {% endif %}
+
+                                        </div>
+
+
+                                        <p class="text-muted mb-0 mt-1">
+
+                                            Region:
+
+                                            <strong>
+                                                {{ member.region or "Not specified" }}
+                                            </strong>
+
+                                        </p>
+
+                                    </div>
+
+                                </div>
 
                             </div>
 
                         </div>
 
+                        {% endfor %}
+
                     </div>
 
-                {% endfor %}
 
-            {% else %}
+                {% else %}
 
-                <p class="text-muted">
-                    No players have joined this session yet.
-                </p>
 
-            {% endif %}
+                    <div class="session-members-empty">
+
+                        <div class="session-members-empty-icon">
+                            👥
+                        </div>
+
+                        <h5>
+                            No Players Yet
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            No players have joined this session yet.
+                        </p>
+
+                    </div>
+
+
+                {% endif %}
+
+            </div>
 
         </div>
 
@@ -163,5 +339,12 @@
 
 </div>
 
+
+<script
+    src="{{ url_for('static', filename='js/notification.js') }}"
+></script>
+
+
 </body>
+
 </html>

@@ -1,216 +1,246 @@
-const API_BASE =
-    "https://q4bibcud7b.execute-api.us-east-1.amazonaws.com";
+const searchInput = document.getElementById("gameSearch");
+const searchButton = document.getElementById("searchButton");
+const resultsContainer = document.getElementById("results");
+const loading = document.getElementById("loading");
 
-
-document.addEventListener("DOMContentLoaded", function () {
-    const searchButton = document.getElementById("searchButton");
-    const gameSearch = document.getElementById("gameSearch");
-
-    if (searchButton) {
-        searchButton.addEventListener("click", searchDeals);
+const featuredGames = [
+    {
+        name: "Cyberpunk 2077",
+        image: "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/header.jpg"
+    },
+    {
+        name: "Grand Theft Auto V",
+        image: "https://cdn.cloudflare.steamstatic.com/steam/apps/271590/header.jpg"
+    },
+    {
+        name: "Red Dead Redemption 2",
+        image: "https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/header.jpg"
+    },
+    {
+        name: "Elden Ring",
+        image: "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/header.jpg"
+    },
+    {
+        name: "The Witcher 3",
+        image: "https://cdn.cloudflare.steamstatic.com/steam/apps/292030/header.jpg"
+    },
+    {
+        name: "Hogwarts Legacy",
+        image: "https://cdn.cloudflare.steamstatic.com/steam/apps/990080/header.jpg"
+    },
+    {
+        name: "Baldur's Gate 3",
+        image: "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/header.jpg"
+    },
+    {
+        name: "Resident Evil 4",
+        image: "https://cdn.cloudflare.steamstatic.com/steam/apps/2050650/header.jpg"
     }
+];
 
-    if (gameSearch) {
-        gameSearch.addEventListener("keydown", function (event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                searchDeals();
-            }
-        });
-    }
-});
+const refreshFeaturedButton =
+    document.getElementById("refreshFeatured");
 
+if (refreshFeaturedButton) {
+    refreshFeaturedButton.addEventListener(
+        "click",
+        displayFeaturedGames
+    );
+}
 
-async function searchDeals() {
-    const query = document.getElementById("gameSearch").value.trim();
-    const results = document.getElementById("results");
-    const loading = document.getElementById("loading");
+function shuffleArray(array) {
+    return [...array].sort(() => Math.random() - 0.5);
+}
 
-    if (!query) {
-        showNotification("Please enter a game name.");
-        return;
-    }
+function displayFeaturedGames() {
+    resultsContainer.innerHTML = "";
 
-    results.innerHTML = "";
-    loading.classList.remove("d-none");
+    const randomGames = shuffleArray(featuredGames).slice(0, 6);
 
-    try {
-        const url =
-            `${API_BASE}/cheapshark/games/`
-            + encodeURIComponent(query);
+    randomGames.forEach(game => {
+        const card = document.createElement("div");
 
-        console.log("CheapShark request:", url);
+        card.className = "col-md-6 col-lg-4 mb-4";
 
-        const response = await fetch(url);
-        const responseText = await response.text();
+        card.innerHTML = `
+            <div class="card h-100 shadow-sm">
 
-        let data;
+                <img
+                    src="${game.image}"
+                    class="card-img-top"
+                    alt="${game.name}"
+                    style="height: 180px; object-fit: cover;"
+                >
 
-        try {
-            data = JSON.parse(responseText);
-        } catch {
-            throw new Error("API returned invalid JSON.");
-        }
+                <div class="card-body d-flex flex-column">
 
-        console.log("CheapShark response:", data);
+                    <h5 class="card-title">
+                        ${game.name}
+                    </h5>
 
-        if (!response.ok) {
-            throw new Error(
-                data.message ||
-                "Unable to search games"
-            );
-        }
+                    <p class="text-muted">
+                        Search GameConnect to find current deals.
+                    </p>
 
-        if (!data.games || data.games.length === 0) {
-            results.innerHTML = `
-                <div class="col-12">
-                    <div class="alert alert-warning">
-                        No games found.
-                    </div>
-                </div>
-            `;
-
-            return;
-        }
-
-        data.games.forEach(function (game) {
-            const gameName =
-                game.name || "Unknown Game";
-
-            const price =
-                game.cheapest_price
-                    ? "$" + game.cheapest_price
-                    : "N/A";
-
-            const steamBadge =
-                game.steam_app_id
-                    ? `
-                        <span class="badge bg-secondary">
-                            Steam
-                        </span>
-                    `
-                    : "";
-
-            const dealButton =
-                game.cheapest_deal_id
-                    ? `
-                        <a
-                            href="https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(game.cheapest_deal_id)}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="btn btn-success"
-                        >
-                            View Deal
-                        </a>
-                    `
-                    : "";
-
-            results.innerHTML += `
-                <div class="col-md-6 col-lg-4 mb-4">
-
-                    <div class="card h-100 shadow-sm">
-
-                        ${
-                            game.thumb
-                                ? `
-                                    <img
-                                        src="${escapeHtml(game.thumb)}"
-                                        class="card-img-top"
-                                        alt="${escapeHtml(gameName)}"
-                                        style="
-                                            height: 180px;
-                                            object-fit: cover;
-                                        "
-                                    >
-                                `
-                                : ""
-                        }
-
-                        <div class="card-body">
-
-                            <h5 class="card-title">
-                                ${escapeHtml(gameName)}
-                            </h5>
-
-                            <p class="card-text">
-                                Cheapest price:
-                                <strong class="text-success">
-                                    ${escapeHtml(price)}
-                                </strong>
-                            </p>
-
-                            ${steamBadge}
-
-                            <div class="mt-3">
-                                ${dealButton}
-                            </div>
-
-                        </div>
-
-                    </div>
+                    <button
+                        class="btn btn-primary mt-auto featured-search"
+                        data-game="${game.name}"
+                    >
+                        Find Deals
+                    </button>
 
                 </div>
-            `;
-        });
 
-    } catch (error) {
-        console.error("CheapShark error:", error);
-
-        results.innerHTML = `
-            <div class="col-12">
-                <div class="alert alert-danger">
-                    ${escapeHtml(error.message)}
-                </div>
             </div>
         `;
 
-    } finally {
+        resultsContainer.appendChild(card);
+    });
+
+    document.querySelectorAll(".featured-search").forEach(button => {
+        button.addEventListener("click", function () {
+            const gameName = this.dataset.game;
+
+            searchInput.value = gameName;
+
+            searchGames(gameName);
+        });
+    });
+}
+
+async function searchGames(gameName = null) {
+    const searchValue = gameName || searchInput.value.trim();
+
+    if (!searchValue) {
+        return;
+    }
+
+    loading.classList.remove("d-none");
+    resultsContainer.innerHTML = "";
+
+    try {
+        const response = await fetch(
+            `https://q4bibcud7b.execute-api.us-east-1.amazonaws.com/cheapshark/games/${encodeURIComponent(searchValue)}`
+        );
+
+        const data = await response.json();
+
         loading.classList.add("d-none");
+
+        if (!response.ok) {
+            resultsContainer.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-danger">
+                        Unable to retrieve game deals.
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        let games = data;
+
+        if (data.games) {
+            games = data.games;
+        }
+
+        if (!Array.isArray(games) || games.length === 0) {
+            resultsContainer.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        No games were found.
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        displaySearchResults(games);
+
+    } catch (error) {
+        console.error(error);
+
+        loading.classList.add("d-none");
+
+        resultsContainer.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-danger">
+                    Unable to connect to the Game Deals service.
+                </div>
+            </div>
+        `;
     }
 }
 
+function displaySearchResults(games) {
+    resultsContainer.innerHTML = "";
 
-function escapeHtml(value) {
-    const div = document.createElement("div");
-    div.textContent = value ?? "";
-    return div.innerHTML;
+    games.forEach(game => {
+        const card = document.createElement("div");
+
+        card.className = "col-md-6 col-lg-4 mb-4";
+
+        const image = game.thumb || "";
+
+        const price = game.cheapest_price
+            ? `$${game.cheapest_price}`
+            : "Price unavailable";
+
+        card.innerHTML = `
+            <div class="card h-100 shadow-sm">
+
+                ${
+                    image
+                        ? `
+                            <img
+                                src="${image}"
+                                class="card-img-top"
+                                alt="${game.name}"
+                                style="height: 180px; object-fit: cover;"
+                            >
+                        `
+                        : ""
+                }
+
+                <div class="card-body">
+
+                    <h5 class="card-title">
+                        ${game.name || "Unknown Game"}
+                    </h5>
+
+                    <p>
+                        <strong>Cheapest Price:</strong>
+                        ${price}
+                    </p>
+
+                    ${
+                        game.steam_app_id
+                            ? `
+                                <p class="text-muted">
+                                    Steam App ID:
+                                    ${game.steam_app_id}
+                                </p>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+            </div>
+        `;
+
+        resultsContainer.appendChild(card);
+    });
 }
 
+searchButton.addEventListener("click", function () {
+    searchGames();
+});
 
-function showNotification(message) {
-    let container =
-        document.querySelector(".flash-container");
-
-    if (!container) {
-        container =
-            document.createElement("div");
-
-        container.className =
-            "flash-container";
-
-        document.body.appendChild(container);
+searchInput.addEventListener("keypress", function (event) {
+    if (event.key === "Enter") {
+        searchGames();
     }
+});
 
-    const notification =
-        document.createElement("div");
-
-    notification.className =
-        "flash-message";
-
-    notification.textContent =
-        message;
-
-    container.appendChild(notification);
-
-    setTimeout(function () {
-        notification.classList.add("show");
-    }, 100);
-
-    setTimeout(function () {
-        notification.classList.remove("show");
-
-        setTimeout(function () {
-            notification.remove();
-        }, 500);
-    }, 3000);
-}
+displayFeaturedGames();

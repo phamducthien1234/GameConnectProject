@@ -7,6 +7,8 @@ from services.dynamodb import get_table
 from services.matching import calculate_match_score
 import uuid
 from datetime import datetime, timezone, timedelta
+import random
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
@@ -92,14 +94,34 @@ def dashboard():
     if 'user_id' not in session:
         flash('Please log in first.')
         return redirect(url_for('login'))
+
     users_table = get_table(app.config['USERS_TABLE'])
-    response = users_table.get_item(Key={'user_id': session['user_id']})
+
+    response = users_table.get_item(
+        Key={'user_id': session['user_id']}
+    )
+
     user = response.get('Item')
+
     if not user:
         session.clear()
         flash('User account could not be found.')
         return redirect(url_for('login'))
-    return render_template('dashboard.html', user=user)
+
+    user["profile_image_url"] = None
+
+    if user.get("profile_image_key"):
+        try:
+            user["profile_image_url"] = create_profile_image_url(
+                user["profile_image_key"]
+            )
+        except Exception as error:
+            print("Dashboard profile image error:", str(error))
+
+    return render_template(
+        'dashboard.html',
+        user=user
+    )
 
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
@@ -127,16 +149,13 @@ def profile():
             allowed_extensions = {"jpg", "jpeg", "png", "webp"}
 
             if "." not in profile_image.filename:
-                flash("Invalid image file.", "danger")
+                flash("Invalid image file.")
                 return redirect(url_for("profile"))
 
             extension = profile_image.filename.rsplit(".", 1)[-1].lower()
 
             if extension not in allowed_extensions:
-                flash(
-                    "Profile image must be JPG, JPEG, PNG or WEBP.",
-                    "danger"
-                )
+                flash("Profile image must be JPG, JPEG, PNG or WEBP.")
                 return redirect(url_for("profile"))
 
             try:
@@ -150,10 +169,7 @@ def profile():
 
             except Exception as error:
                 print("S3 upload error:", str(error))
-                flash(
-                    "Unable to upload profile image.",
-                    "danger"
-                )
+                flash("Unable to upload profile image.")
                 return redirect(url_for("profile"))
 
         users_table.update_item(
@@ -163,10 +179,7 @@ def profile():
             ExpressionAttributeValues=expression_values
         )
 
-        flash(
-            "Profile updated successfully.",
-            "success"
-        )
+        flash("Profile updated successfully.")
 
         return redirect(url_for("profile"))
 
@@ -223,116 +236,450 @@ def add_game():
     riot_puuid = request.form.get('riot_puuid', '').strip()
     riot_rank = request.form.get('riot_rank', '').strip()
     if not game_id or not rank or (not role) or (not availability):
-        flash('Please complete all fields.', 'warning')
+        flash('Please complete all fields.')
         return redirect(url_for('add_game'))
     selected_game = next((game for game in games if game.get('game_id') == game_id), None)
     if not selected_game:
-        flash('Invalid game selected.', 'danger')
+        flash('Invalid game selected.')
         return redirect(url_for('add_game'))
     existing = player_games_table.get_item(Key={'user_id': user_id, 'game_id': game_id}).get('Item')
     if existing:
-        flash('You have already added this game to your profile.', 'warning')
+        flash('You have already added this game to your profile.')
         return redirect(url_for('profile'))
     player_game = {'user_id': user_id, 'game_id': game_id, 'game_name': selected_game['game_name'], 'rank': rank, 'role': role, 'availability': availability}
     if selected_game.get('game_name', '').lower() == 'league of legends':
         if not riot_game_name or not riot_tag_line or (not riot_puuid):
-            flash('Please fetch and verify your Riot profile before adding League of Legends.', 'warning')
+            flash('Please fetch and verify your Riot profile before adding League of Legends.')
             return redirect(url_for('add_game'))
         player_game.update({'riot_game_name': riot_game_name, 'riot_tag_line': riot_tag_line, 'riot_puuid': riot_puuid, 'riot_rank': riot_rank or rank, 'riot_verified': True})
         if riot_rank:
             player_game['rank'] = riot_rank
     player_games_table.put_item(Item=player_game, ConditionExpression='attribute_not_exists(user_id) AND attribute_not_exists(game_id)')
-    flash('Game added successfully.', 'success')
+    flash('Game added successfully.')
     return redirect(url_for('profile'))
 
 @app.route('/find-teammates')
 def find_teammates():
     if 'user_id' not in session:
         return redirect(url_for('login'))
+
     user_id = session['user_id']
+
     users_table = get_table(Config.USERS_TABLE)
     games_table = get_table(Config.GAMES_TABLE)
     player_games_table = get_table(Config.PLAYER_GAMES_TABLE)
-    user_response = users_table.get_item(Key={'user_id': user_id})
+    groups_table = get_table(Config.GROUPS_TABLE)
+
+    user_response = users_table.get_item(
+        Key={'user_id': user_id}
+    )
+
     current_user = user_response.get('Item')
+
     if not current_user:
         session.clear()
         return redirect(url_for('login'))
+
     games_response = games_table.scan()
     games = games_response.get('Items', [])
+
+    games.sort(
+        key=lambda game: game.get('game_name', '').lower()
+    )
+
+    owned_groups_response = groups_table.query(
+        IndexName='owner-index',
+        KeyConditionExpression=Key('owner_id').eq(user_id)
+    )
+
+    owned_groups = owned_groups_response.get('Items', [])
+
     selected_game_id = request.args.get('game_id', '')
+
     recommendations = []
+    random_teammates = []
+
+    # --------------------------------------------------
+    # RANDOM TEAMMATES
+    # --------------------------------------------------
+
+    users_response = users_table.scan()
+    all_users = users_response.get('Items', [])
+
+    possible_random_users = [
+        user
+        for user in all_users
+        if user.get('user_id') != user_id
+        and user.get('role') != 'admin'
+    ]
+
+    if possible_random_users:
+        sample_size = min(
+            6,
+            len(possible_random_users)
+        )
+
+        selected_random_users = random.sample(
+            possible_random_users,
+            sample_size
+        )
+
+        for random_user in selected_random_users:
+
+            random_user_id = random_user.get('user_id')
+
+            player_games_response = player_games_table.query(
+                KeyConditionExpression=Key('user_id').eq(
+                    random_user_id
+                )
+            )
+
+            random_games = player_games_response.get(
+                'Items',
+                []
+            )
+
+            if random_games:
+                random_game = random.choice(random_games)
+
+                random_teammates.append({
+                    'user_id': random_user_id,
+                    'username': random_user.get(
+                        'username',
+                        'Unknown'
+                    ),
+                    'region': random_user.get(
+                        'region',
+                        ''
+                    ),
+                    'bio': random_user.get(
+                        'bio',
+                        ''
+                    ),
+                    'game_id': random_game.get(
+                        'game_id',
+                        ''
+                    ),
+                    'game_name': random_game.get(
+                        'game_name',
+                        'Unknown Game'
+                    ),
+                    'rank': random_game.get(
+                        'rank',
+                        ''
+                    ),
+                    'role': random_game.get(
+                        'role',
+                        ''
+                    ),
+                    'availability': random_game.get(
+                        'availability',
+                        ''
+                    )
+                })
+
+    # --------------------------------------------------
+    # MATCHED TEAMMATES
+    # --------------------------------------------------
+
     if selected_game_id:
-        selected_game_response = games_table.get_item(Key={'game_id': selected_game_id})
+
+        selected_game_response = games_table.get_item(
+            Key={'game_id': selected_game_id}
+        )
+
         selected_game = selected_game_response.get('Item')
+
         if not selected_game:
             flash('Selected game was not found.')
-            return redirect(url_for('find_teammates'))
-        game_name = selected_game.get('game_name', '')
-        current_game_response = player_games_table.get_item(Key={'user_id': user_id, 'game_id': selected_game_id})
-        current_game_profile = current_game_response.get('Item')
+            return redirect(
+                url_for('find_teammates')
+            )
+
+        game_name = selected_game.get(
+            'game_name',
+            ''
+        )
+
+        current_game_response = player_games_table.get_item(
+            Key={
+                'user_id': user_id,
+                'game_id': selected_game_id
+            }
+        )
+
+        current_game_profile = current_game_response.get(
+            'Item'
+        )
+
         if not current_game_profile:
-            flash('Please add this game to your profile first.')
+
+            flash(
+                'Please add this game to your profile first.'
+            )
+
         else:
-            current_player = {'user_id': user_id, 'username': current_user.get('username', ''), 'game_id': selected_game_id, 'game_name': game_name, 'rank': current_game_profile.get('rank', ''), 'role': current_game_profile.get('role', ''), 'region': current_user.get('region', ''), 'availability': current_game_profile.get('availability', ''), 'bio': current_user.get('bio', '')}
-            candidates_response = player_games_table.query(IndexName='game-index', KeyConditionExpression=Key('game_id').eq(selected_game_id))
-            candidates = candidates_response.get('Items', [])
+
+            current_player = {
+                'user_id': user_id,
+                'username': current_user.get(
+                    'username',
+                    ''
+                ),
+                'game_id': selected_game_id,
+                'game_name': game_name,
+                'rank': current_game_profile.get(
+                    'rank',
+                    ''
+                ),
+                'role': current_game_profile.get(
+                    'role',
+                    ''
+                ),
+                'region': current_user.get(
+                    'region',
+                    ''
+                ),
+                'availability': current_game_profile.get(
+                    'availability',
+                    ''
+                ),
+                'bio': current_user.get(
+                    'bio',
+                    ''
+                )
+            }
+
+            candidates_response = player_games_table.query(
+                IndexName='game-index',
+                KeyConditionExpression=Key(
+                    'game_id'
+                ).eq(selected_game_id)
+            )
+
+            candidates = candidates_response.get(
+                'Items',
+                []
+            )
+
             for candidate_game in candidates:
-                candidate_user_id = candidate_game.get('user_id')
+
+                candidate_user_id = candidate_game.get(
+                    'user_id'
+                )
+
                 if candidate_user_id == user_id:
                     continue
-                candidate_user_response = users_table.get_item(Key={'user_id': candidate_user_id})
-                candidate_user = candidate_user_response.get('Item')
-                if not candidate_user:
-                    continue
-                candidate = {'user_id': candidate_user_id, 'username': candidate_user.get('username', ''), 'game_id': selected_game_id, 'game_name': candidate_game.get('game_name', game_name), 'rank': candidate_game.get('rank', ''), 'role': candidate_game.get('role', ''), 'region': candidate_user.get('region', ''), 'availability': candidate_game.get('availability', ''), 'bio': candidate_user.get('bio', '')}
-                score = calculate_match_score(current_player, candidate)
-                candidate['score'] = score
-                recommendations.append(candidate)
-            recommendations.sort(key=lambda player: player['score'], reverse=True)
-            try:
-                save_analytics_event(
-                    "teammate_search",
-                    user_id,
-                    {
-                        "game_id": selected_game_id,
-                        "game_name": game_name,
-                        "recommendation_count": len(recommendations)
+
+                candidate_user_response = users_table.get_item(
+                    Key={
+                        'user_id': candidate_user_id
                     }
                 )
+
+                candidate_user = candidate_user_response.get(
+                    'Item'
+                )
+
+                if not candidate_user:
+                    continue
+
+                candidate = {
+                    'user_id': candidate_user_id,
+                    'username': candidate_user.get(
+                        'username',
+                        ''
+                    ),
+                    'game_id': selected_game_id,
+                    'game_name': candidate_game.get(
+                        'game_name',
+                        game_name
+                    ),
+                    'rank': candidate_game.get(
+                        'rank',
+                        ''
+                    ),
+                    'role': candidate_game.get(
+                        'role',
+                        ''
+                    ),
+                    'region': candidate_user.get(
+                        'region',
+                        ''
+                    ),
+                    'availability': candidate_game.get(
+                        'availability',
+                        ''
+                    ),
+                    'bio': candidate_user.get(
+                        'bio',
+                        ''
+                    )
+                }
+
+                score = calculate_match_score(
+                    current_player,
+                    candidate
+                )
+
+                candidate['score'] = score
+
+                recommendations.append(candidate)
+
+            recommendations.sort(
+                key=lambda player: player['score'],
+                reverse=True
+            )
+
+            try:
+                save_analytics_event(
+                    'teammate_search',
+                    user_id,
+                    {
+                        'game_id': selected_game_id,
+                        'game_name': game_name,
+                        'recommendation_count': len(
+                            recommendations
+                        )
+                    }
+                )
+
             except Exception as error:
                 print(
-                    "Analytics event error:",
+                    'Analytics event error:',
                     str(error)
                 )
-    return render_template('find_teammates.html', games=games, recommendations=recommendations, selected_game_id=selected_game_id)
 
-@app.route('/invite/<receiver_id>/<game_id>', methods=['POST'])
+    return render_template(
+        'find_teammates.html',
+        games=games,
+        recommendations=recommendations,
+        random_teammates=random_teammates,
+        selected_game_id=selected_game_id,
+        owned_groups=owned_groups
+    )
+
+@app.route("/invite/<receiver_id>/<game_id>", methods=["POST"])
 def invite_player(receiver_id, game_id):
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    sender_id = session['user_id']
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    sender_id = session["user_id"]
+
     if sender_id == receiver_id:
-        flash('You cannot invite yourself.', 'danger')
-        return redirect(url_for('find_teammates'))
+        flash("You cannot invite yourself.")
+        return redirect(url_for("find_teammates", game_id=game_id))
+
     invitations_table = get_table(Config.INVITATIONS_TABLE)
     users_table = get_table(Config.USERS_TABLE)
     games_table = get_table(Config.GAMES_TABLE)
-    sender_response = users_table.get_item(Key={'user_id': sender_id})
-    sender = sender_response.get('Item')
-    receiver_response = users_table.get_item(Key={'user_id': receiver_id})
-    receiver = receiver_response.get('Item')
+    groups_table = get_table(Config.GROUPS_TABLE)
+    members_table = get_table(Config.GROUP_MEMBERS_TABLE)
+
+    sender = users_table.get_item(
+        Key={"user_id": sender_id}
+    ).get("Item")
+
+    receiver = users_table.get_item(
+        Key={"user_id": receiver_id}
+    ).get("Item")
+
+    game = games_table.get_item(
+        Key={"game_id": game_id}
+    ).get("Item")
+
     if not sender or not receiver:
-        flash('User not found.', 'danger')
-        return redirect(url_for('find_teammates'))
-    game_response = games_table.get_item(Key={'game_id': game_id})
-    game = game_response.get('Item')
+        flash("User not found.")
+        return redirect(url_for("find_teammates", game_id=game_id))
+
     if not game:
-        flash('Game not found.', 'danger')
-        return redirect(url_for('find_teammates'))
+        flash("Game not found.")
+        return redirect(url_for("find_teammates", game_id=game_id))
+
+    group_choice = request.form.get("group_choice", "").strip()
+    new_group_name = request.form.get("new_group_name", "").strip()
+
+    if not group_choice:
+        flash("Please select a group.")
+        return redirect(url_for("find_teammates", game_id=game_id))
+
+    if group_choice == "new":
+        if not new_group_name:
+            flash("Please enter a new group name.")
+            return redirect(url_for("find_teammates", game_id=game_id))
+
+        group_id = str(uuid.uuid4())
+
+        groups_table.put_item(
+            Item={
+                "group_id": group_id,
+                "owner_id": sender_id,
+                "game_id": game_id,
+                "group_name": new_group_name,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+        )
+
+        members_table.put_item(
+            Item={
+                "group_id": group_id,
+                "user_id": sender_id,
+                "username": sender.get("username", ""),
+                "role": "owner",
+                "joined_at": datetime.now(timezone.utc).isoformat()
+            }
+        )
+
+    else:
+        group_id = group_choice
+
+        group = groups_table.get_item(
+            Key={"group_id": group_id}
+        ).get("Item")
+
+        if not group:
+            flash("The selected group could not be found.")
+            return redirect(
+                url_for(
+                    "find_teammates",
+                    game_id=game_id
+                )
+            )
+
+        if group.get("owner_id") != sender_id:
+            flash("You can only invite players to a group that you own.")
+            return redirect(
+                url_for(
+                    "find_teammates",
+                    game_id=game_id
+                )
+            )
+
+        if group.get("game_id") != game_id:
+            flash("This group is linked to a different game.")
+            return redirect(
+                url_for(
+                    "find_teammates",
+                    game_id=game_id
+                )
+            )
+
     invitation_id = str(uuid.uuid4())
-    invitation = {'receiver_id': receiver_id, 'invitation_id': invitation_id, 'sender_id': sender_id, 'sender_username': sender.get('username'), 'game_id': game_id, 'game_name': game.get('game_name'), 'status': 'pending', 'created_at': datetime.utcnow().isoformat()}
-    invitations_table.put_item(Item=invitation)
+
+    invitations_table.put_item(
+        Item={
+            "receiver_id": receiver_id,
+            "invitation_id": invitation_id,
+            "sender_id": sender_id,
+            "sender_username": sender.get("username", ""),
+            "game_id": game_id,
+            "game_name": game.get("game_name", ""),
+            "group_id": group_id,
+            "status": "pending",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+    )
+
     try:
         save_analytics_event(
             "invitation_sent",
@@ -340,16 +687,18 @@ def invite_player(receiver_id, game_id):
             {
                 "receiver_id": receiver_id,
                 "game_id": game_id,
-                "game_name": game.get("game_name")
+                "game_name": game.get("game_name"),
+                "group_id": group_id
             }
         )
     except Exception as error:
-        print(
-            "Analytics event error:",
-            str(error)
-        )
-    flash('Invitation sent successfully!', 'success')
-    return redirect(url_for('find_teammates', game_id=game_id))
+        print("Analytics event error:", str(error))
+
+    flash(f"Invitation sent successfully to {receiver.get('username', 'player')}!")
+
+    return redirect(
+        url_for("find_teammates", game_id=game_id)
+    )
 
 @app.route('/notifications')
 def notifications():
@@ -366,34 +715,76 @@ def notifications():
 def respond_invitation(invitation_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
+
     user_id = session['user_id']
     response = request.form.get('response')
+
     if response not in ['accepted', 'rejected']:
-        flash('Invalid response.', 'danger')
+        flash('Invalid response.')
         return redirect(url_for('notifications'))
+
     invitations_table = get_table(Config.INVITATIONS_TABLE)
-    invitation_response = invitations_table.get_item(Key={'receiver_id': user_id, 'invitation_id': invitation_id})
-    invitation = invitation_response.get('Item')
-    if not invitation:
-        flash('Invitation not found.', 'danger')
-        return redirect(url_for('notifications'))
-    if invitation.get('status') != 'pending':
-        flash('This invitation has already been processed.', 'warning')
-        return redirect(url_for('notifications'))
-    if response == 'rejected':
-        invitations_table.update_item(Key={'receiver_id': user_id, 'invitation_id': invitation_id}, UpdateExpression='SET #status = :status', ExpressionAttributeNames={'#status': 'status'}, ExpressionAttributeValues={':status': 'rejected'})
-        flash('Invitation rejected.', 'info')
-        return redirect(url_for('notifications'))
-    groups_table = get_table(Config.GROUPS_TABLE)
     members_table = get_table(Config.GROUP_MEMBERS_TABLE)
-    group_id = str(uuid.uuid4())
-    group = {'group_id': group_id, 'owner_id': invitation['sender_id'], 'game_id': invitation['game_id'], 'group_name': invitation['sender_username'] + "'s " + invitation['game_name'] + ' Team', 'created_at': datetime.utcnow().isoformat()}
-    groups_table.put_item(Item=group)
-    members_table.put_item(Item={'group_id': group_id, 'user_id': invitation['sender_id'], 'role': 'owner', 'joined_at': datetime.utcnow().isoformat()})
-    members_table.put_item(Item={'group_id': group_id, 'user_id': user_id, 'role': 'member', 'joined_at': datetime.utcnow().isoformat()})
-    invitations_table.update_item(Key={'receiver_id': user_id, 'invitation_id': invitation_id}, UpdateExpression='SET #status = :status', ExpressionAttributeNames={'#status': 'status'}, ExpressionAttributeValues={':status': 'accepted'})
-    flash('Invitation accepted! Your group has been created.', 'success')
-    return redirect(url_for('notifications'))
+    users_table = get_table(Config.USERS_TABLE)
+    groups_table = get_table(Config.GROUPS_TABLE)
+
+    invitation = invitations_table.get_item(
+        Key={'receiver_id': user_id, 'invitation_id': invitation_id}
+    ).get('Item')
+
+    if not invitation:
+        flash('Invitation not found.')
+        return redirect(url_for('notifications'))
+
+    if invitation.get('status') != 'pending':
+        flash('This invitation has already been processed.')
+        return redirect(url_for('notifications'))
+
+    if response == 'rejected':
+        invitations_table.update_item(
+            Key={'receiver_id': user_id, 'invitation_id': invitation_id},
+            UpdateExpression='SET #status = :status',
+            ExpressionAttributeNames={'#status': 'status'},
+            ExpressionAttributeValues={':status': 'rejected'}
+        )
+        flash('Invitation rejected.')
+        return redirect(url_for('notifications'))
+
+    group_id = invitation.get('group_id')
+    if not group_id:
+        flash('This invitation does not contain a group.')
+        return redirect(url_for('notifications'))
+
+    group = groups_table.get_item(Key={'group_id': group_id}).get('Item')
+    if not group:
+        flash('The group for this invitation no longer exists.')
+        return redirect(url_for('notifications'))
+
+    existing_member = members_table.get_item(
+        Key={'group_id': group_id, 'user_id': user_id}
+    ).get('Item')
+
+    if not existing_member:
+        user = users_table.get_item(Key={'user_id': user_id}).get('Item')
+        members_table.put_item(
+            Item={
+                'group_id': group_id,
+                'user_id': user_id,
+                'username': user.get('username', '') if user else '',
+                'role': 'member',
+                'joined_at': datetime.now(timezone.utc).isoformat()
+            }
+        )
+
+    invitations_table.update_item(
+        Key={'receiver_id': user_id, 'invitation_id': invitation_id},
+        UpdateExpression='SET #status = :status',
+        ExpressionAttributeNames={'#status': 'status'},
+        ExpressionAttributeValues={':status': 'accepted'}
+    )
+
+    flash('Invitation accepted! You have joined the group.')
+    return redirect(url_for('group_details', group_id=group_id))
 
 @app.route('/groups')
 def groups():
@@ -428,41 +819,338 @@ def groups():
 def group_details(group_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
+
     user_id = session['user_id']
+
     groups_table = get_table(Config.GROUPS_TABLE)
     members_table = get_table(Config.GROUP_MEMBERS_TABLE)
     users_table = get_table(Config.USERS_TABLE)
     games_table = get_table(Config.GAMES_TABLE)
     sessions_table = get_table(Config.SESSIONS_TABLE)
-    group_response = groups_table.get_item(Key={'group_id': group_id})
+
+    # Get group
+    group_response = groups_table.get_item(
+        Key={'group_id': group_id}
+    )
+
     group = group_response.get('Item')
+
     if not group:
-        flash('Group not found.', 'danger')
+        flash('Group not found.')
         return redirect(url_for('groups'))
-    membership_response = members_table.get_item(Key={'group_id': group_id, 'user_id': user_id})
+
+    # Check current user is a member
+    membership_response = members_table.get_item(
+        Key={
+            'group_id': group_id,
+            'user_id': user_id
+        }
+    )
+
     membership = membership_response.get('Item')
+
     if not membership:
-        flash('You are not a member of this group.', 'danger')
+        flash('You are not a member of this group.')
         return redirect(url_for('groups'))
+
+    # Get game name
     game_name = 'Unknown'
+
     if group.get('game_id'):
-        game_response = games_table.get_item(Key={'game_id': group['game_id']})
+        game_response = games_table.get_item(
+            Key={'game_id': group['game_id']}
+        )
+
         game = game_response.get('Item')
+
         if game:
-            game_name = game.get('game_name', 'Unknown')
+            game_name = game.get(
+                'game_name',
+                'Unknown'
+            )
+
     group['game_name'] = game_name
-    members_response = members_table.query(KeyConditionExpression=Key('group_id').eq(group_id))
+
+    # Get group members
+    members_response = members_table.query(
+        KeyConditionExpression=Key(
+            'group_id'
+        ).eq(group_id)
+    )
+
     memberships = members_response.get('Items', [])
+
+    owner = None
     members = []
+
     for member in memberships:
-        member_user_response = users_table.get_item(Key={'user_id': member['user_id']})
+        member_user_response = users_table.get_item(
+            Key={
+                'user_id': member['user_id']
+            }
+        )
+
         member_user = member_user_response.get('Item')
-        if member_user:
-            members.append({'user_id': member['user_id'], 'username': member_user.get('username', 'Unknown'), 'region': member_user.get('region', ''), 'role': member.get('role', 'member')})
-    sessions_response = sessions_table.query(IndexName='group-session-index', KeyConditionExpression=Key('group_id').eq(group_id))
-    gaming_sessions = sessions_response.get('Items', [])
-    gaming_sessions.sort(key=lambda x: x.get('session_time', ''))
-    return render_template('group_details.html', group=group, members=members, gaming_sessions=gaming_sessions, current_user_id=user_id)
+
+        if not member_user:
+            continue
+
+        member_data = {
+            'user_id': member['user_id'],
+            'username': member_user.get(
+                'username',
+                'Unknown'
+            ),
+            'region': member_user.get(
+                'region',
+                ''
+            ),
+            'role': member.get(
+                'role',
+                'member'
+            )
+        }
+
+        # Separate owner from normal members
+        if member['user_id'] == group.get('owner_id'):
+            owner = member_data
+        else:
+            members.append(member_data)
+
+    # Get gaming sessions
+    sessions_response = sessions_table.query(
+        IndexName='group-session-index',
+        KeyConditionExpression=Key(
+            'group_id'
+        ).eq(group_id)
+    )
+
+    gaming_sessions = sessions_response.get(
+        'Items',
+        []
+    )
+
+    gaming_sessions.sort(
+        key=lambda x: x.get(
+            'session_time',
+            ''
+        )
+    )
+
+    return render_template(
+        'group_details.html',
+        group=group,
+        owner=owner,
+        members=members,
+        gaming_sessions=gaming_sessions,
+        current_user_id=user_id
+    )
+
+@app.route("/group/<group_id>/leave", methods=["POST"])
+def leave_group(group_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+
+    groups_table = get_table(Config.GROUPS_TABLE)
+    members_table = get_table(Config.GROUP_MEMBERS_TABLE)
+    sessions_table = get_table(Config.SESSIONS_TABLE)
+    session_members_table = get_table(Config.SESSION_MEMBERS_TABLE)
+
+    group = groups_table.get_item(
+        Key={"group_id": group_id}
+    ).get("Item")
+
+    if not group:
+        flash("Group not found.")
+        return redirect(url_for("groups"))
+
+    membership = members_table.get_item(
+        Key={
+            "group_id": group_id,
+            "user_id": user_id
+        }
+    ).get("Item")
+
+    if not membership:
+        flash("You are not a member of this group.")
+        return redirect(url_for("groups"))
+
+    members_response = members_table.query(
+        KeyConditionExpression=Key("group_id").eq(group_id)
+    )
+
+    memberships = members_response.get("Items", [])
+
+    remaining_members = [
+        member
+        for member in memberships
+        if member.get("user_id") != user_id
+    ]
+
+    is_owner = group.get("owner_id") == user_id
+
+    # --------------------------------------------------
+    # Owner is leaving
+    # --------------------------------------------------
+
+    if is_owner:
+
+        # No members left -> delete the entire group
+        if not remaining_members:
+
+            sessions_response = sessions_table.query(
+                IndexName="group-session-index",
+                KeyConditionExpression=Key("group_id").eq(group_id)
+            )
+
+            for gaming_session in sessions_response.get("Items", []):
+                session_id = gaming_session["session_id"]
+
+                session_members_response = session_members_table.query(
+                    KeyConditionExpression=Key("session_id").eq(session_id)
+                )
+
+                for session_member in session_members_response.get("Items", []):
+                    session_members_table.delete_item(
+                        Key={
+                            "session_id": session_id,
+                            "user_id": session_member["user_id"]
+                        }
+                    )
+
+                sessions_table.delete_item(
+                    Key={
+                        "session_id": session_id
+                    }
+                )
+
+            members_table.delete_item(
+                Key={
+                    "group_id": group_id,
+                    "user_id": user_id
+                }
+            )
+
+            groups_table.delete_item(
+                Key={
+                    "group_id": group_id
+                }
+            )
+
+            flash("You left the group. The group was deleted because it had no remaining members.")
+
+            return redirect(url_for("groups"))
+
+        # --------------------------------------------------
+        # Choose the oldest remaining member as new owner
+        # --------------------------------------------------
+
+        remaining_members.sort(
+            key=lambda member: member.get("joined_at", "")
+        )
+
+        new_owner = remaining_members[0]
+        new_owner_id = new_owner["user_id"]
+
+        members_table.update_item(
+            Key={
+                "group_id": group_id,
+                "user_id": new_owner_id
+            },
+            UpdateExpression="SET #role = :role",
+            ExpressionAttributeNames={
+                "#role": "role"
+            },
+            ExpressionAttributeValues={
+                ":role": "owner"
+            }
+        )
+
+        groups_table.update_item(
+            Key={
+                "group_id": group_id
+            },
+            UpdateExpression="SET owner_id = :owner_id",
+            ExpressionAttributeValues={
+                ":owner_id": new_owner_id
+            }
+        )
+
+        members_table.delete_item(
+            Key={
+                "group_id": group_id,
+                "user_id": user_id
+            }
+        )
+
+        flash("You left the group. Ownership was automatically transferred to another member.")
+
+        return redirect(url_for("groups"))
+
+    # --------------------------------------------------
+    # Normal member leaves
+    # --------------------------------------------------
+
+    members_table.delete_item(
+        Key={
+            "group_id": group_id,
+            "user_id": user_id
+        }
+    )
+
+    flash("You have left the group.")
+
+    return redirect(url_for("groups"))
+
+@app.route('/group/<group_id>/edit', methods=['GET', 'POST'])
+def edit_group(group_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    groups_table = get_table(Config.GROUPS_TABLE)
+    games_table = get_table(Config.GAMES_TABLE)
+
+    group = groups_table.get_item(Key={'group_id': group_id}).get('Item')
+    if not group:
+        flash('Group not found.')
+        return redirect(url_for('groups'))
+
+    if group.get('owner_id') != user_id:
+        flash('Only the group owner can edit this group.')
+        return redirect(url_for('group_details', group_id=group_id))
+
+    games = games_table.scan().get('Items', [])
+    games.sort(key=lambda game: game.get('game_name', '').lower())
+
+    if request.method == 'POST':
+        group_name = request.form.get('group_name', '').strip()
+        game_id = request.form.get('game_id', '').strip()
+
+        if not group_name or not game_id:
+            flash('Group name and game are required.')
+            return redirect(url_for('edit_group', group_id=group_id))
+
+        game = games_table.get_item(Key={'game_id': game_id}).get('Item')
+        if not game:
+            flash('Game not found.')
+            return redirect(url_for('edit_group', group_id=group_id))
+
+        groups_table.update_item(
+            Key={'group_id': group_id},
+            UpdateExpression='SET group_name = :group_name, game_id = :game_id',
+            ExpressionAttributeValues={
+                ':group_name': group_name,
+                ':game_id': game_id
+            }
+        )
+
+        flash('Group updated successfully.')
+        return redirect(url_for('group_details', group_id=group_id))
+
+    return render_template('edit_group.html', group=group, games=games)
 
 @app.route('/sessions')
 def sessions():
@@ -516,7 +1204,7 @@ def create_session():
                 valid_group = True
                 break
         if not valid_group:
-            flash('You are not a member of this group.', 'danger')
+            flash('You are not a member of this group.')
             return redirect(url_for('create_session'))
         session_id = str(uuid.uuid4())
         gaming_session = {'session_id': session_id, 'group_id': group_id, 'session_name': session_name, 'session_time': session_time, 'description': description, 'created_by': user_id, 'created_at': datetime.utcnow().isoformat()}
@@ -538,7 +1226,7 @@ def create_session():
             )
         session_members_table = get_table(Config.SESSION_MEMBERS_TABLE)
         session_members_table.put_item(Item={'session_id': session_id, 'user_id': user_id, 'joined_at': datetime.utcnow().isoformat()})
-        flash('Gaming session created successfully!', 'success')
+        flash('Gaming session created successfully!')
         return redirect(url_for('group_details', group_id=group_id))
     return render_template('create_session.html', groups=groups, selected_group_id=selected_group_id)
 
@@ -553,20 +1241,20 @@ def join_session(session_id):
     session_response = sessions_table.get_item(Key={'session_id': session_id})
     gaming_session = session_response.get('Item')
     if not gaming_session:
-        flash('Gaming session not found.', 'danger')
+        flash('Gaming session not found.')
         return redirect(url_for('sessions'))
     group_id = gaming_session['group_id']
     membership_response = members_table.get_item(Key={'group_id': group_id, 'user_id': user_id})
     membership = membership_response.get('Item')
     if not membership:
-        flash('You must be a group member to join this session.', 'danger')
+        flash('You must be a group member to join this session.')
         return redirect(url_for('sessions'))
     existing_response = session_members_table.get_item(Key={'session_id': session_id, 'user_id': user_id})
     if existing_response.get('Item'):
-        flash('You have already joined this session.', 'info')
+        flash('You have already joined this session.')
         return redirect(url_for('sessions'))
     session_members_table.put_item(Item={'session_id': session_id, 'user_id': user_id, 'joined_at': datetime.utcnow().isoformat()})
-    flash('You joined the gaming session!', 'success')
+    flash('You joined the gaming session!')
     return redirect(url_for('sessions'))
 
 @app.route('/session/<session_id>')
@@ -582,18 +1270,18 @@ def session_details(session_id):
     session_response = sessions_table.get_item(Key={'session_id': session_id})
     gaming_session = session_response.get('Item')
     if not gaming_session:
-        flash('Gaming session not found.', 'danger')
+        flash('Gaming session not found.')
         return redirect(url_for('sessions'))
     group_id = gaming_session['group_id']
     membership_response = members_table.get_item(Key={'group_id': group_id, 'user_id': user_id})
     membership = membership_response.get('Item')
     if not membership:
-        flash('You are not a member of this group.', 'danger')
+        flash('You are not a member of this group.')
         return redirect(url_for('sessions'))
     group_response = groups_table.get_item(Key={'group_id': group_id})
     group = group_response.get('Item')
     if not group:
-        flash('Group not found.', 'danger')
+        flash('Group not found.')
         return redirect(url_for('groups'))
     members_response = session_members_table.query(KeyConditionExpression=Key('session_id').eq(session_id))
     session_members = members_response.get('Items', [])
@@ -621,7 +1309,7 @@ def admin_dashboard():
     response = users_table.get_item(Key={'user_id': user_id})
     current_user = response.get('Item')
     if not current_user or current_user.get('role') != 'admin':
-        flash('You do not have permission to access the admin dashboard.', 'danger')
+        flash('You do not have permission to access the admin dashboard.')
         return redirect(url_for('dashboard'))
     users_count = users_table.scan(Select='COUNT').get('Count', 0)
     games_count = games_table.scan(Select='COUNT').get('Count', 0)
@@ -650,10 +1338,7 @@ def admin_analytics():
     current_user = user_response.get("Item")
 
     if not current_user or current_user.get("role") != "admin":
-        flash(
-            "You do not have permission to access analytics.",
-            "danger"
-        )
+        flash("You do not have permission to access analytics.")
         return redirect(url_for("dashboard"))
 
     base = "analytics/results/summary"
@@ -686,10 +1371,7 @@ def admin_analytics():
     except Exception as error:
         print("Analytics read error:", str(error))
 
-        flash(
-            "Unable to load analytics data.",
-            "danger"
-        )
+        flash("Unable to load analytics data.")
 
         return render_template(
             "admin_analytics.html",
@@ -747,7 +1429,7 @@ def admin_users():
     response = users_table.get_item(Key={'user_id': user_id})
     current_user = response.get('Item')
     if not current_user or current_user.get('role') != 'admin':
-        flash('You do not have permission to access this page.', 'danger')
+        flash('You do not have permission to access this page.')
         return redirect(url_for('dashboard'))
     users_response = users_table.scan()
     users = users_response.get('Items', [])
@@ -767,15 +1449,15 @@ def delete_user(target_user_id):
     admin_response = users_table.get_item(Key={'user_id': admin_id})
     admin = admin_response.get('Item')
     if not admin or admin.get('role') != 'admin':
-        flash('You do not have permission to perform this action.', 'danger')
+        flash('You do not have permission to perform this action.')
         return redirect(url_for('dashboard'))
     if target_user_id == admin_id:
-        flash('You cannot delete your own admin account.', 'danger')
+        flash('You cannot delete your own admin account.')
         return redirect(url_for('admin_users'))
     target_response = users_table.get_item(Key={'user_id': target_user_id})
     target_user = target_response.get('Item')
     if not target_user:
-        flash('User not found.', 'danger')
+        flash('User not found.')
         return redirect(url_for('admin_users'))
     player_games_response = player_games_table.query(KeyConditionExpression=Key('user_id').eq(target_user_id))
     for player_game in player_games_response.get('Items', []):
@@ -793,7 +1475,7 @@ def delete_user(target_user_id):
     for session_member in session_members_response.get('Items', []):
         session_members_table.delete_item(Key={'session_id': session_member['session_id'], 'user_id': target_user_id})
     users_table.delete_item(Key={'user_id': target_user_id})
-    flash(f"User {target_user.get('username', '')} and related records were deleted.", 'success')
+    flash(f"User {target_user.get('username', '')} and related records were deleted.")
     return redirect(url_for('admin_users'))
 
 @app.route('/admin/games')
@@ -806,7 +1488,7 @@ def admin_games():
     response = users_table.get_item(Key={'user_id': user_id})
     current_user = response.get('Item')
     if not current_user or current_user.get('role') != 'admin':
-        flash('You do not have permission to access this page.', 'danger')
+        flash('You do not have permission to access this page.')
         return redirect(url_for('dashboard'))
     games_response = games_table.scan()
     games = games_response.get('Items', [])
@@ -823,22 +1505,22 @@ def add_admin_game():
     response = users_table.get_item(Key={'user_id': user_id})
     current_user = response.get('Item')
     if not current_user or current_user.get('role') != 'admin':
-        flash('You do not have permission to perform this action.', 'danger')
+        flash('You do not have permission to perform this action.')
         return redirect(url_for('dashboard'))
     game_name = request.form.get('game_name', '').strip()
     genre = request.form.get('genre', '').strip()
     if not game_name or not genre:
-        flash('Game name and genre are required.', 'danger')
+        flash('Game name and genre are required.')
         return redirect(url_for('admin_games'))
     existing_response = games_table.scan()
     existing_games = existing_response.get('Items', [])
     for game in existing_games:
         if game.get('game_name', '').lower() == game_name.lower():
-            flash('This game is already exists.', 'warning')
+            flash('This game is already exists.')
             return redirect(url_for('admin_games'))
     game_id = str(uuid.uuid4())
     games_table.put_item(Item={'game_id': game_id, 'game_name': game_name, 'genre': genre})
-    flash(f'{game_name} was added successfully.', 'success')
+    flash(f'{game_name} was added successfully.')
     return redirect(url_for('admin_games'))
 
 @app.route('/admin/games/delete/<game_id>', methods=['POST'])
@@ -852,20 +1534,20 @@ def delete_admin_game(game_id):
     response = users_table.get_item(Key={'user_id': admin_id})
     current_user = response.get('Item')
     if not current_user or current_user.get('role') != 'admin':
-        flash('You do not have permission to perform this action.', 'danger')
+        flash('You do not have permission to perform this action.')
         return redirect(url_for('dashboard'))
     game_response = games_table.get_item(Key={'game_id': game_id})
     game = game_response.get('Item')
     if not game:
-        flash('Game not found.', 'danger')
+        flash('Game not found.')
         return redirect(url_for('admin_games'))
     player_games_response = player_games_table.query(IndexName='game-index', KeyConditionExpression=Key('game_id').eq(game_id))
     player_games = player_games_response.get('Items', [])
     if player_games:
-        flash(f"Cannot delete {game.get('game_name', 'this game')} because {len(player_games)} player profile(s) are currently using it.", 'warning')
+        flash(f"Cannot delete {game.get('game_name', 'this game')} because {len(player_games)} player profile(s) are currently using it.")
         return redirect(url_for('admin_games'))
     games_table.delete_item(Key={'game_id': game_id})
-    flash(f"{game.get('game_name', 'Game')} was deleted successfully.", 'success')
+    flash(f"{game.get('game_name', 'Game')} was deleted successfully.")
     return redirect(url_for('admin_games'))
 
 @app.route('/api/lambda/users', methods=['GET'])
@@ -889,29 +1571,29 @@ def add_group_member(group_id):
     group_response = groups_table.get_item(Key={'group_id': group_id})
     group = group_response.get('Item')
     if not group:
-        flash('Group not found.', 'danger')
+        flash('Group not found.')
         return redirect(url_for('groups'))
     if group.get('owner_id') != current_user_id:
-        flash('Only the group owner can add teammates.', 'danger')
+        flash('Only the group owner can add teammates.')
         return redirect(url_for('group_details', group_id=group_id))
     target_user_id = request.form.get('user_id')
     if not target_user_id:
-        flash('Please select a player.', 'warning')
+        flash('Please select a player.')
         return redirect(url_for('group_details', group_id=group_id))
     if target_user_id == current_user_id:
-        flash('You cannot add yourself to your own group.', 'warning')
+        flash('You cannot add yourself to your own group.')
         return redirect(url_for('group_details', group_id=group_id))
     user_response = users_table.get_item(Key={'user_id': target_user_id})
     target_user = user_response.get('Item')
     if not target_user:
-        flash('Player not found.', 'danger')
+        flash('Player not found.')
         return redirect(url_for('group_details', group_id=group_id))
     existing_member = members_table.get_item(Key={'group_id': group_id, 'user_id': target_user_id})
     if existing_member.get('Item'):
-        flash(f"{target_user.get('username')} is already in the group.", 'warning')
+        flash(f"{target_user.get('username')} is already in the group.")
         return redirect(url_for('group_details', group_id=group_id))
     members_table.put_item(Item={'group_id': group_id, 'user_id': target_user_id, 'username': target_user.get('username'), 'joined_at': datetime.utcnow().isoformat()})
-    flash(f"{target_user.get('username')} has been added to the group.", 'success')
+    flash(f"{target_user.get('username')} has been added to the group.")
     return redirect(url_for('group_details', group_id=group_id))
 
 @app.route('/group/<group_id>/search-players')
@@ -925,10 +1607,10 @@ def search_group_players(group_id):
     group_response = groups_table.get_item(Key={'group_id': group_id})
     group = group_response.get('Item')
     if not group:
-        flash('Group not found.', 'danger')
+        flash('Group not found.')
         return redirect(url_for('groups'))
     if group.get('owner_id') != current_user_id:
-        flash('Only the group owner can add teammates.', 'danger')
+        flash('Only the group owner can add teammates.')
         return redirect(url_for('group_details', group_id=group_id))
     search = request.args.get('search', '').strip()
     players = []
@@ -993,6 +1675,116 @@ def create_group():
     flash(f"Group '{group_name}' created successfully.")
     return redirect(url_for('group_details', group_id=group_id))
 
+@app.route("/group/<group_id>/remove-member/<target_user_id>", methods=["POST"])
+def remove_group_member(group_id, target_user_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    current_user_id = session["user_id"]
+
+    groups_table = get_table(Config.GROUPS_TABLE)
+    members_table = get_table(Config.GROUP_MEMBERS_TABLE)
+    users_table = get_table(Config.USERS_TABLE)
+    session_members_table = get_table(Config.SESSION_MEMBERS_TABLE)
+    sessions_table = get_table(Config.SESSIONS_TABLE)
+
+    group = groups_table.get_item(
+        Key={"group_id": group_id}
+    ).get("Item")
+
+    if not group:
+        flash("Group not found.")
+        return redirect(url_for("groups"))
+
+    # Only the owner can remove members
+    if group.get("owner_id") != current_user_id:
+        flash("Only the group owner can remove members.")
+        return redirect(
+            url_for(
+                "group_details",
+                group_id=group_id
+            )
+        )
+
+    # Owner cannot remove themselves
+    if target_user_id == current_user_id:
+        flash("You cannot remove yourself. Use Leave Group instead.")
+        return redirect(
+            url_for(
+                "group_details",
+                group_id=group_id
+            )
+        )
+
+    target_membership = members_table.get_item(
+        Key={
+            "group_id": group_id,
+            "user_id": target_user_id
+        }
+    ).get("Item")
+
+    if not target_membership:
+        flash("This player is not a member of the group.")
+        return redirect(
+            url_for(
+                "group_details",
+                group_id=group_id
+            )
+        )
+
+    target_user = users_table.get_item(
+        Key={"user_id": target_user_id}
+    ).get("Item")
+
+    username = (
+        target_user.get("username", "Player")
+        if target_user
+        else "Player"
+    )
+
+    # Remove the player from gaming sessions belonging to this group
+    sessions_response = sessions_table.query(
+        IndexName="group-session-index",
+        KeyConditionExpression=Key("group_id").eq(group_id)
+    )
+
+    for gaming_session in sessions_response.get("Items", []):
+        session_id = gaming_session["session_id"]
+
+        existing_session_member = session_members_table.get_item(
+            Key={
+                "session_id": session_id,
+                "user_id": target_user_id
+            }
+        ).get("Item")
+
+        if existing_session_member:
+            session_members_table.delete_item(
+                Key={
+                    "session_id": session_id,
+                    "user_id": target_user_id
+                }
+            )
+
+    # Remove from group
+    members_table.delete_item(
+        Key={
+            "group_id": group_id,
+            "user_id": target_user_id
+        }
+    )
+
+    flash(
+        f"{username} was removed from the group successfully."
+    )
+
+    return redirect(
+        url_for(
+            "group_details",
+            group_id=group_id
+        )
+    )
+
 @app.route('/game-deals')
 def game_deals():
     if 'user_id' not in session:
@@ -1004,5 +1796,7 @@ def logout():
     session.clear()
     flash('You have been logged out.')
     return redirect(url_for('login'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)

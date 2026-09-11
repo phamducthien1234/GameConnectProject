@@ -305,36 +305,109 @@
 
     <!-- Management -->
 
-    <div class="card shadow mt-4">
+    <!-- MANAGEMENT -->
 
-        <div class="card-body">
+    <div class="admin-management-section mt-5">
 
-            <h4>
-                Management
-            </h4>
+        <div class="section-heading mb-3">
 
-            <div class="mt-3">
+            <div>
 
-                <a
-                    href="{{ url_for('admin_users') }}"
-                    class="btn btn-primary me-2"
-                >
-                    Manage Users
-                </a>
+                <h3 class="mb-1">
+                    Management
+                </h3>
 
-                <a
-                    href="{{ url_for('admin_games') }}"
-                    class="btn btn-success"
-                >
-                    Manage Games
-                </a>
+                <p class="text-muted mb-0">
+                    Manage users, games and platform analytics.
+                </p>
 
-                <a
-                    href="{{ url_for('admin_analytics') }}"
-                    class="btn btn-primary"
-                >
-                    View Analytics
-                </a>
+            </div>
+
+        </div>
+
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+
+                <div class="admin-management-card h-100">
+
+                    <div class="admin-management-icon">
+                        👤
+                    </div>
+
+                    <h4>
+                        Manage Users
+                    </h4>
+
+                    <p class="text-muted">
+                        View registered users and manage player accounts.
+                    </p>
+
+                    <a
+                        href="{{ url_for('admin_users') }}"
+                        class="btn btn-primary w-100 mt-auto"
+                    >
+                        Manage Users
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="admin-management-card h-100">
+
+                    <div class="admin-management-icon">
+                        🎮
+                    </div>
+
+                    <h4>
+                        Manage Games
+                    </h4>
+
+                    <p class="text-muted">
+                        View, add and manage games available on GameConnect.
+                    </p>
+
+                    <a
+                        href="{{ url_for('admin_games') }}"
+                        class="btn btn-primary w-100 mt-auto"
+                    >
+                        Manage Games
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="admin-management-card h-100">
+
+                    <div class="admin-management-icon">
+                        📊
+                    </div>
+
+                    <h4>
+                        Platform Analytics
+                    </h4>
+
+                    <p class="text-muted">
+                        View usage statistics and analytics generated from platform activity.
+                    </p>
+
+                    <a
+                        href="{{ url_for('admin_analytics') }}"
+                        class="btn btn-primary w-100 mt-auto"
+                    >
+                        View Analytics
+                    </a>
+
+                </div>
 
             </div>
 
@@ -342,7 +415,10 @@
 
     </div>
 
+
 </div>
+
+<script src="{{ url_for('static', filename='js/notification.js') }}"></script>
 
 </body>
 

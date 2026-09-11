@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -29,10 +30,12 @@
 
 </head>
 
-<body>
 
-<!-- Navigation Bar -->
+<body class="bg-light">
+
+
 <nav class="navbar navbar-dark bg-dark">
+
     <div class="container">
 
         <a
@@ -42,104 +45,182 @@
             🎮 GameConnect
         </a>
 
-        <div>
+
+        <div class="d-flex gap-2">
 
             {% if session.get('username') %}
 
                 <a
-                    class="btn btn-danger"
+                    href="{{ url_for('dashboard') }}"
+                    class="btn btn-outline-light"
+                >
+                    Dashboard
+                </a>
+
+                <a
                     href="{{ url_for('logout') }}"
+                    class="btn btn-danger"
                 >
                     Logout
                 </a>
 
             {% else %}
 
-
-            {% endif %}
-
-        </div>
-
-    </div>
-</nav>
-
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <div class="flash-container">
-            {% for message in messages %}
-                <div class="flash-message">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-{% endwith %}
-
-<main class="container py-5">
-
-    <!-- Hero Section -->
-    <div class="text-center">
-
-        <h1 class="display-4 fw-bold">
-            Find Your Perfect Gaming Team and Cheapest Game Deals
-        </h1>
-
-        <p class="lead mt-3">
-            GameConnect helps gamers find compatible teammates
-            based on games, skill level, roles, region and availability.
-        </p>
-
-        <div class="mt-4">
-
-            {% if session.get('username') %}
-
-                <a
-                    href="{{ url_for('dashboard') }}"
-                    class="btn btn-primary btn-lg me-2"
-                >
-                    You are logged in, Come to Dashboard!
-                </a>
-
-            {% else %}
-
-                <a
-                    href="{{ url_for('register') }}"
-                    class="btn btn-primary btn-lg me-2"
-                >
-                    Get Started
-                </a>
-
                 <a
                     href="{{ url_for('login') }}"
-                    class="btn btn-primary btn-lg me-2"
+                    class="btn btn-outline-light"
                 >
                     Login
                 </a>
 
+                <a
+                    href="{{ url_for('register') }}"
+                    class="btn btn-primary"
+                >
+                    Register
+                </a>
+
             {% endif %}
 
         </div>
 
     </div>
 
+</nav>
 
-    <!-- Features Section -->
-    <div class="row mt-5">
 
-        <!-- Multiple Games -->
-        <div class="col-md-4">
+{% with messages = get_flashed_messages() %}
 
-            <div class="card h-100">
+    {% if messages %}
 
-                <div class="card-body text-center">
+        <div class="flash-container">
 
-                    <h3>🎮</h3>
+            {% for message in messages %}
 
-                    <h5>Multiple Games</h5>
+                <div class="flash-message">
+                    {{ message }}
+                </div>
 
-                    <p>
-                        Create profiles for the games you enjoy.
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+{% endwith %}
+
+
+<main>
+
+
+    <!-- HERO -->
+
+    <section class="home-hero">
+
+        <div class="container">
+
+            <div class="row align-items-center">
+
+                <div class="col-lg-7">
+
+                    <span class="home-label">
+                        Gaming Community Platform
+                    </span>
+
+                    <h1 class="home-title mt-3">
+                        Find Better Teammates.
+                        Build Better Teams.
+                        Discover Better Game Deals.
+                    </h1>
+
+                    <p class="home-description">
+                        GameConnect helps gamers find compatible teammates
+                        based on games, skill level, roles, region and
+                        availability while also helping users discover
+                        current PC game deals.
                     </p>
+
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+
+                        {% if session.get('username') %}
+
+                            <a
+                                href="{{ url_for('dashboard') }}"
+                                class="btn btn-primary btn-lg"
+                            >
+                                Go to Dashboard
+                            </a>
+
+                            <a
+                                href="{{ url_for('find_teammates') }}"
+                                class="btn btn-outline-primary btn-lg"
+                            >
+                                Find Teammates
+                            </a>
+
+                        {% else %}
+
+                            <a
+                                href="{{ url_for('register') }}"
+                                class="btn btn-primary btn-lg"
+                            >
+                                Get Started
+                            </a>
+
+                            <a
+                                href="{{ url_for('login') }}"
+                                class="btn btn-outline-primary btn-lg"
+                            >
+                                Login
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-lg-5 mt-5 mt-lg-0">
+
+                    <div class="home-hero-card">
+
+                        <div class="home-hero-icon">
+                            🎮
+                        </div>
+
+                        <h3>
+                            Your Gaming Hub
+                        </h3>
+
+                        <p class="text-muted">
+                            Find teammates, create groups,
+                            organise sessions and search for game deals
+                            in one place.
+                        </p>
+
+
+                        <div class="home-stat-list">
+
+                            <div>
+                                <strong>100</strong>
+                                <span>Compatibility Score</span>
+                            </div>
+
+                            <div>
+                                <strong>Multiple</strong>
+                                <span>Supported Games</span>
+                            </div>
+
+                            <div>
+                                <strong>24/7</strong>
+                                <span>Player Discovery</span>
+                            </div>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
@@ -147,22 +228,120 @@
 
         </div>
 
+    </section>
 
-        <!-- Find Teammates -->
-        <div class="col-md-4">
 
-            <div class="card h-100">
+    <!-- FEATURES -->
 
-                <div class="card-body text-center">
+    <section class="home-features">
 
-                    <h3>🤝</h3>
+        <div class="container">
 
-                    <h5>Find Teammates and Games</h5>
+            <div class="text-center mb-5">
 
-                    <p>
-                        Find players with compatible skills
-                        and gaming preferences.
-                    </p>
+                <span class="home-label">
+                    Features
+                </span>
+
+                <h2 class="mt-2">
+                    Everything You Need to Connect
+                </h2>
+
+                <p class="text-muted">
+                    GameConnect combines player matching,
+                    group management and game discovery.
+                </p>
+
+            </div>
+
+
+            <div class="row g-4">
+
+
+                <div class="col-md-6 col-lg-3">
+
+                    <div class="home-feature-card h-100">
+
+                        <div class="home-feature-icon">
+                            🎮
+                        </div>
+
+                        <h4>
+                            Multiple Games
+                        </h4>
+
+                        <p class="text-muted mb-0">
+                            Add the games you play and store your
+                            rank, preferred role and availability.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6 col-lg-3">
+
+                    <div class="home-feature-card h-100">
+
+                        <div class="home-feature-icon">
+                            🤝
+                        </div>
+
+                        <h4>
+                            Find Teammates
+                        </h4>
+
+                        <p class="text-muted mb-0">
+                            Discover compatible players using
+                            your gaming profile and preferences.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6 col-lg-3">
+
+                    <div class="home-feature-card h-100">
+
+                        <div class="home-feature-icon">
+                            👥
+                        </div>
+
+                        <h4>
+                            Create Groups
+                        </h4>
+
+                        <p class="text-muted mb-0">
+                            Build gaming teams, invite members
+                            and manage your group community.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6 col-lg-3">
+
+                    <div class="home-feature-card h-100">
+
+                        <div class="home-feature-icon">
+                            💰
+                        </div>
+
+                        <h4>
+                            Game Deals
+                        </h4>
+
+                        <p class="text-muted mb-0">
+                            Search for PC games and discover
+                            current prices and available deals.
+                        </p>
+
+                    </div>
 
                 </div>
 
@@ -170,21 +349,92 @@
 
         </div>
 
+    </section>
 
-        <!-- Create Groups -->
-        <div class="col-md-4">
 
-            <div class="card h-100">
+    <!-- HOW IT WORKS -->
 
-                <div class="card-body text-center">
+    <section class="home-how-it-works">
 
-                    <h3>🏆</h3>
+        <div class="container">
 
-                    <h5>Create Groups</h5>
+            <div class="text-center mb-5">
 
-                    <p>
-                        Build teams and organise gaming sessions.
-                    </p>
+                <span class="home-label">
+                    How It Works
+                </span>
+
+                <h2 class="mt-2">
+                    Start Playing Together
+                </h2>
+
+            </div>
+
+
+            <div class="row g-4">
+
+                <div class="col-md-4">
+
+                    <div class="home-step-card">
+
+                        <div class="home-step-number">
+                            1
+                        </div>
+
+                        <h4>
+                            Create Your Profile
+                        </h4>
+
+                        <p class="text-muted mb-0">
+                            Add your region, bio, games,
+                            rank, role and playing availability.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="home-step-card">
+
+                        <div class="home-step-number">
+                            2
+                        </div>
+
+                        <h4>
+                            Find Players
+                        </h4>
+
+                        <p class="text-muted mb-0">
+                            GameConnect compares player profiles
+                            and recommends compatible teammates.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="home-step-card">
+
+                        <div class="home-step-number">
+                            3
+                        </div>
+
+                        <h4>
+                            Create a Team
+                        </h4>
+
+                        <p class="text-muted mb-0">
+                            Invite players, create groups and
+                            organise gaming sessions together.
+                        </p>
+
+                    </div>
 
                 </div>
 
@@ -192,9 +442,17 @@
 
         </div>
 
-    </div>
+    </section>
+
 
 </main>
 
+
+<script
+    src="{{ url_for('static', filename='js/notification.js') }}"
+></script>
+
+
 </body>
+
 </html>

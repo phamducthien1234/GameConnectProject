@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>GameConnect</title>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Find Teammates - GameConnect</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -21,12 +27,15 @@
         type="image/png"
         href="{{ url_for('static', filename='gaco_logo.png') }}"
     >
-    
+
 </head>
 
-<body>
+
+<body class="bg-light">
+
 
 <nav class="navbar navbar-dark bg-dark">
+
     <div class="container">
 
         <a
@@ -36,14 +45,15 @@
             🎮 GameConnect
         </a>
 
-        <div>
+        <div class="d-flex gap-2">
+
             <a
                 href="{{ url_for('dashboard') }}"
                 class="btn btn-outline-light"
             >
                 Dashboard
             </a>
-            
+
             <a
                 href="{{ url_for('profile') }}"
                 class="btn btn-outline-light"
@@ -57,202 +67,516 @@
             >
                 Logout
             </a>
+
         </div>
 
     </div>
+
 </nav>
 
+
 {% with messages = get_flashed_messages() %}
+
     {% if messages %}
+
         <div class="flash-container">
+
             {% for message in messages %}
+
                 <div class="flash-message">
                     {{ message }}
                 </div>
+
             {% endfor %}
+
         </div>
+
     {% endif %}
+
 {% endwith %}
 
-<div class="container mt-5">
 
-    <h1>Find Teammates</h1>
-
-    <p class="text-muted">
-        Find players who are compatible with your gaming profile.
-    </p>
+<div class="container py-5">
 
 
-    <!-- Game selection -->
+    <!-- PAGE HEADER -->
 
-    <form method="GET" class="mb-4">
+    <div class="teammate-header-card mb-4">
 
-        <div class="row">
+        <div class="row align-items-center">
 
-            <div class="col-md-8">
+            <div class="col-lg-8">
 
-                <label class="form-label">
-                    Select a game
-                </label>
+                <span class="teammate-label">
+                    Player Matching
+                </span>
 
-                <select
-                    name="game_id"
-                    class="form-select"
-                    required
-                >
+                <h1 class="mt-2 mb-2">
+                    Find Teammates
+                </h1>
 
-                    <option value="">
-                        -- Select Game --
-                    </option>
-
-                    {% for game in games %}
-
-                    <option
-                        value="{{ game.game_id }}"
-                        {% if selected_game_id == game.game_id %}
-                            selected
-                        {% endif %}
-                    >
-                        {{ game.game_name }}
-                    </option>
-
-                    {% endfor %}
-
-                </select>
+                <p class="text-muted mb-0">
+                    Discover players and find teammates based on game,
+                    rank, role, region and availability.
+                </p>
 
             </div>
 
-            <div class="col-md-4 d-flex align-items-end">
+            <div class="col-lg-4 mt-3 mt-lg-0 text-lg-end">
 
-                <button
-                    type="submit"
-                    class="btn btn-primary w-100"
+                <a
+                    href="{{ url_for('dashboard') }}"
+                    class="btn btn-primary"
                 >
-                    Find Teammates
-                </button>
+                    Back to Dashboard
+                </a>
 
             </div>
 
         </div>
 
-    </form>
+    </div>
 
 
-    {% if selected_game_id %}
+    <!-- GAME SEARCH -->
 
-        <h3 class="mb-3">
-            Recommended Teammates
+    <div class="teammate-search-card mb-5">
+
+        <h3 class="mb-1">
+            Find Players by Game
         </h3>
 
+        <p class="text-muted mb-4">
+            Select one of your games to calculate compatibility with other players.
+        </p>
 
-        {% if recommendations %}
 
-            <div class="row">
+        <form method="GET">
 
-                {% for player in recommendations %}
+            <div class="row g-3 align-items-end">
 
-                <div class="col-md-6 col-lg-4 mb-4">
+                <div class="col-md-8">
 
-                    <div class="card h-100 shadow-sm">
+                    <label class="form-label">
+                        Select Game
+                    </label>
 
-                        <div class="card-body">
+                    <select
+                        name="game_id"
+                        class="form-select"
+                        required
+                    >
 
-                            <h4 class="card-title">
+                        <option value="">
+                            -- Select Game --
+                        </option>
+
+                        {% for game in games %}
+
+                        <option
+                            value="{{ game.game_id }}"
+                            {% if selected_game_id == game.game_id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ game.game_name }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100"
+                    >
+                        Find Teammates
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- RANDOM TEAMMATES -->
+
+    {% if not selected_game_id %}
+
+    <section class="mb-5">
+
+        <div class="section-heading mb-3">
+
+            <div>
+
+                <h3 class="mb-1">
+                    Discover Teammates
+                </h3>
+
+                <p class="text-muted mb-0">
+                    Browse some players currently available on GameConnect.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('find_teammates') }}"
+                class="btn btn-outline-primary"
+            >
+                ↻ Show Different Players
+            </a>
+
+        </div>
+
+
+        {% if random_teammates %}
+
+        <div class="row g-4">
+
+            {% for player in random_teammates %}
+
+            <div class="col-md-6 col-lg-4">
+
+                <div class="teammate-card h-100">
+
+                    <div class="d-flex align-items-center gap-3 mb-3">
+
+                        <div class="teammate-avatar">
+                            {{ player.username[0] | upper }}
+                        </div>
+
+                        <div>
+
+                            <h4 class="mb-1">
                                 {{ player.username }}
                             </h4>
 
-                            <div class="mb-3">
-
-                                <span class="badge bg-success">
-                                    {{ player.score }} / 100
-                                </span>
-
-                            </div>
-
-                            <p>
-                                <strong>Game:</strong>
-                                {{ player.game_name }}
-                            </p>
-
-                            <p>
-                                <strong>Rank:</strong>
-                                {{ player.rank }}
-                            </p>
-
-                            <p>
-                                <strong>Role:</strong>
-                                {{ player.role }}
-                            </p>
-
-                            <p>
-                                <strong>Region:</strong>
-                                {{ player.region }}
-                            </p>
-
-                            <p>
-                                <strong>Availability:</strong>
-                                {{ player.availability }}
-                            </p>
-
-                            {% if player.bio %}
-
-                            <p>
-                                <strong>Bio:</strong>
-                                {{ player.bio }}
-                            </p>
-
-                            {% endif %}
-
-                            <form
-                                method="POST"
-                                action="{{ url_for(
-                                    'invite_player',
-                                    receiver_id=player.user_id,
-                                    game_id=selected_game_id
-                                ) }}"
-                            >
-                                <button
-                                    type="submit"
-                                    class="btn btn-outline-primary w-100"
-                                >
-                                    Invite
-                                </button>
-                            </form>
+                            <span class="badge bg-secondary">
+                                {{ player.region or "Unknown Region" }}
+                            </span>
 
                         </div>
 
                     </div>
 
+
+                    <div class="teammate-game-title mb-3">
+                        🎮 {{ player.game_name }}
+                    </div>
+
+
+                    <div class="teammate-details">
+
+                        <div>
+                            <span>Rank</span>
+                            <strong>
+                                {{ player.rank or "Unknown" }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Role</span>
+                            <strong>
+                                {{ player.role or "Unknown" }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Availability</span>
+                            <strong>
+                                {{ player.availability or "Unknown" }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    {% if player.bio %}
+
+                    <p class="teammate-bio">
+                        {{ player.bio }}
+                    </p>
+
+                    {% endif %}
+
+
+                    <a
+                        href="{{ url_for(
+                            'find_teammates',
+                            game_id=player.game_id
+                        ) }}"
+                        class="btn btn-primary w-100 mt-auto"
+                    >
+                        Find Similar Players
+                    </a>
+
                 </div>
 
-                {% endfor %}
-
             </div>
+
+            {% endfor %}
+
+        </div>
 
         {% else %}
 
-            <div class="alert alert-info">
-
-                No compatible teammates were found for this game.
-
-            </div>
+        <div class="teammate-empty-state">
+            No players are available yet.
+        </div>
 
         {% endif %}
 
+    </section>
+
     {% endif %}
 
-    <div class="mt-4 mb-5">
 
-        <a
-            href="{{ url_for('dashboard') }}"
-            class="btn btn-secondary"
-        >
-            Back to Dashboard
-        </a>
+    <!-- RECOMMENDED TEAMMATES -->
 
-    </div>
+    {% if selected_game_id %}
+
+    <section class="mb-5">
+
+        <div class="section-heading mb-3">
+
+            <div>
+
+                <h3 class="mb-1">
+                    Recommended Teammates
+                </h3>
+
+                <p class="text-muted mb-0">
+                    Players are ranked using your GameConnect compatibility score.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if recommendations %}
+
+        <div class="row g-4">
+
+            {% for player in recommendations %}
+
+            <div class="col-md-6 col-lg-4">
+
+                <div class="teammate-card recommended-card h-100">
+
+
+                    <!-- PLAYER HEADER -->
+
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <div class="teammate-avatar">
+                                {{ player.username[0] | upper }}
+                            </div>
+
+                            <div>
+
+                                <h4 class="mb-1">
+                                    {{ player.username }}
+                                </h4>
+
+                                <span class="text-muted">
+                                    {{ player.region or "Unknown Region" }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="match-score">
+
+                            <strong>
+                                {{ player.score }}
+                            </strong>
+
+                            <span>
+                                /100
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="match-score-label mb-3">
+                        Compatibility Score
+                    </div>
+
+
+                    <!-- PLAYER DETAILS -->
+
+                    <div class="teammate-game-title mb-3">
+                        🎮 {{ player.game_name }}
+                    </div>
+
+
+                    <div class="teammate-details">
+
+                        <div>
+                            <span>Rank</span>
+                            <strong>
+                                {{ player.rank or "Unknown" }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Role</span>
+                            <strong>
+                                {{ player.role or "Unknown" }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Availability</span>
+                            <strong>
+                                {{ player.availability or "Unknown" }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    {% if player.bio %}
+
+                    <p class="teammate-bio">
+                        {{ player.bio }}
+                    </p>
+
+                    {% endif %}
+
+
+                    <!-- INVITATION FORM -->
+
+                    <div class="invite-section mt-auto">
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'invite_player',
+                                receiver_id=player.user_id,
+                                game_id=selected_game_id
+                            ) }}"
+                        >
+
+                            <label class="form-label">
+                                Invite to Group
+                            </label>
+
+                            <select
+                                name="group_choice"
+                                class="form-select group-choice mb-2"
+                                required
+                            >
+
+                                <option value="">
+                                    -- Select Group --
+                                </option>
+
+
+                                {% for group in owned_groups %}
+
+                                    {% if group.game_id == selected_game_id %}
+
+                                    <option value="{{ group.group_id }}">
+                                        {{ group.group_name }}
+                                    </option>
+
+                                    {% endif %}
+
+                                {% endfor %}
+
+
+                                <option value="new">
+                                    + Create New Group
+                                </option>
+
+                            </select>
+
+
+                            <div class="new-group-fields d-none mb-2">
+
+                                <label class="form-label">
+                                    New Group Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="new_group_name"
+                                    class="form-control"
+                                    placeholder="Enter group name"
+                                >
+
+                            </div>
+
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary w-100"
+                            >
+                                Send Invitation
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="teammate-empty-state">
+
+            <h5>
+                No compatible teammates found
+            </h5>
+
+            <p class="text-muted mb-0">
+                Try another game or wait for more players to join GameConnect.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+    {% endif %}
+
 
 </div>
 
+
+<script
+    src="{{ url_for('static', filename='js/find_teammates.js') }}"
+></script>
+
+<script
+    src="{{ url_for('static', filename='js/notification.js') }}"
+></script>
+
+
 </body>
+
 </html>

@@ -31,9 +31,11 @@
 </head>
 
 
-<body>
+<body class="bg-light">
+
 
 <nav class="navbar navbar-dark bg-dark">
+
     <div class="container">
 
         <a
@@ -43,14 +45,15 @@
             🎮 GameConnect
         </a>
 
-        <div>
+        <div class="d-flex gap-2">
+
             <a
                 href="{{ url_for('dashboard') }}"
                 class="btn btn-outline-light"
             >
                 Dashboard
             </a>
-            
+
             <a
                 href="{{ url_for('profile') }}"
                 class="btn btn-outline-light"
@@ -64,10 +67,13 @@
             >
                 Logout
             </a>
+
         </div>
 
     </div>
+
 </nav>
+
 
 {% with messages = get_flashed_messages() %}
 
@@ -90,38 +96,88 @@
 {% endwith %}
 
 
-<div class="container mt-4">
-
-    <h2>Game Deals</h2>
-
-    <p class="text-muted">
-        Search for current PC game prices and deals.
-    </p>
+<div class="container py-5">
 
 
-    <div class="input-group mb-4">
+    <!-- PAGE HEADER -->
 
-        <input
-            type="text"
-            id="gameSearch"
-            class="form-control"
-            placeholder="Search for a game..."
-        >
+    <div class="deals-header-card mb-4">
 
-        <button
-            type="button"
-            id="searchButton"
-            class="btn btn-primary"
-        >
-            Search
-        </button>
+        <div class="row align-items-center">
+
+            <div class="col-lg-8">
+
+                <span class="deals-label">
+                    Game Marketplace
+                </span>
+
+                <h1 class="mt-2 mb-2">
+                    Game Deals
+                </h1>
+
+                <p class="text-muted mb-0">
+                    Search for current PC game prices and discover available deals.
+                </p>
+
+            </div>
+
+
+            <div class="col-lg-4 mt-3 mt-lg-0 text-lg-end">
+
+                <a
+                    href="{{ url_for('dashboard') }}"
+                    class="btn btn-primary"
+                >
+                    Back to Dashboard
+                </a>
+
+            </div>
+
+        </div>
 
     </div>
 
 
+    <!-- SEARCH -->
+
+    <div class="deals-search-card mb-5">
+
+        <h3 class="mb-1">
+            Search Game Deals
+        </h3>
+
+        <p class="text-muted mb-4">
+            Enter a game name to check current prices and offers.
+        </p>
+
+
+        <div class="input-group">
+
+            <input
+                type="text"
+                id="gameSearch"
+                class="form-control"
+                placeholder="Search for a game..."
+            >
+
+            <button
+                type="button"
+                id="searchButton"
+                class="btn btn-primary"
+            >
+                Search
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- LOADING -->
+
     <div
         id="loading"
-        class="text-center d-none"
+        class="deals-loading d-none"
     >
 
         <div
@@ -129,34 +185,57 @@
             role="status"
         ></div>
 
-        <p>Searching ...</p>
+        <p class="mt-2 mb-0">
+            Searching for deals...
+        </p>
 
     </div>
 
 
-    <!-- Results -->
+    <!-- FEATURED / RESULTS HEADER -->
+
+    <div class="section-heading mb-3">
+
+        <div>
+
+            <h3 class="mb-1">
+                Featured Games
+            </h3>
+
+            <p class="text-muted mb-0">
+                Discover popular games or search for something specific.
+            </p>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="refreshFeatured"
+            class="btn btn-outline-primary"
+        >
+            ↻ Show Different Games
+        </button>
+
+    </div>
+
+
     <div
         id="results"
-        class="row"
+        class="row g-4"
     ></div>
-    
-    <div class="mt-4 mb-5">
 
-        <a
-            href="{{ url_for('dashboard') }}"
-            class="btn btn-secondary"
-        >
-            Back to Dashboard
-        </a>
 
-    </div>
 </div>
 
 
-<script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+<script
+    src="{{ url_for('static', filename='js/notification.js') }}"
+></script>
 
-
-<script src="{{ url_for('static', filename='js/game_deals.js') }}"></script>
+<script
+    src="{{ url_for('static', filename='js/game_deals.js') }}"
+></script>
 
 
 </body>
