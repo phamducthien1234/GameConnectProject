@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -31,12 +32,17 @@
         src="{{ url_for('static', filename='js/main.js') }}"
         defer
     ></script>
+
 </head>
+
 
 <body class="bg-light">
 
+
 <nav class="navbar navbar-dark bg-dark">
+
     <div class="container">
+
         <a
             class="navbar-brand"
             href="{{ url_for('index') }}"
@@ -44,7 +50,9 @@
             🎮 GameConnect
         </a>
 
+
         <div class="d-flex gap-2">
+
             <a
                 href="{{ url_for('dashboard') }}"
                 class="btn btn-outline-light"
@@ -58,9 +66,13 @@
             >
                 Logout
             </a>
+
         </div>
+
     </div>
+
 </nav>
+
 
 {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -74,26 +86,42 @@
     {% endif %}
 {% endwith %}
 
+
 <div class="container py-5">
 
+
+    <!-- PROFILE HEADER -->
+
     <div class="profile-header-card mb-4">
+
         <div class="row align-items-center">
 
+
             <div class="col-md-auto text-center mb-3 mb-md-0">
+
                 {% if user.profile_image_url %}
+
                     <img
                         src="{{ user.profile_image_url }}"
                         alt="{{ user.username }}"
                         class="profile-main-avatar"
                     >
+
                 {% else %}
-                    <div class="profile-main-avatar profile-avatar-placeholder">
+
+                    <div
+                        class="profile-main-avatar profile-avatar-placeholder"
+                    >
                         {{ user.username[0] | upper }}
                     </div>
+
                 {% endif %}
+
             </div>
 
+
             <div class="col-md">
+
                 <p class="profile-label mb-1">
                     GameConnect Player
                 </p>
@@ -102,7 +130,9 @@
                     {{ user.username }}
                 </h1>
 
+
                 <div class="profile-header-info">
+
                     <span>
                         📧 {{ user.email }}
                     </span>
@@ -110,29 +140,48 @@
                     <span>
                         🌍 {{ user.region }}
                     </span>
+
                 </div>
 
+
                 <p class="text-muted mt-3 mb-0">
+
                     {{ user.bio or "No bio yet." }}
+
                 </p>
+
             </div>
 
+
             <div class="col-md-auto mt-3 mt-md-0">
+
                 <a
                     href="{{ url_for('dashboard') }}"
                     class="btn btn-primary"
                 >
                     Back to Dashboard
                 </a>
+
             </div>
 
+
         </div>
+
     </div>
+
 
     <div class="row g-4">
 
+
+        <!-- LEFT COLUMN -->
+
         <div class="col-lg-5">
-            <div class="profile-section-card h-100">
+
+
+            <!-- EDIT PROFILE -->
+
+            <div class="profile-section-card mb-4">
+
                 <h3 class="mb-1">
                     Edit Profile
                 </h3>
@@ -141,11 +190,17 @@
                     Update your player information and profile image.
                 </p>
 
+
                 <form
                     method="POST"
                     enctype="multipart/form-data"
                 >
+
+
+                    <!-- PROFILE IMAGE -->
+
                     <div class="mb-3">
+
                         <label
                             for="profileImage"
                             class="form-label"
@@ -164,44 +219,77 @@
                         <div class="form-text">
                             JPG, JPEG, PNG or WEBP.
                         </div>
+
                     </div>
 
+
+                    <!-- USERNAME -->
+
                     <div class="mb-3">
-                        <label class="form-label">
+
+                        <label
+                            for="username"
+                            class="form-label"
+                        >
                             Username
                         </label>
 
                         <input
                             type="text"
+                            id="username"
                             class="form-control"
                             value="{{ user.username }}"
                             disabled
                         >
+
+                        <div class="form-text">
+                            Username cannot be changed.
+                        </div>
+
                     </div>
 
+
+                    <!-- EMAIL -->
+
                     <div class="mb-3">
-                        <label class="form-label">
+
+                        <label
+                            for="email"
+                            class="form-label"
+                        >
                             Email
                         </label>
 
                         <input
                             type="email"
+                            name="email"
+                            id="email"
                             class="form-control"
                             value="{{ user.email }}"
-                            disabled
+                            required
                         >
+
                     </div>
 
+
+                    <!-- REGION -->
+
                     <div class="mb-3">
-                        <label class="form-label">
+
+                        <label
+                            for="region"
+                            class="form-label"
+                        >
                             Region
                         </label>
 
                         <select
                             name="region"
+                            id="region"
                             class="form-select"
                             required
                         >
+
                             <option
                                 value="SEA"
                                 {% if user.region == "SEA" %}
@@ -255,22 +343,34 @@
                             >
                                 Japan
                             </option>
+
                         </select>
+
                     </div>
 
+
+                    <!-- BIO -->
+
                     <div class="mb-4">
-                        <label class="form-label">
+
+                        <label
+                            for="bio"
+                            class="form-label"
+                        >
                             Bio
                         </label>
 
                         <textarea
                             name="bio"
+                            id="bio"
                             class="form-control"
                             rows="5"
                             maxlength="500"
                             placeholder="Tell other players about yourself..."
                         >{{ user.bio or "" }}</textarea>
+
                     </div>
+
 
                     <button
                         type="submit"
@@ -278,14 +378,137 @@
                     >
                         Save Profile
                     </button>
+
+
                 </form>
+
             </div>
+
+
+            <!-- CHANGE PASSWORD -->
+
+            <div class="profile-section-card">
+
+                <h3 class="mb-1">
+                    Change Password
+                </h3>
+
+                <p class="text-muted mb-4">
+                    Update the password used to access your GameConnect account.
+                </p>
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for('change_password') }}"
+                >
+
+
+                    <!-- CURRENT PASSWORD -->
+
+                    <div class="mb-3">
+
+                        <label
+                            for="currentPassword"
+                            class="form-label"
+                        >
+                            Current Password
+                        </label>
+
+                        <input
+                            type="password"
+                            name="current_password"
+                            id="currentPassword"
+                            class="form-control"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- NEW PASSWORD -->
+
+                    <div class="mb-3">
+
+                        <label
+                            for="newPassword"
+                            class="form-label"
+                        >
+                            New Password
+                        </label>
+
+                        <input
+                            type="password"
+                            name="new_password"
+                            id="newPassword"
+                            class="form-control"
+                            minlength="8"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                        <div class="form-text">
+                            Password must contain at least 8 characters.
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONFIRM PASSWORD -->
+
+                    <div class="mb-4">
+
+                        <label
+                            for="confirmPassword"
+                            class="form-label"
+                        >
+                            Confirm New Password
+                        </label>
+
+                        <input
+                            type="password"
+                            name="confirm_password"
+                            id="confirmPassword"
+                            class="form-control"
+                            minlength="8"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100"
+                    >
+                        Change Password
+                    </button>
+
+
+                </form>
+
+            </div>
+
         </div>
 
+
+        <!-- RIGHT COLUMN -->
+
         <div class="col-lg-7">
-            <div class="profile-section-card h-100">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+
+
+            <!-- MY GAMES -->
+
+            <div class="profile-section-card">
+
+                <div
+                    class="d-flex justify-content-between align-items-center mb-4"
+                >
+
                     <div>
+
                         <h3 class="mb-1">
                             My Games
                         </h3>
@@ -293,7 +516,9 @@
                         <p class="text-muted mb-0">
                             Your games, ranks, roles and availability.
                         </p>
+
                     </div>
+
 
                     <a
                         href="{{ url_for('add_game') }}"
@@ -301,70 +526,171 @@
                     >
                         + Add Game
                     </a>
+
                 </div>
 
+
                 {% if player_games %}
+
+
                     <div class="row g-3">
+
+
                         {% for game in player_games %}
+
+
                             <div class="col-12">
+
+
                                 <div class="profile-game-card">
-                                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+
+                                    <div
+                                        class="d-flex justify-content-between align-items-start gap-3"
+                                    >
+
+
                                         <div>
+
                                             <h5 class="mb-2">
                                                 {{ game.game_name }}
                                             </h5>
 
+
                                             {% if game.riot_verified %}
-                                                <span class="badge bg-success mb-2">
+
+                                                <span
+                                                    class="badge bg-success mb-2"
+                                                >
                                                     Riot Verified
                                                 </span>
+
                                             {% endif %}
+
                                         </div>
 
-                                        <span class="profile-game-role">
-                                            {{ game.role }}
-                                        </span>
+
+                                        <div
+                                            class="d-flex align-items-center gap-2 flex-wrap justify-content-end"
+                                        >
+
+
+                                            <span class="profile-game-role">
+
+                                                {{ game.role }}
+
+                                            </span>
+
+
+                                            <!-- DELETE GAME -->
+
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for('delete_player_game', game_id=game.game_id) }}"
+                                                onsubmit="return confirm('Are you sure you want to remove {{ game.game_name }} from your profile?');"
+                                            >
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                >
+                                                    Delete
+                                                </button>
+
+                                            </form>
+
+
+                                        </div>
+
+
                                     </div>
+
 
                                     <div class="row mt-2">
-                                        <div class="col-sm-6">
-                                            <p class="mb-2">
-                                                <strong>Rank:</strong>
-                                                {{ game.rank }}
-                                            </p>
-                                        </div>
+
 
                                         <div class="col-sm-6">
+
                                             <p class="mb-2">
-                                                <strong>Availability:</strong>
-                                                {{ game.availability }}
+
+                                                <strong>
+                                                    Rank:
+                                                </strong>
+
+                                                {{ game.rank }}
+
                                             </p>
+
                                         </div>
+
+
+                                        <div class="col-sm-6">
+
+                                            <p class="mb-2">
+
+                                                <strong>
+                                                    Availability:
+                                                </strong>
+
+                                                {{ game.availability }}
+
+                                            </p>
+
+                                        </div>
+
+
                                     </div>
 
+
                                     {% if game.riot_game_name and game.riot_tag_line %}
+
                                         <p class="mb-0 text-muted">
-                                            <strong>Riot ID:</strong>
+
+                                            <strong>
+                                                Riot ID:
+                                            </strong>
+
                                             {{ game.riot_game_name }}#{{ game.riot_tag_line }}
+
                                         </p>
+
                                     {% endif %}
+
+
                                 </div>
+
+
                             </div>
+
+
                         {% endfor %}
+
+
                     </div>
+
+
                 {% else %}
+
+
                     <div class="profile-empty-state">
+
+
                         <div class="profile-empty-icon">
                             🎮
                         </div>
+
 
                         <h5>
                             No games added yet
                         </h5>
 
+
                         <p class="text-muted">
+
                             Add a game to start finding compatible teammates.
+
                         </p>
+
 
                         <a
                             href="{{ url_for('add_game') }}"
@@ -372,18 +698,31 @@
                         >
                             + Add Game
                         </a>
+
+
                     </div>
+
+
                 {% endif %}
+
+
             </div>
+
+
         </div>
+
 
     </div>
 
+
 </div>
+
 
 <script
     src="{{ url_for('static', filename='js/notification.js') }}"
 ></script>
 
+
 </body>
+
 </html>

@@ -126,6 +126,7 @@ def dashboard():
 
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
+
     if "user_id" not in session:
         flash("Please log in first.")
         return redirect(url_for("login"))
@@ -135,46 +136,95 @@ def profile():
     user_id = session["user_id"]
 
     if request.method == "POST":
+
+        email = request.form.get("email", "").strip().lower()
         region = request.form.get("region", "").strip()
         bio = request.form.get("bio", "").strip()
         profile_image = request.files.get("profile_image")
 
-        update_expression = "SET #region = :region, bio = :bio"
-        expression_names = {"#region": "region"}
+        if not email:
+            flash("Email is required.")
+            return redirect(url_for("profile"))
+
+        email_response = users_table.query(
+            IndexName="email-index",
+            KeyConditionExpression=Key("email").eq(email)
+        )
+
+        existing_users = email_response.get("Items", [])
+
+        for existing_user in existing_users:
+            if existing_user.get("user_id") != user_id:
+                flash("That email address is already registered.")
+                return redirect(url_for("profile"))
+
+        update_expression = """
+            SET email = :email,
+                #region = :region,
+                bio = :bio
+        """
+
+        expression_names = {
+            "#region": "region"
+        }
+
         expression_values = {
+            ":email": email,
             ":region": region,
             ":bio": bio
         }
 
         if profile_image and profile_image.filename:
-            allowed_extensions = {"jpg", "jpeg", "png", "webp"}
+
+            allowed_extensions = {
+                "jpg",
+                "jpeg",
+                "png",
+                "webp"
+            }
 
             if "." not in profile_image.filename:
                 flash("Invalid image file.")
                 return redirect(url_for("profile"))
 
-            extension = profile_image.filename.rsplit(".", 1)[-1].lower()
+            extension = profile_image.filename.rsplit(
+                ".",
+                1
+            )[-1].lower()
 
             if extension not in allowed_extensions:
-                flash("Profile image must be JPG, JPEG, PNG or WEBP.")
+                flash(
+                    "Profile image must be JPG, JPEG, PNG or WEBP."
+                )
                 return redirect(url_for("profile"))
 
             try:
+
                 object_key = upload_profile_image(
                     profile_image,
                     user_id
                 )
 
-                update_expression += ", profile_image_key = :image_key"
+                update_expression += """
+                    , profile_image_key = :image_key
+                """
+
                 expression_values[":image_key"] = object_key
 
             except Exception as error:
-                print("S3 upload error:", str(error))
+
+                print(
+                    "S3 upload error:",
+                    str(error)
+                )
+
                 flash("Unable to upload profile image.")
                 return redirect(url_for("profile"))
 
         users_table.update_item(
-            Key={"user_id": user_id},
+            Key={
+                "user_id": user_id
+            },
             UpdateExpression=update_expression,
             ExpressionAttributeNames=expression_names,
             ExpressionAttributeValues=expression_values
@@ -185,7 +235,9 @@ def profile():
         return redirect(url_for("profile"))
 
     response = users_table.get_item(
-        Key={"user_id": user_id}
+        Key={
+            "user_id": user_id
+        }
     )
 
     user = response.get("Item")
@@ -197,24 +249,127 @@ def profile():
     user["profile_image_url"] = None
 
     if user.get("profile_image_key"):
+
         try:
+
             user["profile_image_url"] = create_profile_image_url(
                 user["profile_image_key"]
             )
+
         except Exception as error:
-            print("S3 URL error:", str(error))
+
+            print(
+                "S3 URL error:",
+                str(error)
+            )
 
     response = player_games_table.query(
-        KeyConditionExpression=Key("user_id").eq(user_id)
+        KeyConditionExpression=Key(
+            "user_id"
+        ).eq(user_id)
     )
 
-    player_games = response.get("Items", [])
+    player_games = response.get(
+        "Items",
+        []
+    )
 
     return render_template(
         "profile.html",
         user=user,
         player_games=player_games
     )
+
+@app.route(
+    "/profile/change-password",
+    methods=["POST"]
+)
+def change_password():
+
+    if "user_id" not in session:
+        flash("Please log in first.")
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+
+    current_password = request.form.get(
+        "current_password",
+        ""
+    )
+
+    new_password = request.form.get(
+        "new_password",
+        ""
+    )
+
+    confirm_password = request.form.get(
+        "confirm_password",
+        ""
+    )
+
+    users_table = get_table(
+        Config.USERS_TABLE
+    )
+
+    user = users_table.get_item(
+        Key={
+            "user_id": user_id
+        }
+    ).get("Item")
+
+    if not user:
+        session.clear()
+        flash("User account could not be found.")
+        return redirect(url_for("login"))
+
+    if not check_password_hash(
+        user["password_hash"],
+        current_password
+    ):
+        flash("Current password is incorrect.")
+        return redirect(url_for("profile"))
+
+    # Validate new password
+    if len(new_password) < 8:
+        flash(
+            "New password must be at least 8 characters."
+        )
+        return redirect(url_for("profile"))
+
+    if new_password != confirm_password:
+        flash(
+            "New password and confirmation do not match."
+        )
+        return redirect(url_for("profile"))
+
+    if check_password_hash(
+        user["password_hash"],
+        new_password
+    ):
+        flash(
+            "New password must be different from your current password."
+        )
+        return redirect(url_for("profile"))
+
+    new_password_hash = generate_password_hash(
+        new_password
+    )
+
+    users_table.update_item(
+        Key={
+            "user_id": user_id
+        },
+        UpdateExpression="""
+            SET password_hash = :password_hash
+        """,
+        ExpressionAttributeValues={
+            ":password_hash": new_password_hash
+        }
+    )
+
+    flash("Password changed successfully.")
+
+    return redirect(url_for("profile"))
 
 @app.route('/profile/add-game', methods=['GET', 'POST'])
 def add_game():
@@ -257,6 +412,42 @@ def add_game():
             player_game['rank'] = riot_rank
     player_games_table.put_item(Item=player_game, ConditionExpression='attribute_not_exists(user_id) AND attribute_not_exists(game_id)')
     flash('Game added successfully.')
+    return redirect(url_for('profile'))
+
+
+@app.route('/profile/delete-game/<game_id>', methods=['POST'])
+def delete_player_game(game_id):
+
+    if 'user_id' not in session:
+        flash('Please log in first.')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+
+    player_games_table = get_table(
+        Config.PLAYER_GAMES_TABLE
+    )
+
+    existing_game = player_games_table.get_item(
+        Key={
+            'user_id': user_id,
+            'game_id': game_id
+        }
+    ).get('Item')
+
+    if not existing_game:
+        flash('Game not found in your profile.')
+        return redirect(url_for('profile'))
+
+    player_games_table.delete_item(
+        Key={
+            'user_id': user_id,
+            'game_id': game_id
+        }
+    )
+
+    flash('Game removed from your profile.')
+
     return redirect(url_for('profile'))
 
 @app.route('/find-teammates')
